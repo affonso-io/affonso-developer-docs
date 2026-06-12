@@ -1,0 +1,51 @@
+---
+title: 'Proxy Setup (Optional)'
+description: 'Use your own domain for the pixel or embedded dashboard to keep delivery reliable when ad blockers or privacy tools are present.'
+---
+
+## Proxy Setup (Optional)
+
+Use this when you want more reliable delivery than the standard hosted setup in
+blocker-heavy environments.
+
+In the default Affonso integration, the browser loads assets and tracking
+requests from Affonso-hosted domains such as:
+
+- `cdn.affonso.io`
+- `api.affonso.io`
+- `affonso.io`
+
+To make that setup more resilient when ad blockers, privacy tools, or strict
+browser policies are present, you can proxy the pixel and embedded dashboard
+through your own domain instead.
+
+This is optional. If the hosted setup works, keep using it.
+
+## When to Use It
+
+Proxy setup is especially useful if:
+
+- the tracking pixel is blocked on page load
+- click or signup tracking requests fail in the browser
+- the embedded dashboard iframe is blocked or stays blank
+
+## What Changes
+
+With proxy setup:
+
+- the browser loads the pixel from your domain
+- browser-visible tracking requests stay on your domain
+- the embedded dashboard can also load from your domain
+
+## Full Guide
+
+For the exact route mapping, implementation examples, verification steps, and
+troubleshooting, use the Help Center guide:
+
+<Card
+  title="Proxy Pixel and Embed Through Your Own Domain"
+  icon="arrow-up-right"
+  href="https://affonso.io/help/installation-guides/overview/first-party-delivery"
+>
+  Full setup guide for Vercel, Cloudflare, NGINX, tracking, and embeds.
+</Card>

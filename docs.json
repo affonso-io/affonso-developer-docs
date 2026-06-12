@@ -30,6 +30,7 @@
               "api/authentication",
               "api/rate-limits",
               "api/embedded-dashboard",
+              "api/proxy-setup",
               "api/sdk/typescript"
             ]
           },
