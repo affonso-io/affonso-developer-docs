@@ -1,0 +1,179 @@
+---
+title: "Refund Conversion"
+api: "POST https://api.affonso.io/v1/conversions/{id}/refund"
+description: "Apply a full or partial refund to an existing server-side conversion"
+---
+
+<Info>
+  Use this endpoint after a conversion has already been recorded in Affonso and
+  you need to reflect a refund or chargeback.
+</Info>
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the conversion/transaction to refund.
+</ParamField>
+
+## Body Parameters
+
+All body parameters are optional. If you omit `amount`, Affonso applies a full
+refund for the remaining sale balance on the conversion.
+
+<ParamField body="amount" type="number">
+  Refund amount to apply. Must be greater than zero and cannot exceed the
+  remaining sale amount on the conversion.
+</ParamField>
+
+<ParamField body="currency" type="string">
+  Optional three-letter currency code for your refund record, such as `USD` or
+  `EUR`.
+</ParamField>
+
+<ParamField body="reason" type="string">
+  Optional free-form reason, such as `customer_cancellation` or `chargeback`.
+</ParamField>
+
+<ParamField body="external_event_id" type="string">
+  Optional idempotency key for the refund event. Reuse the same value when
+  retrying the same upstream refund.
+</ParamField>
+
+<ParamField body="refunded_at" type="string">
+  Optional ISO 8601 timestamp describing when the refund happened upstream.
+</ParamField>
+
+## Refund Behavior
+
+- Omitting `amount` creates a full refund for the remaining balance.
+- Partial refunds set `sales_status` to `partial_refunded`.
+- Full refunds set `sales_status` to `refunded`.
+- If an affiliate earning exists, its commission amount is reduced proportionally.
+- A full refund marks the commission status as `refunded`.
+
+## Response
+
+The response returns the updated conversion object.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Updated conversion object.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Unique identifier for the transaction.
+</ResponseField>
+
+<ResponseField name="referral_id" type="string">
+  Referral credited by the original conversion.
+</ResponseField>
+
+<ResponseField name="affiliate_id" type="string | null">
+  Affiliate who received credit for the conversion.
+</ResponseField>
+
+<ResponseField name="program_id" type="string | null">
+  Affiliate program ID for the conversion.
+</ResponseField>
+
+<ResponseField name="sale_amount" type="number">
+  Remaining sale amount after the refund is applied.
+</ResponseField>
+
+<ResponseField name="sale_amount_currency" type="string">
+  Stored sale currency for the conversion.
+</ResponseField>
+
+<ResponseField name="commission_amount" type="number">
+  Remaining commission amount after the refund adjustment.
+</ResponseField>
+
+<ResponseField name="commission_currency" type="string | null">
+  Currency or incentive unit for the commission.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Commission status after the refund, such as `pending` or `refunded`.
+</ResponseField>
+
+<ResponseField name="sales_status" type="string">
+  Updated sale status: `partial_refunded` or `refunded`.
+</ResponseField>
+
+<ResponseField name="external_event_id" type="string | null">
+  Original conversion idempotency key.
+</ResponseField>
+
+<ResponseField name="calculation_mode" type="string">
+  Always `auto` for conversion-based flows.
+</ResponseField>
+
+<ResponseField name="matched_incentive_id" type="string | null">
+  Returns `null` for refund responses.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp for when the conversion was originally created.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp for the latest refund-related update.
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+## Example Request
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/conversions/com_abc123/refund" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 49.50,
+    "currency": "USD",
+    "reason": "customer_cancellation",
+    "external_event_id": "refund_evt_123"
+  }'
+```
+</RequestExample>
+
+## Example Response
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "com_abc123",
+    "referral_id": "ref_456def",
+    "affiliate_id": "aff_789ghi",
+    "program_id": "prog_123xyz",
+    "sale_amount": 49.5,
+    "sale_amount_currency": "USD",
+    "commission_amount": 14.85,
+    "commission_currency": "USD",
+    "status": "ready_for_payment",
+    "sales_status": "partial_refunded",
+    "hold_period_days": null,
+    "payment_intent_id": null,
+    "invoice_id": null,
+    "earning_id": "earn_123abc",
+    "earning_type": "direct_commission",
+    "external_event_id": "inv_2026_000145",
+    "calculation_mode": "auto",
+    "matched_incentive_id": null,
+    "created_at": "2026-06-22T12:00:00.000Z",
+    "updated_at": "2026-06-22T16:10:00.000Z"
+  }
+}
+```
+</ResponseExample>
+
+<Info>
+  Full refunds emit `transaction.rejected`. Partial refunds emit
+  `transaction.updated`.
+</Info>

@@ -1,0 +1,214 @@
+---
+title: "Create Event"
+api: "POST https://api.affonso.io/v1/events"
+description: "Send a normalized server-side event for a conversion, lead, trial, or milestone"
+---
+
+<Info>
+  Use this endpoint when your backend wants one event ingestion surface for both
+  revenue and non-revenue events. Conversion events return a conversion object.
+  Lead, trial, and milestone events return an event-processing result.
+</Info>
+
+<Warning>
+  For `event_type: "conversion"`, `sale_amount`, `sale_amount_currency`, and
+  `external_event_id` are required.
+</Warning>
+
+## Body Parameters
+
+<ParamField body="event_name" type="string" required>
+  Human-readable event name from your system, such as `trial_started`,
+  `invoice_paid`, or `activation_completed`.
+</ParamField>
+
+<ParamField body="event_type" type="string" default="milestone">
+  Event type. Valid values: `conversion`, `lead`, `trial`, `milestone`.
+</ParamField>
+
+<ParamField body="referral_id" type="string">
+  Referral ID to credit directly. Optional if you provide `customer_id`,
+  `external_user_id`, or `click_id`.
+</ParamField>
+
+<ParamField body="customer_id" type="string">
+  Your internal customer identifier. Optional if you provide `referral_id`,
+  `external_user_id`, or `click_id`.
+</ParamField>
+
+<ParamField body="external_user_id" type="string">
+  Your external application user ID. Optional if you provide `referral_id`,
+  `customer_id`, or `click_id`.
+</ParamField>
+
+<ParamField body="click_id" type="string">
+  Click ID returned by `POST /clicks`. Optional if you provide `referral_id`,
+  `customer_id`, or `external_user_id`.
+</ParamField>
+
+<ParamField body="occurred_at" type="string">
+  Optional ISO 8601 timestamp describing when the event happened upstream.
+</ParamField>
+
+<ParamField body="external_event_id" type="string">
+  Optional idempotency key for non-conversion events. Required for conversion
+  events. Use a stable upstream event identifier.
+</ParamField>
+
+<ParamField body="sale_amount" type="number">
+  Sale amount for conversion events. Required when `event_type` is
+  `conversion`.
+</ParamField>
+
+<ParamField body="sale_amount_currency" type="string">
+  Three-letter currency code for the sale amount, such as `USD` or `EUR`.
+  Required when `event_type` is `conversion`.
+</ParamField>
+
+<ParamField body="product_ids" type="string[]">
+  Optional product identifiers to improve incentive matching on conversion
+  events.
+</ParamField>
+
+<ParamField body="price_ids" type="string[]">
+  Optional price identifiers to improve incentive matching on conversion
+  events.
+</ParamField>
+
+<ParamField body="interval" type="string">
+  Subscription interval for conversion events. Valid values: `monthly`,
+  `yearly`.
+</ParamField>
+
+<ParamField body="is_subscription" type="boolean">
+  Whether the conversion comes from a subscription purchase.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Optional metadata stored with the resulting event log and, when applicable,
+  the affiliate earning.
+</ParamField>
+
+## Validation Rules
+
+- At least one of `referral_id`, `customer_id`, `external_user_id`, or `click_id` is required.
+- Conversion events require `sale_amount`, `sale_amount_currency`, and `external_event_id`.
+- Reusing the same `external_event_id` returns the prior processed result instead of creating a duplicate.
+
+## Response
+
+### Conversion Response
+
+When `event_type` is `conversion`, the response matches
+`POST /conversions`.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The conversion object, including `matched_incentive_id`,
+  `commission_amount`, and `sales_status`.
+</ResponseField>
+
+### Milestone Response
+
+When `event_type` is `lead`, `trial`, or `milestone`, the response describes
+what Affonso did with the event.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Event processing result.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="referral_id" type="string">
+  Referral that was matched and updated.
+</ResponseField>
+
+<ResponseField name="transaction_id" type="string | null">
+  Created transaction ID when the event generated a lead incentive commission.
+</ResponseField>
+
+<ResponseField name="event_name" type="string">
+  Event name that was processed.
+</ResponseField>
+
+<ResponseField name="event_type" type="string">
+  Event type that was processed.
+</ResponseField>
+
+<ResponseField name="external_event_id" type="string | null">
+  The idempotency key used for this event, if supplied.
+</ResponseField>
+
+<ResponseField name="action" type="string">
+  Processing outcome: `logged`, `referral_updated`, or `commission_created`.
+</ResponseField>
+
+<ResponseField name="referral_status" type="string">
+  Referral status after processing, such as `lead`, `trialing`, or `customer`.
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+## Example Request: Conversion Event
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name": "invoice_paid",
+    "event_type": "conversion",
+    "customer_id": "cust_123",
+    "sale_amount": 99.00,
+    "sale_amount_currency": "USD",
+    "external_event_id": "evt_2026_000145"
+  }'
+```
+</RequestExample>
+
+## Example Request: Trial Event
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name": "trial_started",
+    "event_type": "trial",
+    "customer_id": "cust_123",
+    "external_event_id": "evt_trial_123"
+  }'
+```
+</RequestExample>
+
+## Example Response: Milestone Event
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "referral_id": "ref_456def",
+    "transaction_id": null,
+    "event_name": "trial_started",
+    "event_type": "trial",
+    "external_event_id": "evt_trial_123",
+    "action": "referral_updated",
+    "referral_status": "trialing"
+  }
+}
+```
+</ResponseExample>
+
+<Info>
+  If request signing is enabled for your environment, include
+  `X-Affonso-Timestamp` and `X-Affonso-Signature` headers as described in
+  <a href="/api-reference/server-side-conversions">Server-Side Conversions</a>.
+</Info>

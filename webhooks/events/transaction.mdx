@@ -9,6 +9,10 @@ Transaction events track sales and commission lifecycle.
   `transaction.created` is emitted for both manual commission creation and
   automatic server-side conversion tracking via
   <a href="/api-reference/endpoint/conversions/create">POST /conversions</a>.
+  Refunds triggered through the
+  <a href="/api-reference/endpoint/conversions/refund">Refund Conversion endpoint</a>
+  emit `transaction.updated` for partial refunds and `transaction.rejected` for
+  full refunds.
   If a conversion does not create an affiliate earning, the commission-related
   fields in the webhook payload can be `null`.
 </Info>

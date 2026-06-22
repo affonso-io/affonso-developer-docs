@@ -74,7 +74,20 @@
               {
                 "group": "Conversions",
                 "pages": [
-                  "api/endpoint/conversions/create"
+                  "api/endpoint/conversions/create",
+                  "api/endpoint/conversions/refund"
+                ]
+              },
+              {
+                "group": "Events",
+                "pages": [
+                  "api/endpoint/events/create"
+                ]
+              },
+              {
+                "group": "Source Adapters",
+                "pages": [
+                  "api/endpoint/sources/create-event"
                 ]
               },
               {

@@ -1,22 +1,24 @@
 ---
 title: 'Server-Side Conversions'
-description: 'Track purchases from your backend and let Affonso calculate commissions automatically'
+description: 'Track backend purchases, milestone events, refunds, and source-adapter traffic with Affonso'
 ---
 
 ## Overview
 
-Use server-side conversions when your billing system or backend already knows
-that a purchase happened and you want Affonso to:
+Use Affonso's server-side event endpoints when your backend or connected event
+source already knows that something happened and you want Affonso to:
 
 - resolve the correct referral
 - match the correct incentive rule
-- calculate the commission automatically
+- calculate commissions automatically when applicable
+- advance referral lifecycle state from trusted backend events
+- process full or partial refunds
 - enforce idempotency on retries
-- emit the standard `transaction.created` webhook event
+- emit the standard transaction webhooks
 
-This is the recommended API flow for backend-driven purchase tracking.
+This is the recommended integration path for backend-driven affiliate tracking.
 
-## When to Use `/conversions` vs `/commissions`
+## Which Endpoint to Use
 
 Use `POST /conversions` when:
 
@@ -24,41 +26,75 @@ Use `POST /conversions` when:
 - you have a billing event, order, invoice, or checkout completion on your server
 - you want retry-safe idempotency with `external_event_id`
 
+Use `POST /events` when:
+
+- you want to send a normalized event from your backend
+- the event may represent a conversion, lead, trial, or milestone
+- you want one endpoint for both revenue and non-revenue lifecycle events
+
+Use `POST /conversions/{id}/refund` when:
+
+- you already recorded a conversion in Affonso
+- you need to apply a full or partial refund
+- you want Affonso to update the transaction and commission state for you
+
+Use `POST /sources/{source}/events` when:
+
+- you receive events from an upstream tool such as Segment
+- you want Affonso to normalize that payload into its canonical event model
+- you want per-source request signing secrets
+
 Use `POST /commissions` when:
 
 - you already know the exact commission amount
 - you are importing historical payouts or backfilling data
 - you need a manual override rather than incentive-based calculation
 
-## What You Need to Send
+## Canonical Event Model
 
-Every conversion needs:
+All Phase 2 server-side endpoints normalize into one internal event model before
+business logic runs.
+
+Shared fields:
+
+- `event_name`
+- `event_type`
+- at least one identifier: `referral_id`, `customer_id`, `external_user_id`, or `click_id`
+- optional `external_event_id` for idempotency
+- optional `metadata`
+
+Conversion events additionally require:
 
 - `sale_amount`
+- `sale_amount_currency`
 - `external_event_id`
-- at least one identifier: `referral_id`, `customer_id`, `external_user_id`, or `click_id`
 
-Optional fields let you improve incentive matching:
+Optional matching fields for conversion events:
 
 - `product_ids`
 - `price_ids`
 - `interval`
 - `is_subscription`
-- `metadata`
 
 ## Idempotency and Retries
 
-`external_event_id` is the provider-side idempotency key for the conversion.
-Use a stable unique identifier from your system, such as:
+`external_event_id` is the provider-side idempotency key whenever you want
+retry-safe ingestion. Use a stable unique identifier from your system, such as:
 
 - order ID
 - invoice ID
 - checkout session ID
 - payment event ID
+- source message ID
 
-If you retry the same conversion, send the exact same `external_event_id`
-again. Affonso will return the existing conversion instead of creating a new
-one.
+Behavior by endpoint:
+
+- `POST /conversions` stays idempotent on `external_event_id`
+- `POST /events` is idempotent when `external_event_id` is present
+- `POST /conversions/{id}/refund` is idempotent when `external_event_id` is present
+- `POST /sources/{source}/events` inherits the same behavior after normalization
+
+Reuse the exact same `external_event_id` when retrying the same upstream event.
 
 ## Choosing the Identifier
 
@@ -69,7 +105,31 @@ Use the identifier you can trust most in your integration:
 - `click_id`: best when converting a specific tracked click into a purchase
 - `referral_id`: best when you already know the exact referral record to credit
 
+## Request Signing
+
+Request signing is optional and non-breaking.
+
+When no signing secret is configured, standard Bearer API-key requests continue
+to work without extra headers.
+
+### Environment Variables
+
+- `S2S_REQUEST_SIGNING_SECRET`
+- `S2S_SOURCE_SIGNING_SECRETS` as JSON, for example `{"segment_webhook":"secret-1","custom":"secret-2"}`
+
+### Required Headers for Signed Requests
+
+- `X-Affonso-Timestamp`: Unix timestamp in seconds
+- `X-Affonso-Signature`: hex `HMAC_SHA256(secret, "<timestamp>.<raw_body>")`
+
+Replay protection windows:
+
+- default S2S endpoints: 5 minutes
+- source adapters: 15 minutes
+
 ## What Affonso Creates
+
+### Conversion event
 
 On a successful conversion, Affonso always records the underlying transaction.
 
@@ -78,7 +138,29 @@ earning automatically. If no incentive matches, or if the commission is fully
 capped, the conversion can still succeed with `commission_amount: 0`,
 `commission_currency: null`, and `earning_id: null`.
 
-## Example
+### Milestone event
+
+For lead, trial, and milestone events, Affonso updates the referral lifecycle
+state and may create a lead incentive transaction when your program rules allow
+it.
+
+### Refund event
+
+Refunds reduce the remaining sale amount on the transaction. Partial refunds set
+`sales_status` to `partial_refunded`. Full refunds set `sales_status` to
+`refunded`, and if an affiliate earning exists, its commission amount is
+reduced proportionally.
+
+## Supported Source Adapters
+
+`POST /sources/{source}/events` currently supports:
+
+- `custom`: send Affonso's generic event payload in snake_case or camelCase
+- `segment_webhook`: send Segment-style payloads such as `trial_started` or `qualified_lead`
+
+## Example Flows
+
+### Backend purchase
 
 <RequestExample>
 ```bash cURL
@@ -137,6 +219,27 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
     href="/api-reference/endpoint/conversions/create"
   >
     Full request and response field reference for POST /conversions
+  </Card>
+  <Card
+    title="Events API Reference"
+    icon="timeline"
+    href="/api-reference/endpoint/events/create"
+  >
+    Send normalized conversion, lead, trial, and milestone events
+  </Card>
+  <Card
+    title="Refund Conversion"
+    icon="rotate-left"
+    href="/api-reference/endpoint/conversions/refund"
+  >
+    Apply a full or partial refund to an existing conversion
+  </Card>
+  <Card
+    title="Source Adapters"
+    icon="plug"
+    href="/api-reference/endpoint/sources/create-event"
+  >
+    Send upstream events through a source-specific normalization layer
   </Card>
   <Card
     title="Manual Commissions"
