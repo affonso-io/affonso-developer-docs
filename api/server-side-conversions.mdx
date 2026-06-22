@@ -1,12 +1,12 @@
 ---
 title: 'Server-Side Conversions'
-description: 'Track backend purchases, milestone events, refunds, and source-adapter traffic with Affonso'
+description: 'Track backend purchases, milestone events, and refunds with Affonso'
 ---
 
 ## Overview
 
-Use Affonso's server-side event endpoints when your backend or connected event
-source already knows that something happened and you want Affonso to:
+Use Affonso's server-side event endpoints when your backend already knows that
+something happened and you want Affonso to:
 
 - resolve the correct referral
 - match the correct incentive rule
@@ -37,12 +37,6 @@ Use `POST /conversions/{id}/refund` when:
 - you already recorded a conversion in Affonso
 - you need to apply a full or partial refund
 - you want Affonso to update the transaction and commission state for you
-
-Use `POST /sources/{source}/events` when:
-
-- you receive events from an upstream tool such as Segment
-- you want Affonso to normalize that payload into its canonical event model
-- you want per-source request signing secrets
 
 Use `POST /commissions` when:
 
@@ -85,14 +79,11 @@ retry-safe ingestion. Use a stable unique identifier from your system, such as:
 - invoice ID
 - checkout session ID
 - payment event ID
-- source message ID
-
 Behavior by endpoint:
 
 - `POST /conversions` stays idempotent on `external_event_id`
 - `POST /events` is idempotent when `external_event_id` is present
 - `POST /conversions/{id}/refund` is idempotent when `external_event_id` is present
-- `POST /sources/{source}/events` inherits the same behavior after normalization
 
 Reuse the exact same `external_event_id` when retrying the same upstream event.
 
@@ -115,17 +106,13 @@ to work without extra headers.
 ### Environment Variables
 
 - `S2S_REQUEST_SIGNING_SECRET`
-- `S2S_SOURCE_SIGNING_SECRETS` as JSON, for example `{"segment_webhook":"secret-1","custom":"secret-2"}`
 
 ### Required Headers for Signed Requests
 
 - `X-Affonso-Timestamp`: Unix timestamp in seconds
 - `X-Affonso-Signature`: hex `HMAC_SHA256(secret, "<timestamp>.<raw_body>")`
 
-Replay protection windows:
-
-- default S2S endpoints: 5 minutes
-- source adapters: 15 minutes
+Replay protection window: 5 minutes.
 
 ## What Affonso Creates
 
@@ -150,13 +137,6 @@ Refunds reduce the remaining sale amount on the transaction. Partial refunds set
 `sales_status` to `partial_refunded`. Full refunds set `sales_status` to
 `refunded`, and if an affiliate earning exists, its commission amount is
 reduced proportionally.
-
-## Supported Source Adapters
-
-`POST /sources/{source}/events` currently supports:
-
-- `custom`: send Affonso's generic event payload in snake_case or camelCase
-- `segment_webhook`: send Segment-style payloads such as `trial_started` or `qualified_lead`
 
 ## Example Flows
 
@@ -233,13 +213,6 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
     href="/api-reference/endpoint/conversions/refund"
   >
     Apply a full or partial refund to an existing conversion
-  </Card>
-  <Card
-    title="Source Adapters"
-    icon="plug"
-    href="/api-reference/endpoint/sources/create-event"
-  >
-    Send upstream events through a source-specific normalization layer
   </Card>
   <Card
     title="Manual Commissions"

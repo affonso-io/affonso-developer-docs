@@ -85,12 +85,6 @@
                 ]
               },
               {
-                "group": "Source Adapters",
-                "pages": [
-                  "api/endpoint/sources/create-event"
-                ]
-              },
-              {
                 "group": "Commissions",
                 "pages": [
                   "api/endpoint/commissions/list",
