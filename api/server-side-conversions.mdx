@@ -1,0 +1,147 @@
+---
+title: 'Server-Side Conversions'
+description: 'Track purchases from your backend and let Affonso calculate commissions automatically'
+---
+
+## Overview
+
+Use server-side conversions when your billing system or backend already knows
+that a purchase happened and you want Affonso to:
+
+- resolve the correct referral
+- match the correct incentive rule
+- calculate the commission automatically
+- enforce idempotency on retries
+- emit the standard `transaction.created` webhook event
+
+This is the recommended API flow for backend-driven purchase tracking.
+
+## When to Use `/conversions` vs `/commissions`
+
+Use `POST /conversions` when:
+
+- you want Affonso to calculate the commission for you
+- you have a billing event, order, invoice, or checkout completion on your server
+- you want retry-safe idempotency with `external_event_id`
+
+Use `POST /commissions` when:
+
+- you already know the exact commission amount
+- you are importing historical payouts or backfilling data
+- you need a manual override rather than incentive-based calculation
+
+## What You Need to Send
+
+Every conversion needs:
+
+- `sale_amount`
+- `external_event_id`
+- at least one identifier: `referral_id`, `customer_id`, `external_user_id`, or `click_id`
+
+Optional fields let you improve incentive matching:
+
+- `product_ids`
+- `price_ids`
+- `interval`
+- `is_subscription`
+- `metadata`
+
+## Idempotency and Retries
+
+`external_event_id` is the provider-side idempotency key for the conversion.
+Use a stable unique identifier from your system, such as:
+
+- order ID
+- invoice ID
+- checkout session ID
+- payment event ID
+
+If you retry the same conversion, send the exact same `external_event_id`
+again. Affonso will return the existing conversion instead of creating a new
+one.
+
+## Choosing the Identifier
+
+Use the identifier you can trust most in your integration:
+
+- `customer_id`: best when the referral is already linked to your internal customer record
+- `external_user_id`: useful when you sync your application user ID into Affonso
+- `click_id`: best when converting a specific tracked click into a purchase
+- `referral_id`: best when you already know the exact referral record to credit
+
+## What Affonso Creates
+
+On a successful conversion, Affonso always records the underlying transaction.
+
+If the matched incentive is eligible, Affonso also creates the affiliate
+earning automatically. If no incentive matches, or if the commission is fully
+capped, the conversion can still succeed with `commission_amount: 0`.
+
+## Example
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/conversions" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_id": "cust_123",
+    "sale_amount": 99.00,
+    "sale_amount_currency": "USD",
+    "external_event_id": "inv_2026_000145",
+    "sales_status": "complete",
+    "is_subscription": true,
+    "interval": "monthly",
+    "price_ids": ["price_monthly_usd"]
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "com_abc123",
+    "referral_id": "ref_456def",
+    "affiliate_id": "aff_789ghi",
+    "program_id": "prog_123xyz",
+    "sale_amount": 99,
+    "sale_amount_currency": "USD",
+    "commission_amount": 29.7,
+    "commission_currency": "USD",
+    "status": "ready_for_payment",
+    "sales_status": "complete",
+    "hold_period_days": null,
+    "payment_intent_id": null,
+    "invoice_id": null,
+    "earning_id": "earn_123abc",
+    "earning_type": "direct_commission",
+    "external_event_id": "inv_2026_000145",
+    "calculation_mode": "auto",
+    "matched_incentive_id": "inc_monthly_001",
+    "created_at": "2026-06-22T12:00:00.000Z",
+    "updated_at": "2026-06-22T12:00:00.000Z"
+  }
+}
+```
+</ResponseExample>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Conversions API Reference"
+    icon="code"
+    href="/api-reference/endpoint/conversions/create"
+  >
+    Full request and response field reference for POST /conversions
+  </Card>
+  <Card
+    title="Manual Commissions"
+    icon="wallet"
+    href="/api-reference/endpoint/commissions/create"
+  >
+    Use the manual endpoint when you need to set the commission amount yourself
+  </Card>
+</CardGroup>

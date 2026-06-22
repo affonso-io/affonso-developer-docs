@@ -5,6 +5,14 @@ description: 'Webhook events for sales, commissions, and refunds'
 
 Transaction events track sales and commission lifecycle.
 
+<Info>
+  `transaction.created` is emitted for both manual commission creation and
+  automatic server-side conversion tracking via
+  <a href="/api-reference/endpoint/conversions/create">POST /conversions</a>.
+  If a conversion does not create an affiliate earning, the commission-related
+  fields in the webhook payload can be `null`.
+</Info>
+
 ## Events
 
 | Event | Description |

@@ -1,0 +1,248 @@
+---
+title: "Create Conversion"
+api: "POST https://api.affonso.io/v1/conversions"
+description: "Create a server-side conversion and let Affonso calculate the commission automatically"
+---
+
+<Info>
+  Use this endpoint for automatic server-side conversion tracking. Affonso will
+  resolve the referral, match the incentive, calculate the commission, and
+  create the earning when eligible.
+</Info>
+
+<Warning>
+  `external_event_id` must be stable across retries. Reuse the exact same value
+  if you retry the same billing event, order, invoice, or checkout completion.
+</Warning>
+
+## Body Parameters
+
+<ParamField body="referral_id" type="string">
+  Referral ID to credit directly. Optional if you provide `customer_id`,
+  `external_user_id`, or `click_id`.
+</ParamField>
+
+<ParamField body="customer_id" type="string">
+  Your internal customer identifier. Optional if you provide `referral_id`,
+  `external_user_id`, or `click_id`.
+</ParamField>
+
+<ParamField body="external_user_id" type="string">
+  Your external application user ID. Optional if you provide `referral_id`,
+  `customer_id`, or `click_id`.
+</ParamField>
+
+<ParamField body="click_id" type="string">
+  Click ID returned by `POST /clicks`. Optional if you provide `referral_id`,
+  `customer_id`, or `external_user_id`.
+</ParamField>
+
+<ParamField body="sale_amount" type="number" required>
+  Total sale amount for the purchase. Must be a positive number.
+</ParamField>
+
+<ParamField body="sale_amount_currency" type="string" default="USD">
+  Three-letter currency code for the sale amount, such as `USD` or `EUR`. If
+  the sale currency differs from your team currency, Affonso converts the sale
+  amount and preserves the original values internally.
+</ParamField>
+
+<ParamField body="product_ids" type="string[]">
+  Optional product identifiers to help match product-specific incentives.
+</ParamField>
+
+<ParamField body="price_ids" type="string[]">
+  Optional price identifiers to help match price-based incentives.
+</ParamField>
+
+<ParamField body="interval" type="string">
+  Subscription interval for the conversion. Valid values: `monthly`,
+  `yearly`.
+</ParamField>
+
+<ParamField body="is_subscription" type="boolean">
+  Whether the conversion comes from a subscription purchase.
+</ParamField>
+
+<ParamField body="external_event_id" type="string" required>
+  Provider-side idempotency key for the conversion event. Use a stable unique
+  identifier from your system, such as an order ID, invoice ID, checkout
+  session ID, or payment event ID.
+</ParamField>
+
+<ParamField body="status" type="string">
+  Optional commission status override. Valid values: `pending`,
+  `pending_manual_approval`, `ready_for_payment`, `processing_payout`, `paid`,
+  `declined`, `refunded`, `dispute`. If omitted, Affonso derives the status
+  from the matched incentive's approval settings.
+</ParamField>
+
+<ParamField body="sales_status" type="string" default="complete">
+  Purchase status. Valid values: `open`, `complete`, `trialing`, `failed`,
+  `refunded`, `partial_refunded`.
+</ParamField>
+
+<ParamField body="created_at" type="string">
+  Optional ISO 8601 timestamp for the conversion.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Optional metadata object stored on the created affiliate earning when a
+  commission is created.
+</ParamField>
+
+## Validation Rules
+
+- At least one of `referral_id`, `customer_id`, `external_user_id`, or `click_id` is required.
+- `interval` should only be sent for subscription conversions.
+- Reusing the same `external_event_id` returns the existing conversion instead of creating a duplicate.
+
+## Response
+
+The response includes the created conversion object. On a duplicate
+`external_event_id`, the API returns the existing conversion with HTTP `200`.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The conversion object.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Unique identifier for the transaction/commission record.
+</ResponseField>
+
+<ResponseField name="referral_id" type="string">
+  Referral ID credited by the conversion.
+</ResponseField>
+
+<ResponseField name="affiliate_id" type="string | null">
+  Affiliate who received credit for the conversion.
+</ResponseField>
+
+<ResponseField name="program_id" type="string | null">
+  Affiliate program ID for the conversion.
+</ResponseField>
+
+<ResponseField name="sale_amount" type="number">
+  Sale amount stored on the transaction.
+</ResponseField>
+
+<ResponseField name="sale_amount_currency" type="string">
+  Stored sale currency. This can be your team currency after conversion.
+</ResponseField>
+
+<ResponseField name="commission_amount" type="number">
+  Automatically calculated commission amount. Can be `0` if no affiliate
+  earning was created.
+</ResponseField>
+
+<ResponseField name="commission_currency" type="string">
+  Currency or incentive unit for the commission. For non-monetary incentives,
+  this can be `CREDITS`, `FREE_MONTHS`, or `POINTS`.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Commission status. If no affiliate earning was created, this field falls back
+  to `pending`.
+</ResponseField>
+
+<ResponseField name="sales_status" type="string">
+  Purchase status.
+</ResponseField>
+
+<ResponseField name="hold_period_days" type="integer | null">
+  Hold period applied to the earning, if any.
+</ResponseField>
+
+<ResponseField name="payment_intent_id" type="string | null">
+  Payment intent ID. This flow currently returns `null`.
+</ResponseField>
+
+<ResponseField name="invoice_id" type="string | null">
+  Payout invoice ID if linked later.
+</ResponseField>
+
+<ResponseField name="earning_id" type="string | null">
+  Affiliate earning ID if a commission was created.
+</ResponseField>
+
+<ResponseField name="earning_type" type="string | null">
+  Earning type. Typically `direct_commission` when an earning exists.
+</ResponseField>
+
+<ResponseField name="external_event_id" type="string | null">
+  The idempotency key that was used for this conversion.
+</ResponseField>
+
+<ResponseField name="calculation_mode" type="string">
+  Always `auto` for this endpoint.
+</ResponseField>
+
+<ResponseField name="matched_incentive_id" type="string | null">
+  Incentive ID used during commission calculation, when a match was found.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp for when the conversion was created.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp for the last update.
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+## Example Request
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/conversions" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_id": "cust_123",
+    "sale_amount": 99.00,
+    "sale_amount_currency": "USD",
+    "external_event_id": "inv_2026_000145",
+    "sales_status": "complete",
+    "is_subscription": true,
+    "interval": "monthly",
+    "price_ids": ["price_monthly_usd"]
+  }'
+```
+</RequestExample>
+
+## Example Response
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "com_abc123",
+    "referral_id": "ref_456def",
+    "affiliate_id": "aff_789ghi",
+    "program_id": "prog_123xyz",
+    "sale_amount": 99,
+    "sale_amount_currency": "USD",
+    "commission_amount": 29.7,
+    "commission_currency": "USD",
+    "status": "ready_for_payment",
+    "sales_status": "complete",
+    "hold_period_days": null,
+    "payment_intent_id": null,
+    "invoice_id": null,
+    "earning_id": "earn_123abc",
+    "earning_type": "direct_commission",
+    "external_event_id": "inv_2026_000145",
+    "calculation_mode": "auto",
+    "matched_incentive_id": "inc_monthly_001",
+    "created_at": "2026-06-22T12:00:00.000Z",
+    "updated_at": "2026-06-22T12:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

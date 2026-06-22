@@ -31,6 +31,7 @@
               "api/rate-limits",
               "api/embedded-dashboard",
               "api/proxy-setup",
+              "api/server-side-conversions",
               "api/sdk/typescript"
             ]
           },
@@ -68,6 +69,12 @@
                 "group": "Signups",
                 "pages": [
                   "api/endpoint/signups/create"
+                ]
+              },
+              {
+                "group": "Conversions",
+                "pages": [
+                  "api/endpoint/conversions/create"
                 ]
               },
               {
