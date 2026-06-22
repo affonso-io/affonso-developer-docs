@@ -52,6 +52,10 @@ The response includes the referral object with optional expanded/included data.
   Your internal customer ID if provided
 </ResponseField>
 
+<ResponseField name="external_user_id" type="string | null">
+  Your external user ID if this referral is linked to a user from your application
+</ResponseField>
+
 <ResponseField name="subscription_id" type="string | null">
   Your internal subscription ID if provided
 </ResponseField>
@@ -100,6 +104,7 @@ curl -X GET "https://api.affonso.io/v1/referrals/ref_abc123?expand=affiliate&inc
     "program_id": "prg_789ghi",
     "email": "customer@example.com",
     "customer_id": "cust_123",
+    "external_user_id": "user_42",
     "subscription_id": null,
     "status": "customer",
     "name": "John Doe",
@@ -121,6 +126,7 @@ curl -X GET "https://api.affonso.io/v1/referrals/ref_abc123?expand=affiliate&inc
     "program_id": "prg_789ghi",
     "email": "customer@example.com",
     "customer_id": "cust_123",
+    "external_user_id": "user_42",
     "subscription_id": null,
     "status": "customer",
     "name": "John Doe",
@@ -151,4 +157,3 @@ curl -X GET "https://api.affonso.io/v1/referrals/ref_abc123?expand=affiliate&inc
 }
 ```
 </ResponseExample>
-

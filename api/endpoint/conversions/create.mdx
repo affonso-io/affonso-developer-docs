@@ -139,9 +139,10 @@ The response includes the created conversion object. On a duplicate
   earning was created.
 </ResponseField>
 
-<ResponseField name="commission_currency" type="string">
+<ResponseField name="commission_currency" type="string | null">
   Currency or incentive unit for the commission. For non-monetary incentives,
-  this can be `CREDITS`, `FREE_MONTHS`, or `POINTS`.
+  this can be `CREDITS`, `FREE_MONTHS`, or `POINTS`. Returns `null` when the
+  transaction was recorded without creating an affiliate earning.
 </ResponseField>
 
 <ResponseField name="status" type="string">
@@ -246,3 +247,9 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
 }
 ```
 </ResponseExample>
+
+<Info>
+  When a conversion is accepted but no affiliate earning is created, the
+  response still succeeds with `commission_amount: 0`,
+  `commission_currency: null`, and `earning_id: null`.
+</Info>

@@ -56,8 +56,8 @@ The response includes the commission object with all its details.
   The commission amount to be paid
 </ResponseField>
 
-<ResponseField name="commission_currency" type="string">
-  The currency code for the commission amount
+<ResponseField name="commission_currency" type="string | null">
+  The currency code for the commission amount. Can be `null` when the transaction exists without an affiliate earning.
 </ResponseField>
 
 <ResponseField name="status" type="string">
@@ -172,4 +172,3 @@ curl -X GET "https://api.affonso.io/v1/commissions/com_abc123?expand=affiliate,r
 }
 ```
 </ResponseExample>
-

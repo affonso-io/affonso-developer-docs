@@ -80,8 +80,8 @@ All body parameters are optional. Only include the fields you want to update.
   The commission amount to be paid
 </ResponseField>
 
-<ResponseField name="commission_currency" type="string">
-  The currency code for the commission
+<ResponseField name="commission_currency" type="string | null">
+  The currency code for the commission. Can be `null` when the transaction exists without an affiliate earning.
 </ResponseField>
 
 <ResponseField name="status" type="string">
@@ -153,4 +153,3 @@ curl -X PUT "https://api.affonso.io/v1/commissions/com_abc123" \
 }
 ```
 </ResponseExample>
-

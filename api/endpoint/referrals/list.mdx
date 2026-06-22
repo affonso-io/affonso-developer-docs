@@ -22,6 +22,10 @@ description: "Get a cursor-paginated list of all referrals with optional filteri
   Filter referrals by affiliate ID. Only returns referrals for the specified affiliate.
 </ParamField>
 
+<ParamField query="external_user_id" type="string">
+  Filter referrals by your external user ID. Useful when you store your own application user ID on the referral.
+</ParamField>
+
 <ParamField query="order" type="string" default="desc">
   Sort order. Valid values: `asc`, `desc`. Defaults to `desc` (newest first).
 </ParamField>
@@ -74,6 +78,10 @@ The response includes a cursor-paginated list of referrals.
   Your internal customer ID if provided
 </ResponseField>
 
+<ResponseField name="external_user_id" type="string | null">
+  Your external user ID if this referral is linked to a user from your application
+</ResponseField>
+
 <ResponseField name="subscription_id" type="string | null">
   Your internal subscription ID if provided
 </ResponseField>
@@ -110,6 +118,11 @@ curl -X GET "https://api.affonso.io/v1/referrals?limit=10&status=customer" \
   -H "Authorization: Bearer sk_live_your_api_key"
 ```
 
+```bash cURL with External User Filter
+curl -X GET "https://api.affonso.io/v1/referrals?external_user_id=user_42" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+
 ```bash cURL with Expand
 curl -X GET "https://api.affonso.io/v1/referrals?limit=10&expand=affiliate" \
   -H "Authorization: Bearer sk_live_your_api_key"
@@ -127,6 +140,7 @@ curl -X GET "https://api.affonso.io/v1/referrals?limit=10&expand=affiliate" \
       "program_id": "prg_789ghi",
       "email": "customer@example.com",
       "customer_id": "cust_123",
+      "external_user_id": "user_42",
       "subscription_id": null,
       "status": "customer",
       "name": "John Doe",
@@ -151,6 +165,7 @@ curl -X GET "https://api.affonso.io/v1/referrals?limit=10&expand=affiliate" \
       "program_id": "prg_789ghi",
       "email": "customer@example.com",
       "customer_id": "cust_123",
+      "external_user_id": "user_42",
       "subscription_id": null,
       "status": "customer",
       "name": "John Doe",
@@ -177,4 +192,3 @@ curl -X GET "https://api.affonso.io/v1/referrals?limit=10&expand=affiliate" \
 }
 ```
 </ResponseExample>
-

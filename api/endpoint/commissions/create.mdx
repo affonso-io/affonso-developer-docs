@@ -94,8 +94,8 @@ The response includes the created commission object.
   The commission amount to be paid
 </ResponseField>
 
-<ResponseField name="commission_currency" type="string">
-  The currency code for the commission amount
+<ResponseField name="commission_currency" type="string | null">
+  The currency code for the commission amount. Can be `null` when the transaction exists without an affiliate earning.
 </ResponseField>
 
 <ResponseField name="status" type="string">

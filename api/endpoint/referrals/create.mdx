@@ -74,6 +74,10 @@ The response includes the created referral object.
   Your internal customer ID if provided
 </ResponseField>
 
+<ResponseField name="external_user_id" type="string | null">
+  Your external user ID if this referral is linked to a user from your application
+</ResponseField>
+
 <ResponseField name="subscription_id" type="string | null">
   Your internal subscription ID if provided
 </ResponseField>
@@ -129,6 +133,7 @@ curl -X POST "https://api.affonso.io/v1/referrals" \
     "program_id": "prog_789xyz",
     "email": "newcustomer@example.com",
     "customer_id": "cust_456",
+    "external_user_id": null,
     "subscription_id": null,
     "status": "customer",
     "name": "John Doe",
@@ -142,4 +147,3 @@ curl -X POST "https://api.affonso.io/v1/referrals" \
 }
 ```
 </ResponseExample>
-
