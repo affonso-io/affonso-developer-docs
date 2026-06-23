@@ -112,6 +112,19 @@ Use the identifier you can trust most in your integration:
 - `click_id`: best when converting a specific tracked click into a purchase
 - `referral_id`: best when you already know the exact referral record to credit
 
+Affonso does not create attribution from the identifier alone. The identifier
+must resolve to an existing referral in your team. If no referral matches, the
+request is rejected.
+
+### Recommended order
+
+- Start with `click_id` when Affonso already tracked the click but you do not
+  yet have a stable customer or user ID in your backend
+- This is usually the safest first identifier when you use the Affonso
+  tracking script or `POST /v1/clicks`
+- Once that referral is linked to your own `customer_id` or
+  `external_user_id`, later events can use those identifiers instead
+
 ## Request Signing
 
 Request signing is optional and non-breaking.

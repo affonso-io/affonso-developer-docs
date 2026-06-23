@@ -31,6 +31,8 @@
               "api/rate-limits",
               "api/embedded-dashboard",
               "api/proxy-setup",
+              "api/with-tracking-pixel",
+              "api/without-tracking-pixel",
               "api/server-side-tracking",
               "api/segment-track-events",
               "api/sdk/typescript"

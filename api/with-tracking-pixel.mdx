@@ -1,0 +1,213 @@
+---
+title: "With Tracking Pixel"
+description: "Track affiliate visits in the browser with the Affonso pixel, then complete attribution with signup and conversion tracking."
+---
+
+## Overview
+
+Use this setup when you want Affonso to capture affiliate visits automatically
+in the browser.
+
+The tracking pixel handles the first touch:
+
+- detects supported referral parameters on landing
+- records the visit
+- stores the referral as a browser cookie for later attribution
+
+You then finish the tracking flow by:
+
+- calling `window.Affonso.signup()` when a user registers
+- sending payment or conversion data from your backend
+
+<Info>
+  If you prefer not to load the browser pixel at all, use
+  <a href="/api/without-tracking-pixel"> Without Tracking Pixel</a> instead.
+</Info>
+
+## 1. Add the pixel to your site
+
+Place the Affonso pixel in the `<head>` of every page where affiliate traffic
+can land:
+
+```html
+<!-- Place in <head> -->
+<script
+  async
+  defer
+  src="https://cdn.affonso.io/js/pixel.min.js"
+  data-affonso="YOUR_PROGRAM_ID"
+  data-cookie_duration="180"
+></script>
+```
+
+What this does:
+
+- creates the global `window.Affonso` object
+- checks the current URL for supported referral parameters
+- stores the referral in a cookie for the configured duration
+
+If you expect blockers or privacy tools to interfere with browser delivery, use
+<a href="/api/proxy-setup"> Proxy Setup (Optional)</a> to serve the pixel
+through your own domain.
+
+## 2. Track signups after registration
+
+When a visitor signs up, tell Affonso about the new lead:
+
+```html
+<script>
+  // After successful registration
+  window.Affonso.signup(userEmail);
+
+  // Or pass a richer payload
+  window.Affonso.signup({
+    email: userEmail,
+    externalUserId: userId,
+    name: userName,
+  });
+</script>
+```
+
+Use the string form when you only have an email address. Use the object form
+when you also want to send your own user ID or a display name.
+
+Implementation notes:
+
+- call this after a successful signup
+- if you use double opt-in, call it after email verification
+- it is safe to call this for every signup; Affonso only creates a lead when a
+  valid referral cookie is present
+
+What happens after a successful tracked signup:
+
+- the existing tracked visit is converted into a lead
+- the referral becomes visible in your and the affiliate's reporting
+- later backend events can be matched more reliably with your user identifiers
+
+<Info>
+  If your checkout can happen before account creation, you can skip signup
+  tracking and go straight to conversion tracking in the next step.
+</Info>
+
+## 3. Pass referral data to your payment provider
+
+The pixel does not create commissions on its own. After signup, you still need
+to make sure the referral value reaches your checkout or billing flow.
+
+Choose one of these paths:
+
+### Option 1: Use a supported payment provider integration
+
+If you use a payment provider that Affonso integrates with directly, start
+there first. That is usually the simplest setup.
+
+Supported providers include:
+
+- Stripe
+- Polar
+- Paddle
+- Dodo Payments
+- Creem
+
+Use the integration guide for your provider:
+
+<CardGroup cols={2}>
+  <Card
+    title="All Payment Integrations"
+    icon="link"
+    href="https://affonso.io/help/integrations"
+  >
+    Browse the native setup guides for Stripe, Polar, Paddle, Dodo Payments,
+    Creem, and more.
+  </Card>
+  <Card
+    title="Stripe Checkout API"
+    icon="credit-card"
+    href="https://affonso.io/help/integrations/stripe/stripe-checkout-api"
+  >
+    Example guide for passing referral data into Stripe Checkout.
+  </Card>
+</CardGroup>
+
+With a supported provider integration, Affonso can handle the payment tracking
+flow for you automatically, including:
+
+- initial payments
+- recurring renewals
+- refunds
+
+### When to choose this option
+
+Choose this path when your billing system already runs on one of the supported
+providers and you want Affonso to handle the provider event mapping for you.
+
+### Option 2: Use server-side conversions for custom payment flows
+
+If you do not want to use the provider integration, or your payment provider is
+not supported directly, use Affonso's server-side conversion flow instead.
+
+When a purchase, invoice, or subscription event happens on your backend, send
+it to Affonso using one of the server-side tracking endpoints.
+
+Most custom setups use `POST /v1/conversions`:
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/conversions" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_id": "cust_123",
+    "sale_amount": 99.00,
+    "sale_amount_currency": "USD",
+    "external_event_id": "checkout_session_123",
+    "sales_status": "complete",
+    "is_subscription": true,
+    "interval": "monthly"
+  }'
+```
+
+Recommended identifier strategy:
+
+- use `click_id` for the first backend conversion if the user has not been
+  linked to your own customer record yet
+- use `customer_id` or `external_user_id` once your application has a stable
+  identifier for that user
+
+If you create hosted checkout sessions yourself, forward the referral cookie to
+that provider so your backend or webhook can recover it later.
+
+Example for Stripe Checkout in Next.js:
+
+```ts
+import { cookies } from "next/headers";
+
+const cookieStore = await cookies();
+const affonsoReferral = cookieStore.get("affonso_referral")?.value || "";
+
+const session = await stripe.checkout.sessions.create({
+  // ...your existing checkout config
+  metadata: {
+    affonso_referral: affonsoReferral,
+  },
+});
+```
+
+<CardGroup cols={2}>
+  <Card
+    title="Server-Side Tracking"
+    icon="server"
+    href="/api/server-side-tracking"
+  >
+    Choose the right backend endpoint for conversions, events, and refunds.
+  </Card>
+  <Card title="Record Lead Signup" icon="user-plus" href="/api/endpoint/signups/create">
+    API reference for the browser-equivalent signup tracking call.
+  </Card>
+  <Card
+    title="Custom Payment Provider Guide"
+    icon="wrench"
+    href="https://affonso.io/help/integrations/custom/custom-payment-provider-api"
+  >
+    Use this when you need to wire up a non-native billing or checkout flow.
+  </Card>
+</CardGroup>

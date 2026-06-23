@@ -1,0 +1,186 @@
+---
+title: "Without Tracking Pixel"
+description: "Track affiliate clicks, signups, and conversions yourself using Affonso's API and your own storage."
+---
+
+## Overview
+
+Use this setup when you do not want to load the Affonso browser pixel and
+prefer to control tracking yourself.
+
+In this flow, your application is responsible for:
+
+- reading the affiliate tracking parameter from the landing URL
+- creating the click through `POST /v1/clicks`
+- storing the returned `click_id` in a cookie, session, or database
+- reusing that identifier for signup and conversion tracking
+
+<Warning>
+  Call the Affonso API from your backend only. Do not expose your secret API
+  key in browser-side JavaScript.
+</Warning>
+
+## 1. Create a click when affiliate traffic lands
+
+When a visitor arrives through an affiliate link such as
+`https://yourdomain.com?ref=partner123`, read the tracking parameter on your
+server, create the click in Affonso, and store the returned ID.
+
+Example server-side flow:
+
+```ts
+const trackingId = searchParams.get("ref");
+
+if (trackingId) {
+  const response = await fetch("https://api.affonso.io/v1/clicks", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.AFFONSO_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      programId: process.env.AFFONSO_PROGRAM_ID,
+      trackingId,
+      referrer: request.headers.get("referer"),
+      userAgent: request.headers.get("user-agent"),
+    }),
+  });
+
+  const { data } = await response.json();
+
+  // Store this ID for later signup and conversion tracking
+  const clickId = data.id;
+}
+```
+
+Storage options:
+
+- set your own first-party cookie such as `affonso_referral`
+- keep the `click_id` in the user's server session
+- attach it to a pending signup record in your database
+
+The important part is that you can recover the same `click_id` later.
+
+## 2. Convert the click into a lead on signup
+
+When the visitor creates an account, call `POST /v1/signups` with the stored
+`click_id` plus the user data you want to associate with the referral.
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/signups" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "click_id": "clk_xyz789",
+    "email": "jane@example.com",
+    "external_user_id": "user_42",
+    "name": "Jane Doe"
+  }'
+```
+
+Notes:
+
+- send at least `email` or `external_user_id`
+- call this after successful registration, or after email verification if you
+  use double opt-in
+- the endpoint is idempotent for the same `click_id`
+
+## 3. Pass referral data to your payment provider
+
+Once you have stored the `click_id`, decide how you want to hand it off to your
+payment flow.
+
+Choose one of these paths:
+
+### Option 1: Use a supported payment provider integration
+
+If you use a payment provider that Affonso integrates with directly, start with
+that. It is usually the easiest setup.
+
+Supported providers include:
+
+- Stripe
+- Polar
+- Paddle
+- Dodo Payments
+- Creem
+
+Use the integration guides here: https://affonso.io/help/integrations
+
+With a supported provider integration, Affonso can handle the payment tracking
+flow for you automatically, including:
+
+- initial payments
+- recurring renewals
+- refunds
+
+### When to choose this option
+
+Choose this path when your billing system already runs on one of the supported
+providers and you want Affonso to handle the provider event mapping for you.
+
+### Option 2: Track the paid conversion through the API
+
+If you do not want to use the provider integration, or you use another
+provider, track the conversion directly through the API.
+
+When the customer pays, send the conversion event from your backend:
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/conversions" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "external_user_id": "user_42",
+    "sale_amount": 99.00,
+    "sale_amount_currency": "USD",
+    "external_event_id": "invoice_123",
+    "sales_status": "complete",
+    "is_subscription": true,
+    "interval": "monthly"
+  }'
+```
+
+Recommended identifier strategy:
+
+- use `click_id` for the first backend event if you have not linked the user
+  yet
+- once signup tracking has associated the referral with your user, prefer
+  `external_user_id` or `customer_id`
+
+If your checkout provider needs the referral identifier before the payment
+webhook fires, forward the stored `click_id` or your `affonso_referral` cookie
+through the provider's metadata fields.
+
+## Related docs
+
+<CardGroup cols={2}>
+  <Card title="Track Click" icon="mouse-pointer-click" href="/api/endpoint/clicks/create">
+    API reference for creating the initial click record.
+  </Card>
+  <Card title="Record Lead Signup" icon="user-plus" href="/api/endpoint/signups/create">
+    Convert the stored click into a lead during signup.
+  </Card>
+  <Card
+    title="Server-Side Tracking"
+    icon="server"
+    href="/api/server-side-tracking"
+  >
+    See the backend conversion and event endpoints in more detail.
+  </Card>
+  <Card
+    title="Payment Provider Guides"
+    icon="link"
+    href="https://affonso.io/help/integrations"
+  >
+    Find native integration guides for Stripe, Polar, Paddle, Dodo Payments,
+    Creem, and more.
+  </Card>
+  <Card
+    title="Custom Payment Provider Guide"
+    icon="wrench"
+    href="https://affonso.io/help/integrations/custom/custom-payment-provider-api"
+  >
+    Use this when you need the API-based flow for a non-native provider.
+  </Card>
+</CardGroup>

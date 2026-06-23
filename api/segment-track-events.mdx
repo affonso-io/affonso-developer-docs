@@ -46,15 +46,43 @@ used by `POST /v1/events` and `POST /v1/conversions`.
 ### Identifier mapping
 
 - `userId` maps to `customer_id`
+- `properties.click_id` or `properties.clickId` maps to `click_id`
 - `external_user_id` is only read when you send it explicitly in:
   - `properties.external_user_id`
   - `properties.externalUserId`
   - `context.traits.external_user_id`
   - `context.traits.externalUserId`
 - Affonso does not guess between `customer_id` and `external_user_id`
+- If `userId` is present, Affonso resolves the event by `customer_id` and does
+  not fall back to `click_id` or `external_user_id` for that request
 
-If neither `userId` nor an explicit `external_user_id` is present, the request
-fails.
+If none of `userId`, `properties.click_id`, or an explicit
+`external_user_id` is present, the request fails.
+
+### Matching requirement
+
+Affonso only attributes the event when the identifier resolves to an existing
+referral in your team.
+
+- matching `customer_id` resolves to a referral that already has that customer
+  linked
+- matching `external_user_id` resolves to a referral that already stores that
+  external user
+- matching `click_id` resolves to the existing click/referral record created by
+  Affonso tracking
+
+If no existing referral matches, the request is rejected instead of creating a
+new attribution automatically.
+
+### Recommended identifier strategy
+
+- Use `click_id` for the first backend event when you already have an Affonso
+  click but do not yet have your own stable customer or user ID
+- This is usually the best starting point when you use the Affonso tracking
+  script or `POST /v1/clicks`, because both create the click record you can
+  reference later
+- Once the referral is linked to your own `customer_id` or `external_user_id`,
+  later events can use those identifiers instead
 
 ### Idempotency
 
@@ -119,6 +147,25 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
   }'
 ```
 
+## Example Request: First Event Using click_id
+
+Use this pattern when Affonso already recorded the click, but your system does
+not yet have a stable `userId` for the customer:
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "track",
+    "event": "trial_started",
+    "messageId": "msg_2026_000147",
+    "properties": {
+      "click_id": "clk_123"
+    }
+  }'
+```
+
 ## Response Behavior
 
 - conversion events return the same conversion response shape as
@@ -130,7 +177,8 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
 ## Common Errors
 
 - `Only Segment track payloads are supported`
-- `Segment track events require either userId or an explicit external_user_id mapping`
+- `Segment track events require userId for customer_id mapping, properties.click_id, or an explicit external_user_id mapping field`
+- identifier did not resolve to a referral in your team
 - conversion validation errors when revenue or currency is missing
 
 ## Related Docs
