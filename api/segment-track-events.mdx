@@ -87,7 +87,6 @@ Currency is read from:
 
 ## Example Request: Conversion
 
-<RequestExample>
 ```bash cURL
 curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
   -H "Authorization: Bearer sk_live_your_api_key" \
@@ -106,11 +105,9 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
     }
   }'
 ```
-</RequestExample>
 
 ## Example Request: Milestone
 
-<RequestExample>
 ```bash cURL
 curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
   -H "Authorization: Bearer sk_live_your_api_key" \
@@ -123,7 +120,6 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
     "timestamp": "2026-06-23T10:20:00Z"
   }'
 ```
-</RequestExample>
 
 ## Response Behavior
 
@@ -152,14 +148,14 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
   <Card
     title="Server-Side Tracking"
     icon="timeline"
-    href="/api-reference/server-side-tracking"
+    href="/api/server-side-tracking"
   >
     Overview of Affonso's core backend conversion and event endpoints
   </Card>
   <Card
     title="Events API Reference"
     icon="code"
-    href="/api-reference/endpoint/events/create"
+    href="/api/endpoint/events/create"
   >
     Canonical normalized event contract used by the Segment adapter
   </Card>

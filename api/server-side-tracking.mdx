@@ -29,7 +29,7 @@ This is the recommended integration path for backend-driven affiliate tracking.
 <Info>
   If your backend events already flow through Segment, use the dedicated
   Segment adapter guide:
-  <a href="/api-reference/segment-track-events">Segment Track Events</a>.
+  <a href="/api/segment-track-events">Segment Track Events</a>.
 </Info>
 
 ## Which Endpoint to Use
@@ -160,7 +160,6 @@ reduced proportionally.
 
 ### Backend purchase
 
-<RequestExample>
 ```bash cURL
 curl -X POST "https://api.affonso.io/v1/conversions" \
   -H "Authorization: Bearer sk_live_your_api_key" \
@@ -176,9 +175,7 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
     "price_ids": ["price_monthly_usd"]
   }'
 ```
-</RequestExample>
 
-<ResponseExample>
 ```json Response
 {
   "success": true,
@@ -206,7 +203,6 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
   }
 }
 ```
-</ResponseExample>
 
 ## Next Steps
 
@@ -214,35 +210,35 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
   <Card
     title="Conversions API Reference"
     icon="code"
-    href="/api-reference/endpoint/conversions/create"
+    href="/api/endpoint/conversions/create"
   >
     Full request and response field reference for POST /conversions
   </Card>
   <Card
     title="Events API Reference"
     icon="timeline"
-    href="/api-reference/endpoint/events/create"
+    href="/api/endpoint/events/create"
   >
     Send normalized conversion, lead, trial, and milestone events
   </Card>
   <Card
     title="Segment Track Events"
     icon="shuffle"
-    href="/api-reference/segment-track-events"
+    href="/api/segment-track-events"
   >
     Send Segment track payloads to Affonso using the dedicated source endpoint
   </Card>
   <Card
     title="Refund Conversion"
     icon="rotate-left"
-    href="/api-reference/endpoint/conversions/refund"
+    href="/api/endpoint/conversions/refund"
   >
     Apply a full or partial refund to an existing conversion
   </Card>
   <Card
     title="Manual Commissions"
     icon="wallet"
-    href="/api-reference/endpoint/commissions/create"
+    href="/api/endpoint/commissions/create"
   >
     Use the manual endpoint when you need to set the commission amount yourself
   </Card>
