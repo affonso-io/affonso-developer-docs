@@ -29,13 +29,18 @@
               "api/introduction",
               "api/authentication",
               "api/rate-limits",
+              "api/sdk/typescript"
+            ]
+          },
+          {
+            "group": "Guide",
+            "pages": [
               "api/embedded-dashboard",
               "api/proxy-setup",
               "api/with-tracking-pixel",
               "api/without-tracking-pixel",
-              "api/server-side-tracking",
               "api/segment-track-events",
-              "api/sdk/typescript"
+              "api/server-side-tracking"
             ]
           },
           {
