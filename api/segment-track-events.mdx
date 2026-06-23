@@ -1,0 +1,166 @@
+---
+title: "Segment Track Events"
+description: "Send Segment track events to Affonso using the dedicated Segment source endpoint"
+---
+
+## Overview
+
+Use this endpoint if Segment is already your event hub and you want Affonso to
+ingest affiliate-relevant events directly from Segment.
+
+Send Segment `track` payloads to:
+
+```text
+POST https://api.affonso.io/v1/sources/segment/events
+```
+
+Use your Affonso API key in the request headers:
+
+```text
+Authorization: Bearer sk_live_your_api_key
+Content-Type: application/json
+```
+
+<Info>
+  For a less technical setup guide, examples, and troubleshooting, see the
+  <a href="https://affonso.io/help/integrations/segment/segment-track-events">
+    Segment Helpcenter guide
+  </a>.
+</Info>
+
+## What This Endpoint Supports
+
+- Segment `track` events
+- conversion events
+- lead events
+- trial events
+- milestone events
+- retry-safe ingestion with Segment `messageId`
+
+Unsupported Segment payload types such as `identify`, `group`, `page`, and
+`screen` return a validation error.
+
+## Mapping Rules
+
+Affonso normalizes Segment payloads onto the same server-side event pipeline
+used by `POST /v1/events` and `POST /v1/conversions`.
+
+### Identifier mapping
+
+- `userId` maps to `customer_id`
+- `external_user_id` is only read when you send it explicitly in:
+  - `properties.external_user_id`
+  - `properties.externalUserId`
+  - `context.traits.external_user_id`
+  - `context.traits.externalUserId`
+- Affonso does not guess between `customer_id` and `external_user_id`
+
+If neither `userId` nor an explicit `external_user_id` is present, the request
+fails.
+
+### Idempotency
+
+- `messageId` maps to `external_event_id`
+- Reusing the same `messageId` returns the original processed result instead of
+  creating a duplicate
+
+### Event type mapping
+
+- `Order Completed`, `Completed Order`, `purchase` → `conversion`
+- `qualified_lead`, `demo_booked` → `lead`
+- `trial_started` → `trial`
+- everything else → `milestone`
+
+### Revenue field mapping
+
+For conversion events, Affonso looks for the sale amount in this order:
+
+1. `properties.revenue`
+2. `properties.amount`
+3. `properties.value`
+4. `properties.total`
+
+Currency is read from:
+
+- `properties.currency`
+- `properties.sale_amount_currency`
+
+## Example Request: Conversion
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "track",
+    "event": "Order Completed",
+    "messageId": "msg_2026_000145",
+    "userId": "cust_123",
+    "timestamp": "2026-06-23T10:15:00Z",
+    "properties": {
+      "revenue": 99,
+      "currency": "USD",
+      "product_ids": ["pro_monthly"],
+      "price_id": "price_123"
+    }
+  }'
+```
+</RequestExample>
+
+## Example Request: Milestone
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "track",
+    "event": "KYC Passed",
+    "messageId": "msg_2026_000146",
+    "userId": "cust_123",
+    "timestamp": "2026-06-23T10:20:00Z"
+  }'
+```
+</RequestExample>
+
+## Response Behavior
+
+- conversion events return the same conversion response shape as
+  `POST /v1/conversions`
+- lead, trial, and milestone events return the same processing result shape as
+  `POST /v1/events`
+- duplicate `messageId` values return the prior processed result
+
+## Common Errors
+
+- `Only Segment track payloads are supported`
+- `Segment track events require either userId or an explicit external_user_id mapping`
+- conversion validation errors when revenue or currency is missing
+
+## Related Docs
+
+<CardGroup cols={2}>
+  <Card
+    title="Segment Helpcenter Guide"
+    icon="book-open"
+    href="https://affonso.io/help/integrations/segment/segment-track-events"
+  >
+    Product-facing setup guide for Segment users
+  </Card>
+  <Card
+    title="Server-Side Tracking"
+    icon="timeline"
+    href="/api-reference/server-side-tracking"
+  >
+    Overview of Affonso's core backend conversion and event endpoints
+  </Card>
+  <Card
+    title="Events API Reference"
+    icon="code"
+    href="/api-reference/endpoint/events/create"
+  >
+    Canonical normalized event contract used by the Segment adapter
+  </Card>
+</CardGroup>

@@ -1,11 +1,11 @@
 ---
-title: 'Server-Side Conversions'
-description: 'Track backend purchases, milestone events, and refunds with Affonso'
+title: 'Server-Side Tracking'
+description: 'Choose the right Affonso backend tracking endpoint for conversions, events, and refunds'
 ---
 
 ## Overview
 
-Use Affonso's server-side event endpoints when your backend already knows that
+Use Affonso's server-side tracking endpoints when your backend already knows that
 something happened and you want Affonso to:
 
 - resolve the correct referral
@@ -17,6 +17,20 @@ something happened and you want Affonso to:
 - emit the standard transaction webhooks
 
 This is the recommended integration path for backend-driven affiliate tracking.
+
+<Info>
+  If you want to integrate a custom payment provider with your own backend, see
+  the step-by-step Helpcenter guide:
+  <a href="https://affonso.io/help/integrations/custom/custom-payment-provider-api">
+    Custom Backend Payment Provider Integration
+  </a>.
+</Info>
+
+<Info>
+  If your backend events already flow through Segment, use the dedicated
+  Segment adapter guide:
+  <a href="/api-reference/segment-track-events">Segment Track Events</a>.
+</Info>
 
 ## Which Endpoint to Use
 
@@ -43,6 +57,10 @@ Use `POST /commissions` when:
 - you already know the exact commission amount
 - you are importing historical payouts or backfilling data
 - you need a manual override rather than incentive-based calculation
+
+This page is intentionally the orientation layer.
+
+Use the endpoint reference pages for the exact request and response contract.
 
 ## Canonical Event Model
 
@@ -206,6 +224,13 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
     href="/api-reference/endpoint/events/create"
   >
     Send normalized conversion, lead, trial, and milestone events
+  </Card>
+  <Card
+    title="Segment Track Events"
+    icon="shuffle"
+    href="/api-reference/segment-track-events"
+  >
+    Send Segment track payloads to Affonso using the dedicated source endpoint
   </Card>
   <Card
     title="Refund Conversion"

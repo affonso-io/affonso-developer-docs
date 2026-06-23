@@ -31,7 +31,8 @@
               "api/rate-limits",
               "api/embedded-dashboard",
               "api/proxy-setup",
-              "api/server-side-conversions",
+              "api/server-side-tracking",
+              "api/segment-track-events",
               "api/sdk/typescript"
             ]
           },
