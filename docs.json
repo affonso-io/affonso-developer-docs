@@ -35,38 +35,17 @@
           {
             "group": "Guide",
             "pages": [
-              "api/embedded-dashboard",
-              "api/proxy-setup",
               "api/with-tracking-pixel",
               "api/without-tracking-pixel",
-              "api/segment-track-events",
-              "api/server-side-tracking"
+              "api/proxy-setup",
+              "api/server-side-tracking",
+              "api/embedded-dashboard",
+              "api/segment-track-events"
             ]
           },
           {
             "group": "Core Resources",
             "pages": [
-              {
-                "group": "Affiliates",
-                "pages": [
-                  "api/endpoint/affiliates/list",
-                  "api/endpoint/affiliates/get",
-                  "api/endpoint/affiliates/create",
-                  "api/endpoint/affiliates/update",
-                  "api/endpoint/affiliates/delete",
-                  "api/endpoint/affiliates/portal-token"
-                ]
-              },
-              {
-                "group": "Referrals",
-                "pages": [
-                  "api/endpoint/referrals/list",
-                  "api/endpoint/referrals/get",
-                  "api/endpoint/referrals/create",
-                  "api/endpoint/referrals/update",
-                  "api/endpoint/referrals/delete"
-                ]
-              },
               {
                 "group": "Clicks",
                 "pages": [
@@ -90,6 +69,27 @@
                 "group": "Events",
                 "pages": [
                   "api/endpoint/events/create"
+                ]
+              },
+              {
+                "group": "Affiliates",
+                "pages": [
+                  "api/endpoint/affiliates/list",
+                  "api/endpoint/affiliates/get",
+                  "api/endpoint/affiliates/create",
+                  "api/endpoint/affiliates/update",
+                  "api/endpoint/affiliates/delete",
+                  "api/endpoint/affiliates/portal-token"
+                ]
+              },
+              {
+                "group": "Referrals",
+                "pages": [
+                  "api/endpoint/referrals/list",
+                  "api/endpoint/referrals/get",
+                  "api/endpoint/referrals/create",
+                  "api/endpoint/referrals/update",
+                  "api/endpoint/referrals/delete"
                 ]
               },
               {
