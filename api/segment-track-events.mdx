@@ -6,9 +6,9 @@ description: "Send Segment track events to Affonso using the dedicated Segment s
 ## Overview
 
 Use this endpoint if Segment is already your event hub and you want Affonso to
-ingest affiliate-relevant events directly from Segment.
+process affiliate-relevant `track` events from it.
 
-Send Segment `track` payloads to:
+Send requests to:
 
 ```text
 POST https://api.affonso.io/v1/sources/segment/events
@@ -22,82 +22,77 @@ Content-Type: application/json
 ```
 
 <Info>
-  For a less technical setup guide, examples, and troubleshooting, see the
+  This page is the technical reference for the Segment endpoint. For a setup
+  walkthrough and troubleshooting checklist, see the
   [Segment Helpcenter guide](https://affonso.io/help/integrations/segment/segment-track-events).
 </Info>
 
-## What This Endpoint Supports
+## What This Endpoint Accepts
 
-- Segment `track` events
+- Segment `track` events only
 - conversion events
 - lead events
 - trial events
 - milestone events
-- retry-safe ingestion with Segment `messageId`
+- retry-safe requests using Segment `messageId`
 
 Unsupported Segment payload types such as `identify`, `group`, `page`, and
 `screen` return a validation error.
 
-## Mapping Rules
+## Required Request Parts
 
-Affonso normalizes Segment payloads onto the same server-side event pipeline
-used by `POST /v1/events` and `POST /v1/conversions`.
+Every request must include:
 
-### Identifier mapping
+- `type: "track"`
+- an `event` name
+- a stable `messageId`
+- at least one supported identifier
 
-- `userId` maps to `customer_id`
-- `properties.click_id` or `properties.clickId` maps to `click_id`
-- `external_user_id` is only read when you send it explicitly in:
-  - `properties.external_user_id`
-  - `properties.externalUserId`
-  - `context.traits.external_user_id`
-  - `context.traits.externalUserId`
-- Affonso does not guess between `customer_id` and `external_user_id`
-- If `userId` is present, Affonso resolves the event by `customer_id` and does
-  not fall back to `click_id` or `external_user_id` for that request
+For conversion events, also include:
 
-If none of `userId`, `properties.click_id`, or an explicit
-`external_user_id` is present, the request fails.
+- a revenue value in `properties`
+- a currency in `properties`
 
-### Matching requirement
+## Supported Identifiers
 
-Affonso only attributes the event when the identifier resolves to an existing
-referral in your team.
+Affonso can match the request using one of these values:
 
-- matching `customer_id` resolves to a referral that already has that customer
-  linked
-- matching `external_user_id` resolves to a referral that already stores that
-  external user
-- matching `click_id` resolves to the existing click/referral record created by
-  Affonso tracking
+- `userId`
+- `properties.click_id`
+- `properties.clickId`
+- `properties.external_user_id`
+- `properties.externalUserId`
+- `context.traits.external_user_id`
+- `context.traits.externalUserId`
 
-If no existing referral matches, the request is rejected instead of creating a
-new attribution automatically.
+If you send `userId`, Affonso treats it as your `customer_id`.
 
-### Recommended identifier strategy
+If you want to use `external_user_id`, you must send it explicitly in one of
+the supported fields above.
 
-- Use `click_id` for the first backend event when you already have an Affonso
-  click but do not yet have your own stable customer or user ID
-- This is usually the best starting point when you use the Affonso tracking
-  script or `POST /v1/clicks`, because both create the click record you can
-  reference later
-- Once the referral is linked to your own `customer_id` or `external_user_id`,
-  later events can use those identifiers instead
+If none of those identifiers is present, the request fails.
 
-### Idempotency
+## How Matching Works
 
-- `messageId` maps to `external_event_id`
-- Reusing the same `messageId` returns the original processed result instead of
-  creating a duplicate
+The identifier you send must already match an existing referral in your team.
 
-### Event type mapping
+If no referral matches, Affonso rejects the request instead of creating a new
+attribution automatically.
 
-- `Order Completed`, `Completed Order`, `purchase` → `conversion`
-- `qualified_lead`, `demo_booked` → `lead`
-- `trial_started` → `trial`
-- everything else → `milestone`
+In most setups, `userId` is the simplest option once the referral is already
+linked to your customer record.
 
-### Revenue field mapping
+If Affonso already tracked the click, but you do not yet have a stable user or
+customer ID, use `click_id` for the first backend event.
+
+## Idempotency
+
+Affonso uses Segment `messageId` to prevent duplicates.
+
+Reusing the same `messageId` for the same event is safe and does not create a
+duplicate conversion or milestone.
+
+## Revenue Fields For Conversions
 
 For conversion events, Affonso looks for the sale amount in this order:
 
@@ -125,9 +120,7 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
     "timestamp": "2026-06-23T10:15:00Z",
     "properties": {
       "revenue": 99,
-      "currency": "USD",
-      "product_ids": ["pro_monthly"],
-      "price_id": "price_123"
+      "currency": "USD"
     }
   }'
 ```
@@ -166,14 +159,6 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
   }'
 ```
 
-## Response Behavior
-
-- conversion events return the same conversion response shape as
-  `POST /v1/conversions`
-- lead, trial, and milestone events return the same processing result shape as
-  `POST /v1/events`
-- duplicate `messageId` values return the prior processed result
-
 ## Common Errors
 
 - `Only Segment track payloads are supported`
@@ -189,20 +174,20 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
     icon="book-open"
     href="https://affonso.io/help/integrations/segment/segment-track-events"
   >
-    Product-facing setup guide for Segment users
+    Setup walkthrough and troubleshooting checklist
   </Card>
   <Card
     title="Server-Side Tracking"
     icon="timeline"
     href="/api/server-side-tracking"
   >
-    Overview of Affonso's core backend conversion and event endpoints
+    Choose the right backend tracking endpoint
   </Card>
   <Card
     title="Events API Reference"
     icon="code"
     href="/api/endpoint/events/create"
   >
-    Canonical normalized event contract used by the Segment adapter
+    Reference for the core events endpoint
   </Card>
 </CardGroup>
