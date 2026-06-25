@@ -58,17 +58,31 @@ For conversion events, also include:
 Affonso can match the request using one of these values:
 
 - `userId`
-- `properties.click_id`
-- `properties.clickId`
+- `properties.customer_id`
+- `properties.referral_id`
+- `properties.affonso_id`
 - `properties.external_user_id`
-- `properties.externalUserId`
 - `context.traits.external_user_id`
-- `context.traits.externalUserId`
 
-If you send `userId`, Affonso treats it as your `customer_id`.
+If you send `userId`, Affonso treats it as your `external_user_id`.
 
-If you want to use `external_user_id`, you must send it explicitly in one of
-the supported fields above.
+If you want to send `customer_id` through the Segment adapter, send it
+explicitly in `properties.customer_id` or `properties.customerId`. Use this
+for the customer ID from your payment provider or billing system, such as
+Stripe.
+
+`external_user_id` is for the user ID from your own product, app, or internal
+system.
+
+If you want to resolve a referral directly, use
+`properties.referral_id`. If you already use `properties.affonso_id` in an
+existing integration, that is also accepted.
+
+Older field-name variants continue to work for compatibility, but new
+integrations should standardize on `referral_id`.
+
+If you send both top-level `userId` and an explicit external-user field, both
+values must match.
 
 If none of those identifiers is present, the request fails.
 
@@ -79,11 +93,14 @@ The identifier you send must already match an existing referral in your team.
 If no referral matches, Affonso rejects the request instead of creating a new
 attribution automatically.
 
-In most setups, `userId` is the simplest option once the referral is already
-linked to your customer record.
+Affonso checks identifiers in this order:
 
-If Affonso already tracked the click, but you do not yet have a stable user or
-customer ID, use `click_id` for the first backend event.
+1. `external_user_id`
+2. `referral_id`
+3. `customer_id`
+
+If you send multiple identifiers, they must all resolve to the same referral or
+the request fails with a deterministic mismatch error.
 
 ## Idempotency
 
@@ -116,7 +133,7 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
     "type": "track",
     "event": "Order Completed",
     "messageId": "msg_2026_000145",
-    "userId": "cust_123",
+    "userId": "user_123",
     "timestamp": "2026-06-23T10:15:00Z",
     "properties": {
       "revenue": 99,
@@ -135,15 +152,16 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
     "type": "track",
     "event": "KYC Passed",
     "messageId": "msg_2026_000146",
-    "userId": "cust_123",
+    "userId": "user_123",
     "timestamp": "2026-06-23T10:20:00Z"
   }'
 ```
 
-## Example Request: First Event Using click_id
+## Example Request: Explicit customer_id
 
-Use this pattern when Affonso already recorded the click, but your system does
-not yet have a stable `userId` for the customer:
+Use this pattern when `userId` should remain the user ID from your product or
+app, but you also want to send a separate customer ID from your payment
+provider:
 
 ```bash cURL
 curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
@@ -153,8 +171,28 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
     "type": "track",
     "event": "trial_started",
     "messageId": "msg_2026_000147",
+    "userId": "user_123",
     "properties": {
-      "click_id": "clk_123"
+      "customer_id": "cust_123"
+    }
+  }'
+```
+
+## Example Request: Resolve by affonso_id
+
+Use this pattern when you already know the Affonso referral ID you want to
+credit:
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "track",
+    "event": "trial_started",
+    "messageId": "msg_2026_000148",
+    "properties": {
+      "affonso_id": "ref_123"
     }
   }'
 ```
@@ -162,7 +200,8 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
 ## Common Errors
 
 - `Only Segment track payloads are supported`
-- `Segment track events require userId for customer_id mapping, properties.click_id, or an explicit external_user_id mapping field`
+- `Segment track events require userId for external_user_id mapping, properties.referral_id, or an explicit properties.customer_id field`
+- `Segment userId must match the explicit external_user_id value when both are provided`
 - identifier did not resolve to a referral in your team
 - conversion validation errors when revenue or currency is missing
 

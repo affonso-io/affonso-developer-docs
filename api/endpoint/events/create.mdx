@@ -27,23 +27,23 @@ description: "Send a normalized server-side event for a conversion, lead, trial,
 </ParamField>
 
 <ParamField body="referral_id" type="string">
-  Referral ID to credit directly. Optional if you provide `customer_id`,
-  `external_user_id`, or `click_id`.
+  Affonso referral ID to credit directly. Optional if you provide
+  `customer_id` or `external_user_id`.
 </ParamField>
 
 <ParamField body="customer_id" type="string">
-  Your internal customer identifier. Optional if you provide `referral_id`,
-  `external_user_id`, or `click_id`.
+  The customer ID from your payment provider or billing system, such as a
+  Stripe customer ID. Optional if you provide `referral_id` or
+  `external_user_id`.
 </ParamField>
 
 <ParamField body="external_user_id" type="string">
-  Your external application user ID. Optional if you provide `referral_id`,
-  `customer_id`, or `click_id`.
+  The user ID from your own product, app, or internal system. Optional if you
+  provide `referral_id` or `customer_id`.
 </ParamField>
 
-<ParamField body="click_id" type="string">
-  Click ID returned by `POST /clicks`. Optional if you provide `referral_id`,
-  `customer_id`, or `external_user_id`.
+<ParamField body="affonso_id" type="string">
+  Compatibility alias for `referral_id`.
 </ParamField>
 
 <ParamField body="occurred_at" type="string">
@@ -91,7 +91,10 @@ description: "Send a normalized server-side event for a conversion, lead, trial,
 
 ## Validation Rules
 
-- At least one of `referral_id`, `customer_id`, `external_user_id`, or `click_id` is required.
+- At least one of `referral_id`, `customer_id`, or `external_user_id` is required.
+- `affonso_id` is also accepted instead of `referral_id` for compatibility.
+- Older field-name variants continue to work for compatibility, but new integrations should standardize on `referral_id`.
+- If you send more than one identifier, Affonso checks `external_user_id` first, then `referral_id`, then `customer_id`.
 - Conversion events require `sale_amount`, `sale_amount_currency`, and `external_event_id`.
 - Reusing the same `external_event_id` returns the prior processed result instead of creating a duplicate.
 
@@ -210,5 +213,5 @@ curl -X POST "https://api.affonso.io/v1/events" \
 <Info>
   If request signing is enabled for your environment, include
   `X-Affonso-Timestamp` and `X-Affonso-Signature` headers as described in
-  <a href="/api/server-side-tracking">Server-Side Tracking</a>.
+  [Server-Side Tracking](/api/server-side-tracking).
 </Info>

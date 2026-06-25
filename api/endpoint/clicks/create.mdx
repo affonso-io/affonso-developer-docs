@@ -4,7 +4,7 @@ api: "POST https://api.affonso.io/v1/clicks"
 description: "Record a click event for affiliate tracking. This endpoint uses burst rate limiting for high-frequency tracking."
 ---
 
-Use this endpoint to track when a visitor clicks an affiliate link. This is useful for server-side tracking implementations. The created click record can later be referenced by its ID as `click_id` in Affonso server-side tracking endpoints.
+Use this endpoint to track when a visitor clicks an affiliate link. This is useful for server-side tracking implementations. You can later use the returned ID as `referral_id` in Affonso server-side tracking endpoints.
 
 ## Body Parameters
 
@@ -97,7 +97,7 @@ The response includes the created click object.
   
 <Expandable title="Data Object Properties">
 <ResponseField name="id" type="string">
-  Unique identifier for the click. Internally this is the `referral.id` of the click record. You can use it as `click_id` in endpoints such as `POST /v1/events`, `POST /v1/conversions`, or the Segment adapter (`properties.click_id`).
+  Unique identifier for the click. You can use this value as `referral_id` in later requests such as `POST /v1/events`, `POST /v1/conversions`, or the Segment adapter (`properties.referral_id`).
 </ResponseField>
 
 <ResponseField name="trackingId" type="string">
@@ -144,4 +144,4 @@ curl -X POST "https://api.affonso.io/v1/clicks" \
 ```
 </ResponseExample>
 
-**Note:** If this click is the first stable identifier you have, keep the returned `id` and send it as `click_id` in your first backend conversion or event request. Once the referral is linked to your own `customer_id` or `external_user_id`, later events can use those identifiers instead.
+**Note:** If this click is the first stable identifier you have, keep the returned `id` and send it as `referral_id` in your first backend conversion or event request. Once the referral is linked to your own `customer_id` or `external_user_id`, later events can use those identifiers instead.
