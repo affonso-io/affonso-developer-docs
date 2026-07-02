@@ -166,6 +166,81 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
 Use `POST /events` instead when you want one backend endpoint for non-revenue
 events such as leads, trials, or milestones.
 
+## Tracking Examples With `POST /events`
+
+Use these examples when you want to send normalized backend events through one
+Affonso endpoint.
+
+### Example: track a signup as `lead`
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name": "signup_completed",
+    "event_type": "lead",
+    "referral_id": "ref_123",
+    "external_user_id": "usr_104982",
+    "external_event_id": "evt_signup_001",
+    "metadata": {
+      "email": "daniel.harper@northstar-health.io"
+    }
+  }'
+```
+
+### Example: track a downstream step as `trial`
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name": "trial_started",
+    "event_type": "trial",
+    "external_user_id": "usr_104982",
+    "external_event_id": "evt_trial_001"
+  }'
+```
+
+### Example: track a product-specific purchase as `conversion`
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name": "invoice_paid",
+    "event_type": "conversion",
+    "customer_id": "cus_R8d92kLm3pQx71",
+    "external_event_id": "evt_conversion_001",
+    "sale_amount": 2000,
+    "sale_amount_currency": "USD",
+    "product_ids": ["downstream"],
+    "is_subscription": false
+  }'
+```
+
+### Example: track a product milestone as `milestone`
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name": "kyc_passed",
+    "event_type": "milestone",
+    "external_user_id": "usr_104982",
+    "external_event_id": "evt_kyc_001"
+  }'
+```
+
+<Info>
+  Use `trial` for non-revenue trial starts. Use `conversion` when revenue
+  happened or when you need product-specific incentive matching with
+  `product_ids` or `price_ids`.
+</Info>
+
 ## Next Steps
 
 <CardGroup cols={2}>

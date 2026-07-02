@@ -10,6 +10,12 @@ description: "Send a normalized server-side event for a conversion, lead, trial,
   Lead, trial, and milestone events return an event-processing result.
 </Info>
 
+<Info>
+  For a guide on when to choose `/events` versus `/conversions`, and for common
+  backend tracking flows, see
+  [Server-Side Tracking](/api/server-side-tracking).
+</Info>
+
 <Warning>
   For `event_type: "conversion"`, `sale_amount`, `sale_amount_currency`, and
   `external_event_id` are required.
@@ -167,10 +173,32 @@ curl -X POST "https://api.affonso.io/v1/events" \
   -d '{
     "event_name": "invoice_paid",
     "event_type": "conversion",
-    "customer_id": "cust_123",
-    "sale_amount": 99.00,
+    "customer_id": "cus_R8d92kLm3pQx71",
+    "sale_amount": 2000.00,
     "sale_amount_currency": "USD",
-    "external_event_id": "evt_2026_000145"
+    "external_event_id": "evt_conversion_001",
+    "product_ids": ["downstream"],
+    "is_subscription": false
+  }'
+```
+</RequestExample>
+
+## Example Request: Lead Event
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name": "signup_completed",
+    "event_type": "lead",
+    "referral_id": "ref_123",
+    "external_user_id": "usr_104982",
+    "external_event_id": "evt_signup_001",
+    "metadata": {
+      "email": "daniel.harper@northstar-health.io"
+    }
   }'
 ```
 </RequestExample>
@@ -185,8 +213,24 @@ curl -X POST "https://api.affonso.io/v1/events" \
   -d '{
     "event_name": "trial_started",
     "event_type": "trial",
-    "customer_id": "cust_123",
-    "external_event_id": "evt_trial_123"
+    "external_user_id": "usr_104982",
+    "external_event_id": "evt_trial_001"
+  }'
+```
+</RequestExample>
+
+## Example Request: Milestone Event
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_name": "kyc_passed",
+    "event_type": "milestone",
+    "external_user_id": "usr_104982",
+    "external_event_id": "evt_kyc_001"
   }'
 ```
 </RequestExample>

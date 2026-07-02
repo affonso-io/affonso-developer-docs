@@ -53,6 +53,26 @@ For conversion events, also include:
 - a revenue value in `properties`
 - a currency in `properties`
 
+## Explicit `event_type` Override
+
+If your internal Segment event names should stay unchanged, you can override the
+derived Affonso event type with either:
+
+- `properties.affonso_event_type`
+- `properties.affonsoEventType`
+
+Allowed values are:
+
+- `conversion`
+- `lead`
+- `trial`
+- `milestone`
+
+If a valid override is present, it wins over the built-in name mapping.
+
+If an invalid override is present, the request fails with
+`400 VALIDATION_ERROR`.
+
 ## Supported Identifiers
 
 Affonso can match the request using one of these values:
