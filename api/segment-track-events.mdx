@@ -197,6 +197,73 @@ curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
   }'
 ```
 
+## Tracking Examples
+
+Use these example payloads when you want to trigger different Affonso event
+types through the Segment adapter.
+
+## Example Request: Signup tracked as `lead`
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "track",
+    "event": "Signup Completed",
+    "messageId": "msg_2026_000150_signup",
+    "userId": "usr_104982",
+    "properties": {
+      "affonso_id": "ref_123",
+      "affonso_event_type": "lead",
+      "email": "daniel.harper@northstar-health.io"
+    }
+  }'
+```
+
+## Example Request: Downstream step tracked as `trial`
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "track",
+    "event": "Trial Started",
+    "messageId": "msg_2026_000151_trial",
+    "userId": "usr_104982",
+    "properties": {
+      "affonso_id": "ref_123",
+      "affonso_event_type": "trial"
+    }
+  }'
+```
+
+## Example Request: Specific product tracked as `conversion`
+
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/sources/segment/events" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "track",
+    "event": "Downstream Completed",
+    "messageId": "msg_2026_000152_conversion",
+    "userId": "usr_104982",
+    "properties": {
+      "affonso_id": "ref_123",
+      "affonso_event_type": "conversion",
+      "product_ids": ["downstream"],
+      "revenue": 2000,
+      "currency": "USD"
+    }
+  }'
+```
+
+Use `trial` only when the event should behave as a trial milestone. If you want
+to match a product-specific incentive, send the event as a `conversion` and
+include the matching `product_ids` or `price_ids`.
+
 ## Common Errors
 
 - `Only Segment track payloads are supported`
