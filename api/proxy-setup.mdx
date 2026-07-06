@@ -27,9 +27,8 @@ This is optional. If the hosted setup works, keep using it.
 </Warning>
 
 Affonso should receive a trusted real-IP header such as
-`CF-Connecting-IP`, `True-Client-IP`, or `X-Real-IP`. If your proxy or CDN
-replaces the visitor IP with its own edge or internal IP, attribution can still
-work, but country reporting can be wrong or missing.
+`CF-Connecting-IP`, `True-Client-IP`, or `X-Real-IP`. Otherwise attribution can
+still work while country reporting is wrong or missing.
 
 ## When to Use It
 
@@ -60,8 +59,6 @@ troubleshooting, use the Help Center guide:
   Full setup guide for Vercel, Cloudflare, NGINX, tracking, and embeds.
 </Card>
 
-Use that guide in particular if:
-
-- clicks are tracked but countries are wrong or missing
-- you use Cloudflare, NGINX, or another proxy in front of Affonso
-- you need to verify which client-IP headers are actually reaching Affonso
+Use that guide in particular if clicks are tracked but countries are wrong or
+missing, or if you need to verify which client-IP headers are actually reaching
+Affonso.
