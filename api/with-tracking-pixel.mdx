@@ -50,6 +50,14 @@ If you expect blockers or privacy tools to interfere with browser delivery, use
 <a href="/api/proxy-setup"> Proxy Setup (Optional)</a> to serve the pixel
 through your own domain.
 
+<Info>
+  If you proxy the pixel or tracking endpoints through your own domain,
+  preserve a trusted real client IP header such as
+  <code>CF-Connecting-IP</code>, <code>True-Client-IP</code>, or
+  <code>X-Real-IP</code>. Otherwise attribution can still work while country
+  analytics are wrong or missing.
+</Info>
+
 ## 2. Track signups after registration
 
 When a visitor signs up, tell Affonso about the new lead:
