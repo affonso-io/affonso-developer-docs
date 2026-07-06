@@ -22,13 +22,12 @@ through your own domain instead.
 This is optional. If the hosted setup works, keep using it.
 
 <Warning>
-  Proxy setup is optional. Preserving a trusted real client IP is required if
-  you want accurate country analytics.
+  If you proxy <code>/track</code> or <code>/signups</code> through your own
+  domain, Affonso must receive a trusted real client IP header such as
+  <code>CF-Connecting-IP</code>, <code>True-Client-IP</code>, or
+  <code>X-Real-IP</code>, otherwise country data can be wrong or missing even
+  when attribution works.
 </Warning>
-
-Affonso should receive a trusted real-IP header such as
-`CF-Connecting-IP`, `True-Client-IP`, or `X-Real-IP`. Otherwise attribution can
-still work while country reporting is wrong or missing.
 
 ## When to Use It
 
@@ -59,6 +58,4 @@ troubleshooting, use the Help Center guide:
   Full setup guide for Vercel, Cloudflare, NGINX, tracking, and embeds.
 </Card>
 
-Use that guide in particular if clicks are tracked but countries are wrong or
-missing, or if you need to verify which client-IP headers are actually reaching
-Affonso.
+Use that guide if clicks are tracked but countries are wrong or missing.
