@@ -52,10 +52,11 @@ through your own domain.
 
 <Info>
   If you proxy the pixel or tracking endpoints through your own domain,
-  preserve a trusted real client IP header such as
-  <code>CF-Connecting-IP</code>, <code>True-Client-IP</code>, or
-  <code>X-Real-IP</code>, otherwise country analytics can be wrong or missing
-  even when attribution works.
+  Affonso resolves the real visitor IP from standard proxy headers and
+  forwarding chains. In normal Vercel, Cloudflare, and standard reverse-proxy
+  setups you usually do not need extra configuration. Only custom multi-proxy
+  or header-rewriting setups may need verification if country analytics look
+  wrong.
 </Info>
 
 ## 2. Track signups after registration
