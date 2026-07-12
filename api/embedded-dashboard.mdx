@@ -11,6 +11,7 @@ The embedded dashboard displays:
 - Referral link with copy functionality
 - Performance metrics (clicks, leads, sales)
 - Commission earnings and payout status
+- Optional program description card
 - Coupon codes (with optional self-service creation)
 - Marketing resources and creatives
 
@@ -219,6 +220,7 @@ Add these parameters to the iframe URL for customization:
 | `bg` | HEX color (without `#`) | Background color. Use this to match your app's background. Example: `0f0f0f` for dark, `ffffff` for white |
 | `lang` | Language code | UI language. Default: `en`. See supported languages below |
 | `showHeader` | `true`, `false` | Show header card with program logo and name. Default: `true` |
+| `showDescription` | `true`, `false` | Show the affiliate program description as its own card below the header. Default: `false` |
 | `showRewards` | `true`, `false` | Show rewards card with commission structure and incentives. Default: `true` |
 | `showReports` | `true`, `false` | Show reports tab with statistics and earnings table. Default: `true` |
 | `showResources` | `true`, `false` | Show resources tab with marketing materials and creative assets. Default: `true` |
@@ -229,7 +231,7 @@ Add these parameters to the iframe URL for customization:
 
 ### Supported Languages
 
-The dashboard supports 14 languages:
+The dashboard supports 16 languages:
 
 | Code | Language |
 |------|----------|
@@ -241,12 +243,14 @@ The dashboard supports 14 languages:
 | `pt` | Português |
 | `nl` | Nederlands |
 | `pl` | Polski |
+| `cs` | Čeština |
 | `tr` | Türkçe |
 | `ja` | 日本語 |
 | `zh` | 中文 |
 | `ko` | 한국어 |
 | `ru` | Русский |
 | `ar` | العربية |
+| `he` | עברית |
 
 If an invalid language code is provided, the dashboard falls back to English.
 
@@ -258,10 +262,10 @@ If an invalid language code is provided, the dashboard falls back to English.
 />
 ```
 
-**Example with light mode and Japanese:**
+**Example with light mode, Japanese, and the optional description card enabled:**
 ```html
 <iframe
-  src="https://affonso.io/embed/referrals?token=emb_...&theme=light&lang=ja"
+  src="https://affonso.io/embed/referrals?token=emb_...&theme=light&lang=ja&showDescription=true"
   ...
 />
 ```
@@ -283,8 +287,9 @@ Don't want to write code to test settings? Use the visual editor:
 2. Click the [**Embed** tab](https://affonso.io/app/affiliate-program/appearance?tab=embed)
 3. Customize in real-time:
    - **Theme**: Light, dark, or system (follows user's device preference)
-   - **Language**: Select from 14 languages – preview updates instantly
+   - **Language**: Select from 16 languages – preview updates instantly
    - **Background**: Pick a color that matches your app
+   - **Card visibility**: Toggle header, description, rewards, reports, and resources
 4. Click **Integration Code** to copy the configured code snippets
 
 The preview shows your actual branding (logo, colors) so you know exactly what users will see.
