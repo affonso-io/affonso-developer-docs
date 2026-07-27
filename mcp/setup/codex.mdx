@@ -1,0 +1,117 @@
+---
+title: 'Codex Setup'
+description: 'Connect Affonso MCP to Codex using OAuth or an API key'
+---
+
+## Overview
+
+Connect Affonso to the Codex CLI, IDE extension, or ChatGPT desktop app to manage your affiliate program without leaving your coding workflow. Affonso uses the **Streamable HTTP** transport and supports OAuth 2.1 and API-key authentication.
+
+<Note>
+OAuth is recommended. It keeps your Affonso API key out of your Codex configuration.
+</Note>
+
+## Connect with OAuth
+
+### Step 1: Add the server
+
+Run the following command in your terminal:
+
+```bash
+codex mcp add affonso --url https://api.affonso.io/mcp
+```
+
+### Step 2: Sign in to Affonso
+
+Start the OAuth flow:
+
+```bash
+codex mcp login affonso
+```
+
+Your browser opens automatically. Sign in to Affonso, choose your team if prompted, and approve the requested permissions.
+
+### Step 3: Verify the connection
+
+```bash
+codex mcp list
+```
+
+Start Codex and enter `/mcp` to see the active server. You can now ask Codex to use Affonso, for example:
+
+```text
+List my pending affiliates and summarize their applications.
+```
+
+## Connect with an API Key
+
+Use an API key when OAuth is not available in your environment.
+
+<Steps>
+  <Step title="Create an environment variable">
+    Get an API key from the [Affonso dashboard](https://affonso.io/app/settings/api), then expose it in the shell where you run Codex:
+
+    ```bash
+    export AFFONSO_API_KEY="sk_live_your_api_key_here"
+    ```
+  </Step>
+  <Step title="Add the server">
+    ```bash
+    codex mcp add affonso \
+      --url https://api.affonso.io/mcp \
+      --bearer-token-env-var AFFONSO_API_KEY
+    ```
+  </Step>
+</Steps>
+
+Codex reads the token from the environment each time it connects, so the API key is not written into `~/.codex/config.toml`.
+
+## Manual Configuration
+
+If you prefer to edit the configuration file, add this to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.affonso]
+url = "https://api.affonso.io/mcp"
+```
+
+Then authenticate with:
+
+```bash
+codex mcp login affonso
+```
+
+For API-key authentication, use this configuration instead:
+
+```toml
+[mcp_servers.affonso]
+url = "https://api.affonso.io/mcp"
+bearer_token_env_var = "AFFONSO_API_KEY"
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="OAuth sign-in does not open">
+    Run `codex mcp login affonso` in an interactive terminal. If Codex prints an authorization URL instead of opening a browser, open that URL manually and complete the sign-in flow.
+  </Accordion>
+
+  <Accordion title="The Affonso server is not listed">
+    Run `codex mcp list` to confirm the configuration. Then restart Codex and use `/mcp` to check its status.
+  </Accordion>
+
+  <Accordion title="API-key authentication fails">
+    Confirm that `AFFONSO_API_KEY` is available in the same shell that starts Codex and that the key is active in the Affonso dashboard.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Explore Tools" icon="wrench" href="/mcp/tools/affiliates">
+    See all available MCP tools
+  </Card>
+  <Card title="Example Queries" icon="lightbulb" href="/mcp/examples">
+    Try Affonso prompts in Codex
+  </Card>
+</CardGroup>

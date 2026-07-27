@@ -46,6 +46,14 @@ What this does:
 - checks the current URL for supported referral parameters
 - stores the referral in a cookie for the configured duration
 
+### Optional landing-page decoration
+
+You can configure the pixel to append the resolved click ID as `affonso_id`
+and to add custom query parameters to the landing-page URL. Configure these
+settings through the [Tracking Settings API](/api/endpoint/program/update-tracking).
+Templates support static values and macros such as `{tracking_id}`,
+`{program_slug}`, and `{affonso_id}`.
+
 If you expect blockers or privacy tools to interfere with browser delivery, use
 <a href="/api/proxy-setup"> Proxy Setup (Optional)</a> to serve the pixel
 through your own domain.

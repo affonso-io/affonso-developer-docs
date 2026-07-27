@@ -189,6 +189,14 @@ The response includes the created conversion object. On a duplicate
   Incentive ID used during commission calculation, when a match was found.
 </ResponseField>
 
+<ResponseField name="commission_created" type="boolean">
+  Whether the conversion created an affiliate earning.
+</ResponseField>
+
+<ResponseField name="activity_outcome" type="string">
+  `commission_created` when an affiliate earning was created, or `sale_recorded` when the sale was accepted without creating one.
+</ResponseField>
+
 <ResponseField name="created_at" type="string">
   ISO 8601 timestamp for when the conversion was created.
 </ResponseField>
@@ -244,6 +252,8 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
     "external_event_id": "inv_2026_000145",
     "calculation_mode": "auto",
     "matched_incentive_id": "inc_monthly_001",
+    "commission_created": true,
+    "activity_outcome": "commission_created",
     "created_at": "2026-06-22T12:00:00.000Z",
     "updated_at": "2026-06-22T12:00:00.000Z"
   }
@@ -254,5 +264,6 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
 <Info>
   When a conversion is accepted but no affiliate earning is created, the
   response still succeeds with `commission_amount: 0`,
-  `commission_currency: null`, and `earning_id: null`.
+  `commission_currency: null`, `earning_id: null`,
+  `commission_created: false`, and `activity_outcome: "sale_recorded"`.
 </Info>

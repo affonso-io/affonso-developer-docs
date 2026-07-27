@@ -1,7 +1,7 @@
 ---
 title: "Update Tracking Settings"
 api: "PATCH https://api.affonso.io/v1/program/tracking"
-description: "Update referral tracking configuration including referral parameters and postbacks"
+description: "Update referral tracking configuration, landing-page decoration, and postbacks"
 ---
 
 Update your program's referral tracking configuration. All fields are optional.
@@ -32,6 +32,50 @@ Update your program's referral tracking configuration. All fields are optional.
   Enable postback URLs. Requires Growth plan or higher.
 </ParamField>
 
+<ParamField body="append_affonso_id_enabled" type="boolean">
+  Append the resolved click ID as `affonso_id` to the landing-page URL after the pixel records a click.
+</ParamField>
+
+<ParamField body="tracking_template_enabled" type="boolean">
+  Enable query-parameter decoration from `tracking_template`. A template must contain at least one row before it can be enabled.
+</ParamField>
+
+<ParamField body="tracking_template" type="array | null">
+  Ordered query-parameter rows to add to the landing-page URL. Set to `null` to clear the stored template. A template supports up to 20 rows and parameter keys must be unique and contain only letters, numbers, `_`, `.`, `~`, or `-`.
+</ParamField>
+
+<Expandable title="Tracking Template Row">
+<ParamField body="tracking_template[].key" type="string" required>
+  Query parameter name. Must be 1–100 characters.
+</ParamField>
+
+<ParamField body="tracking_template[].value" type="string" required>
+  Query parameter value. Must be 1–255 characters. Use `literal` for static text or composite values such as `partner-{tracking_id}`. With `macro`, provide exactly one macro and no surrounding whitespace.
+</ParamField>
+
+<ParamField body="tracking_template[].type" type="string" required>
+  Either `literal` or `macro`.
+</ParamField>
+</Expandable>
+
+## Tracking Template Macros
+
+Use these macros in template values. If a value is unavailable, its macro is left unchanged in the resolved URL.
+
+| Macro | Resolves to |
+| --- | --- |
+| `{tracking_id}` | Affiliate tracking ID |
+| `{affiliate_id}` | Affiliate ID |
+| `{affiliate_name}` | Affiliate name |
+| `{group_id}` | Affiliate group ID |
+| `{group_name}` | Affiliate group name |
+| `{program_id}` | Program ID |
+| `{program_name}` | Program name |
+| `{program_slug}` | Program slug |
+| `{affonso_id}` | Resolved Affonso click ID |
+| `{timestamp}` | Current Unix timestamp in seconds |
+| `{randint}` | Request-time random integer |
+
 ## Response
 
 Returns the updated tracking settings object. Same structure as the [Get Tracking Settings](/api/endpoint/program/get-tracking) response.
@@ -44,7 +88,13 @@ curl -X PATCH "https://api.affonso.io/v1/program/tracking" \
   -d '{
     "default_referral_parameter": "ref",
     "enabled_referral_parameters": ["ref", "via"],
-    "email_tracking_enabled": true
+    "email_tracking_enabled": true,
+    "append_affonso_id_enabled": false,
+    "tracking_template_enabled": true,
+    "tracking_template": [
+      { "key": "utm_source", "value": "affiliate", "type": "literal" },
+      { "key": "campaign", "value": "{program_slug}-{tracking_id}", "type": "literal" }
+    ]
   }'
 ```
 </RequestExample>
@@ -58,7 +108,13 @@ curl -X PATCH "https://api.affonso.io/v1/program/tracking" \
     "enabled_referral_parameters": ["ref", "via"],
     "email_tracking_enabled": true,
     "name_tracking_enabled": false,
-    "postbacks_enabled": false
+    "postbacks_enabled": false,
+    "append_affonso_id_enabled": false,
+    "tracking_template_enabled": true,
+    "tracking_template": [
+      { "key": "utm_source", "value": "affiliate", "type": "literal" },
+      { "key": "campaign", "value": "{program_slug}-{tracking_id}", "type": "literal" }
+    ]
   }
 }
 ```

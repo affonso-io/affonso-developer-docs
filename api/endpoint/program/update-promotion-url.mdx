@@ -1,0 +1,41 @@
+---
+title: "Update Promotion URL"
+api: "PATCH https://api.affonso.io/v1/program/promotion-urls/{id}"
+description: "Update a promotion URL and its audience assignments"
+---
+
+Update a promotion URL. All fields are optional. When supplied, `group_ids` or `product_ids` replace the complete assignment set atomically.
+
+<Note>
+  A promotion URL that is currently a program or group default cannot be deactivated, deleted, or changed so that it no longer satisfies that default. Choose a replacement default first.
+</Note>
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>The promotion URL identifier.</ParamField>
+
+## Body Parameters
+
+<ParamField body="name" type="string">Display name, 1–255 characters.</ParamField>
+<ParamField body="url" type="string">HTTP(S) destination URL, up to 2048 characters.</ParamField>
+<ParamField body="description" type="string | null">Optional description. Set to `null` to clear.</ParamField>
+<ParamField body="audience" type="string">`all_affiliates`, `groups`, or `products`.</ParamField>
+<ParamField body="group_ids" type="array">Complete replacement group assignment list.</ParamField>
+<ParamField body="product_ids" type="array">Complete replacement product assignment list.</ParamField>
+<ParamField body="is_active" type="boolean">Enable or disable the URL.</ParamField>
+<ParamField body="sort_order" type="integer">Non-negative selection priority.</ParamField>
+
+The same audience rules as [Create Promotion URL](/api/endpoint/program/create-promotion-url) apply. Legacy URLs created from a program website, group website, or product landing page must retain their original audience and assignment.
+
+## Response
+
+Returns the updated promotion URL. See [List Promotion URLs](/api/endpoint/program/list-promotion-urls) for the response object.
+
+<RequestExample>
+```bash cURL
+curl -X PATCH "https://api.affonso.io/v1/program/promotion-urls/promotion_url_abc123" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "sort_order": 20, "is_active": true }'
+```
+</RequestExample>

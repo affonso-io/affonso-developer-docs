@@ -1,10 +1,10 @@
 ---
 title: "Get Tracking Settings"
 api: "GET https://api.affonso.io/v1/program/tracking"
-description: "Get referral tracking configuration including referral parameters and postbacks"
+description: "Get referral tracking configuration, landing-page decoration, and postbacks"
 ---
 
-Retrieve your program's referral tracking configuration, including which referral parameters are enabled and whether postback URLs are active.
+Retrieve your program's referral tracking configuration, including which referral parameters are enabled, landing-page URL decoration settings, and whether postback URLs are active.
 
 ## Response
 
@@ -35,6 +35,32 @@ Retrieve your program's referral tracking configuration, including which referra
 <ResponseField name="postbacks_enabled" type="boolean">
   Whether postback URLs are enabled (requires Growth plan or higher)
 </ResponseField>
+
+<ResponseField name="append_affonso_id_enabled" type="boolean">
+  Whether the pixel appends the click ID as `affonso_id` to the landing-page URL.
+</ResponseField>
+
+<ResponseField name="tracking_template_enabled" type="boolean">
+  Whether the pixel applies the program tracking template to the landing-page URL.
+</ResponseField>
+
+<ResponseField name="tracking_template" type="array | null">
+  Ordered query-parameter template rows, or `null` when no template is stored.
+
+<Expandable title="Tracking Template Row Properties">
+<ResponseField name="key" type="string">
+  Query parameter name.
+</ResponseField>
+
+<ResponseField name="value" type="string">
+  Static text, a macro, or a composite value containing macros.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  `literal` for static or composite values, or `macro` for one macro value.
+</ResponseField>
+</Expandable>
+</ResponseField>
 </Expandable>
 </ResponseField>
 
@@ -54,7 +80,13 @@ curl -X GET "https://api.affonso.io/v1/program/tracking" \
     "enabled_referral_parameters": ["ref", "via", "aff"],
     "email_tracking_enabled": true,
     "name_tracking_enabled": false,
-    "postbacks_enabled": false
+    "postbacks_enabled": false,
+    "append_affonso_id_enabled": true,
+    "tracking_template_enabled": true,
+    "tracking_template": [
+      { "key": "utm_source", "value": "affiliate", "type": "literal" },
+      { "key": "campaign", "value": "{program_slug}-{tracking_id}", "type": "literal" }
+    ]
   }
 }
 ```

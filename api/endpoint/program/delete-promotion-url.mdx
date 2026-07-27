@@ -1,0 +1,32 @@
+---
+title: "Delete Promotion URL"
+api: "DELETE https://api.affonso.io/v1/program/promotion-urls/{id}"
+description: "Permanently delete a promotion URL"
+---
+
+Permanently delete a promotion URL. A URL that is the default for the program or any group cannot be deleted; set or clear that default first.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>The promotion URL identifier.</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">Always `true` when deleted.</ResponseField>
+<ResponseField name="message" type="string">Deletion confirmation.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE "https://api.affonso.io/v1/program/promotion-urls/promotion_url_abc123" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "message": "Promotion URL deleted successfully"
+}
+```
+</ResponseExample>

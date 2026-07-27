@@ -1,0 +1,22 @@
+---
+title: "Get Promotion URL"
+api: "GET https://api.affonso.io/v1/program/promotion-urls/{id}"
+description: "Get a single promotion URL"
+---
+
+Retrieve a promotion URL that belongs to your program.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>The promotion URL identifier.</ParamField>
+
+## Response
+
+Returns one promotion URL. See [List Promotion URLs](/api/endpoint/program/list-promotion-urls) for the response object.
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/program/promotion-urls/promotion_url_abc123" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>

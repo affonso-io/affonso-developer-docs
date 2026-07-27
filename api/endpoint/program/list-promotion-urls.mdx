@@ -1,0 +1,65 @@
+---
+title: "List Promotion URLs"
+api: "GET https://api.affonso.io/v1/program/promotion-urls"
+description: "List the landing-page destinations available to your affiliates"
+---
+
+Retrieve promotion URLs for your program. Results are ordered by `sort_order`, then creation time.
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of promotion URL objects.
+
+<Expandable title="Promotion URL Properties">
+<ResponseField name="id" type="string">Unique promotion URL identifier.</ResponseField>
+<ResponseField name="name" type="string">Display name.</ResponseField>
+<ResponseField name="url" type="string">HTTP(S) destination URL.</ResponseField>
+<ResponseField name="description" type="string | null">Optional description.</ResponseField>
+<ResponseField name="audience" type="string">`all_affiliates`, `groups`, or `products`.</ResponseField>
+<ResponseField name="group_ids" type="array">Assigned group IDs.</ResponseField>
+<ResponseField name="product_ids" type="array">Assigned product IDs.</ResponseField>
+<ResponseField name="is_active" type="boolean">Whether affiliates can use this URL.</ResponseField>
+<ResponseField name="sort_order" type="integer">Display and selection priority; lower values come first.</ResponseField>
+<ResponseField name="is_program_default" type="boolean">Whether this is the global default URL.</ResponseField>
+<ResponseField name="default_for_group_ids" type="array">Group IDs for which this URL is the default override.</ResponseField>
+<ResponseField name="created_at" type="string">ISO 8601 creation timestamp.</ResponseField>
+<ResponseField name="updated_at" type="string">ISO 8601 update timestamp.</ResponseField>
+</Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/program/promotion-urls" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": [
+    {
+      "id": "promotion_url_abc123",
+      "name": "Main site",
+      "url": "https://acme.com",
+      "description": null,
+      "audience": "all_affiliates",
+      "group_ids": [],
+      "product_ids": [],
+      "is_active": true,
+      "sort_order": 0,
+      "is_program_default": true,
+      "default_for_group_ids": [],
+      "created_at": "2026-07-28T10:00:00.000Z",
+      "updated_at": "2026-07-28T10:00:00.000Z"
+    }
+  ]
+}
+```
+</ResponseExample>

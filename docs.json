@@ -195,6 +195,18 @@
                     ]
                   },
                   {
+                    "group": "Promotion URLs",
+                    "pages": [
+                      "api/endpoint/program/list-promotion-urls",
+                      "api/endpoint/program/create-promotion-url",
+                      "api/endpoint/program/get-promotion-url",
+                      "api/endpoint/program/update-promotion-url",
+                      "api/endpoint/program/delete-promotion-url",
+                      "api/endpoint/program/set-promotion-url-default",
+                      "api/endpoint/program/set-group-promotion-url-default"
+                    ]
+                  },
+                  {
                     "group": "Creatives",
                     "pages": [
                       "api/endpoint/program/list-creatives",
@@ -242,6 +254,8 @@
             "group": "Setup",
             "pages": [
               "mcp/setup/claude",
+              "mcp/setup/claude-code",
+              "mcp/setup/codex",
               "mcp/setup/chatgpt",
               "mcp/setup/cursor",
               "mcp/setup/other-clients"

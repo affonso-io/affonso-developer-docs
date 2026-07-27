@@ -1,0 +1,105 @@
+---
+title: 'Claude Code Setup'
+description: 'Connect Affonso MCP to Claude Code using OAuth or an API key'
+---
+
+## Overview
+
+Connect Affonso to Claude Code to manage your affiliate program from your development workflow. Affonso uses the **Streamable HTTP** transport and supports OAuth 2.1 and API-key authentication.
+
+<Note>
+OAuth is recommended. It keeps your Affonso API key out of your Claude Code configuration.
+</Note>
+
+## Connect with OAuth
+
+### Step 1: Add the server
+
+Run this command in your terminal:
+
+```bash
+claude mcp add --transport http --scope user affonso https://api.affonso.io/mcp
+```
+
+The `user` scope makes Affonso available in every local Claude Code project. Omit `--scope user` to limit it to the current project.
+
+### Step 2: Sign in to Affonso
+
+Start the OAuth flow:
+
+```bash
+claude mcp login affonso
+```
+
+Your browser opens automatically. Sign in to Affonso, choose your team if prompted, and approve the requested permissions.
+
+### Step 3: Verify the connection
+
+```bash
+claude mcp list
+```
+
+Start Claude Code and enter `/mcp` to check the server status. You can now ask Claude Code something like:
+
+```text
+Show my top affiliates by revenue this month.
+```
+
+## Connect with an API Key
+
+Use an API key when OAuth is not available in your environment.
+
+### Step 1: Create an environment variable
+
+Get an API key from the [Affonso dashboard](https://affonso.io/app/settings/api), then expose it in the shell where you run Claude Code:
+
+```bash
+export AFFONSO_API_KEY="sk_live_your_api_key_here"
+```
+
+### Step 2: Add a project configuration
+
+Create or update `.mcp.json` in your project root:
+
+```json
+{
+  "mcpServers": {
+    "affonso": {
+      "type": "http",
+      "url": "https://api.affonso.io/mcp",
+      "headers": {
+        "Authorization": "Bearer ${AFFONSO_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+Claude Code expands `AFFONSO_API_KEY` when it connects, so do not put the key itself in `.mcp.json` or commit it to version control. When Claude Code first loads a project-scoped MCP server, review and approve it in the interactive session.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="OAuth sign-in does not open">
+    Run `claude mcp login affonso` in an interactive terminal. If your browser cannot open automatically, Claude Code prints an authorization URL that you can open manually.
+  </Accordion>
+
+  <Accordion title="The Affonso server is pending approval">
+    Start an interactive Claude Code session in the project and approve the configured MCP server. Project-scoped servers require approval before they can run.
+  </Accordion>
+
+  <Accordion title="API-key authentication fails">
+    Confirm that `AFFONSO_API_KEY` is available in the same shell that starts Claude Code and that the key is active in the Affonso dashboard.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Explore Tools" icon="wrench" href="/mcp/tools/affiliates">
+    See all available MCP tools
+  </Card>
+  <Card title="Example Queries" icon="lightbulb" href="/mcp/examples">
+    Try Affonso prompts in Claude Code
+  </Card>
+</CardGroup>

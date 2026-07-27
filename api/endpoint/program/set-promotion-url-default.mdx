@@ -1,0 +1,24 @@
+---
+title: "Set Program Default Promotion URL"
+api: "PUT https://api.affonso.io/v1/program/promotion-urls/default"
+description: "Set the program-wide default promotion URL"
+---
+
+Set the global default promotion URL. The selected URL must be active, belong to your program, and have the `all_affiliates` audience.
+
+## Body Parameters
+
+<ParamField body="promotion_url_id" type="string" required>The active `all_affiliates` promotion URL to use as the global default.</ParamField>
+
+## Response
+
+Returns the selected promotion URL. See [List Promotion URLs](/api/endpoint/program/list-promotion-urls) for the response object.
+
+<RequestExample>
+```bash cURL
+curl -X PUT "https://api.affonso.io/v1/program/promotion-urls/default" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "promotion_url_id": "promotion_url_abc123" }'
+```
+</RequestExample>

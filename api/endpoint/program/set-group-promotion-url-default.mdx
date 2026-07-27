@@ -1,0 +1,35 @@
+---
+title: "Set Group Default Promotion URL"
+api: "PUT https://api.affonso.io/v1/program/groups/{groupId}/promotion-url-default"
+description: "Set or clear a promotion URL override for an affiliate group"
+---
+
+Set a group-specific default promotion URL. The selected URL must be active, belong to your program, and be assigned to that group. Pass `null` to remove the override and let the group use normal URL selection.
+
+## Path Parameters
+
+<ParamField path="groupId" type="string" required>The affiliate group identifier.</ParamField>
+
+## Body Parameters
+
+<ParamField body="promotion_url_id" type="string | null" required>The active promotion URL assigned to the group, or `null` to clear the override.</ParamField>
+
+## Response
+
+When a URL is selected, returns that promotion URL. See [List Promotion URLs](/api/endpoint/program/list-promotion-urls) for the response object. When cleared, the response is:
+
+```json Response
+{
+  "success": true,
+  "data": { "promotion_url_id": null }
+}
+```
+
+<RequestExample>
+```bash cURL
+curl -X PUT "https://api.affonso.io/v1/program/groups/group_enterprise/promotion-url-default" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "promotion_url_id": "promotion_url_abc123" }'
+```
+</RequestExample>
