@@ -42,8 +42,8 @@ Retrieve a single program that is listed in the marketplace by ID. Only programs
   Program category
 </ResponseField>
 
-<ResponseField name="website_url" type="string">
-  The program's website URL
+<ResponseField name="default_promotion_url" type="string | null">
+  Canonical global default promotion URL from the program's promotion URL configuration
 </ResponseField>
 
 <ResponseField name="logo_url" type="string | null">
@@ -93,11 +93,111 @@ Retrieve a single program that is listed in the marketplace by ID. Only programs
 </ResponseField>
 
 <ResponseField name="payment_frequency" type="string">
-  How often affiliates are paid
+  How often affiliates are paid: `weekly`, `monthly`, or `quarterly`
 </ResponseField>
 
 <ResponseField name="payment_threshold" type="number">
   Minimum earnings before a payout is issued
+</ResponseField>
+
+<ResponseField name="payment_methods" type="array">
+  Payment methods available to affiliates
+</ResponseField>
+
+<ResponseField name="additional_payment_terms" type="string | null">
+  Additional payment terms supplied by the program manager
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="benefits" type="object">
+  Features available to affiliates in this program.
+
+<Expandable title="Benefits Properties">
+<ResponseField name="coupon_codes" type="boolean">
+  Whether an active self-service coupon blueprint is configured
+</ResponseField>
+
+<ResponseField name="affiliate_links" type="boolean">
+  Whether affiliate links are enabled
+</ResponseField>
+
+<ResponseField name="manual_lead_submission" type="boolean">
+  Whether affiliates can submit leads manually
+</ResponseField>
+
+<ResponseField name="creative_assets" type="boolean">
+  Whether at least one creative asset is available
+</ResponseField>
+
+<ResponseField name="affiliate_manager" type="boolean">
+  Whether an affiliate support email is configured
+</ResponseField>
+
+<ResponseField name="attribution_model" type="string">
+  Attribution model used by the program. Currently always `last_touch`
+</ResponseField>
+
+<ResponseField name="auto_approval" type="boolean">
+  Whether anyone can join and be approved automatically. This is `true` only for `public` programs; invite-only programs return `false`
+</ResponseField>
+
+<ResponseField name="sub_affiliates" type="boolean">
+  Whether multi-level incentives are configured for at least one affiliate group
+</ResponseField>
+
+<ResponseField name="postback_tracking" type="boolean">
+  Whether postback tracking is enabled
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="restrictions" type="object | null">
+  Permitted affiliate promotion channels and additional restrictions, or `null` if not configured.
+
+<Expandable title="Restrictions Properties">
+<ResponseField name="websites" type="boolean">
+  Whether website traffic is allowed
+</ResponseField>
+
+<ResponseField name="social_marketing" type="boolean">
+  Whether paid social marketing is allowed
+</ResponseField>
+
+<ResponseField name="organic_social" type="boolean">
+  Whether organic social traffic is allowed
+</ResponseField>
+
+<ResponseField name="email_marketing" type="boolean">
+  Whether email marketing is allowed
+</ResponseField>
+
+<ResponseField name="mobile_traffic" type="boolean">
+  Whether mobile traffic is allowed
+</ResponseField>
+
+<ResponseField name="search_engine_marketing" type="boolean">
+  Whether paid search traffic is allowed
+</ResponseField>
+
+<ResponseField name="organic_search" type="boolean">
+  Whether organic search traffic is allowed
+</ResponseField>
+
+<ResponseField name="rebrokering" type="boolean">
+  Whether rebrokering is allowed
+</ResponseField>
+
+<ResponseField name="incent" type="boolean">
+  Whether incentivized traffic is allowed
+</ResponseField>
+
+<ResponseField name="brand_bidding" type="boolean">
+  Whether brand bidding is allowed
+</ResponseField>
+
+<ResponseField name="additional_restrictions" type="string | null">
+  Free-text additional restrictions
 </ResponseField>
 </Expandable>
 </ResponseField>
@@ -120,7 +220,7 @@ curl -X GET "https://api.affonso.io/v1/marketplace/prg_abc123"
     "description": "The best project management tool for teams",
     "tagline": "Manage projects effortlessly",
     "category": "SaaS",
-    "website_url": "https://acme.com",
+    "default_promotion_url": "https://acme.com",
     "logo_url": "https://cdn.affonso.io/logos/acme.png",
     "access_mode": "public",
     "currency": "USD",
@@ -128,13 +228,39 @@ curl -X GET "https://api.affonso.io/v1/marketplace/prg_abc123"
       "type": "COMMISSION",
       "value": 30,
       "is_percentage": true,
-      "apply_to": "FIRST_PAYMENT",
+      "apply_to": "ALL_PLANS",
       "has_multiple_tiers": false
     },
     "terms": {
       "cookie_lifetime_days": 60,
-      "payment_frequency": "MONTHLY",
-      "payment_threshold": 50
+      "payment_frequency": "monthly",
+      "payment_threshold": 50,
+      "payment_methods": ["paypal", "wise"],
+      "additional_payment_terms": "Payouts are processed within 10 business days."
+    },
+    "benefits": {
+      "coupon_codes": true,
+      "affiliate_links": true,
+      "manual_lead_submission": false,
+      "creative_assets": true,
+      "affiliate_manager": true,
+      "attribution_model": "last_touch",
+      "auto_approval": true,
+      "sub_affiliates": false,
+      "postback_tracking": true
+    },
+    "restrictions": {
+      "websites": true,
+      "social_marketing": true,
+      "organic_social": true,
+      "email_marketing": true,
+      "mobile_traffic": true,
+      "search_engine_marketing": false,
+      "organic_search": true,
+      "rebrokering": false,
+      "incent": false,
+      "brand_bidding": false,
+      "additional_restrictions": "No adult content or gambling sites"
     }
   }
 }
