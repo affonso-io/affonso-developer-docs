@@ -46,6 +46,10 @@ Returns all active affiliate programs that have been published to the Affonso ma
   Short tagline for the program
 </ResponseField>
 
+<ResponseField name="marketplace_joined_at" type="string | null">
+  ISO 8601 timestamp for when the program most recently joined the marketplace. `null` for listings created before this timestamp was recorded.
+</ResponseField>
+
 <ResponseField name="brand" type="object | null">
   Public brand market profile, or `null` until the program has configured one. See [Get Brand Profile](/api/endpoint/program/get-brand-profile) for its fields.
 </ResponseField>
@@ -242,6 +246,7 @@ curl -X GET "https://api.affonso.io/v1/marketplace?category=SALES_CRM_SUPPORT&li
       "name": "Acme SaaS",
       "description": "The best project management tool for teams",
       "tagline": "Manage projects effortlessly",
+      "marketplace_joined_at": "2026-08-21T10:30:00.000Z",
       "brand": {
         "primary_category": "SALES_CRM_SUPPORT",
         "product_format": "SAAS_WEB_APP",
