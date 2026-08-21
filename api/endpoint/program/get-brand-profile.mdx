@@ -1,0 +1,81 @@
+---
+title: "Get Brand Profile"
+api: "GET https://api.affonso.io/v1/program/brand"
+description: "Get the market profile that describes your affiliate program"
+---
+
+Retrieve your program's brand market profile. The profile is used to categorise your program in the marketplace. A newly created program returns `null` until a profile has been saved.
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses.
+</ResponseField>
+
+<ResponseField name="data" type="object | null">
+  The brand market profile, or `null` if it has not been configured.
+
+<Expandable title="Brand Profile Properties">
+<ResponseField name="id" type="string">Unique profile identifier.</ResponseField>
+<ResponseField name="affiliate_program_id" type="string">Identifier of the program that owns the profile.</ResponseField>
+<ResponseField name="primary_category" type="string | null">Primary marketplace category.</ResponseField>
+<ResponseField name="product_format" type="string | null">Format of the product or service.</ResponseField>
+<ResponseField name="audience_model" type="string | null">Whether the product is `B2B`, `B2C`, or `BOTH`.</ResponseField>
+<ResponseField name="market_scope" type="string | null">Targeting scope: `WORLDWIDE`, `CONTINENTS`, or `COUNTRIES`.</ResponseField>
+<ResponseField name="target_continents" type="array">Target continent codes.</ResponseField>
+<ResponseField name="target_country_codes" type="array">Target ISO 3166-1 alpha-2 country codes.</ResponseField>
+<ResponseField name="target_industries" type="array">Target industries.</ResponseField>
+<ResponseField name="roles" type="array">Target audience roles.</ResponseField>
+<ResponseField name="company_sizes" type="array">Target company sizes.</ResponseField>
+<ResponseField name="company_stages" type="array">Target company stages.</ResponseField>
+<ResponseField name="purchase_contexts" type="array">How customers typically buy the product.</ResponseField>
+<ResponseField name="subcategories" type="array">More specific product categories.</ResponseField>
+<ResponseField name="excluded_target_industries" type="array">Industries explicitly excluded from targeting.</ResponseField>
+<ResponseField name="excluded_roles" type="array">Roles explicitly excluded from targeting.</ResponseField>
+<ResponseField name="excluded_market_scope" type="string | null">Geographic scope explicitly excluded from targeting.</ResponseField>
+<ResponseField name="excluded_continents" type="array">Continents explicitly excluded from targeting.</ResponseField>
+<ResponseField name="excluded_country_codes" type="array">ISO 3166-1 alpha-2 country codes explicitly excluded from targeting.</ResponseField>
+<ResponseField name="created_at" type="string">ISO 8601 timestamp when the profile was created.</ResponseField>
+<ResponseField name="updated_at" type="string">ISO 8601 timestamp when the profile was last updated.</ResponseField>
+</Expandable>
+</ResponseField>
+
+All enum values and request validation rules are listed in [Update Brand Profile](/api/endpoint/program/update-brand-profile).
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/program/brand" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cmp_brand_profile_123",
+    "affiliate_program_id": "cmp_program_123",
+    "primary_category": "SALES_CRM_SUPPORT",
+    "product_format": "SAAS_WEB_APP",
+    "audience_model": "B2B",
+    "market_scope": "WORLDWIDE",
+    "target_continents": [],
+    "target_country_codes": [],
+    "target_industries": ["SAAS_TECHNOLOGY"],
+    "roles": ["SALES", "MARKETING"],
+    "company_sizes": ["TWO_TO_TEN", "ELEVEN_TO_FIFTY"],
+    "company_stages": ["SCALING"],
+    "purchase_contexts": ["PRODUCT_LED"],
+    "subcategories": ["SALES_CRM"],
+    "excluded_target_industries": [],
+    "excluded_roles": [],
+    "excluded_market_scope": null,
+    "excluded_continents": [],
+    "excluded_country_codes": [],
+    "created_at": "2026-08-21T10:00:00.000Z",
+    "updated_at": "2026-08-21T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

@@ -1,0 +1,134 @@
+---
+title: "Update Brand Profile"
+api: "PATCH https://api.affonso.io/v1/program/brand"
+description: "Create or update the market profile for your affiliate program"
+---
+
+Create or update the brand market profile used to categorise your program in the marketplace. All fields are optional. Omitted fields keep their current value; provide `null` for a nullable scalar field to clear it. Arrays replace the existing array, and values within each array must be unique.
+
+Country-code arrays contain uppercase ISO 3166-1 alpha-2 codes, for example `US` or `DE`. The request accepts only the enum values shown below.
+
+## Body Parameters
+
+<ParamField body="primary_category" type="string | null">
+  One of `AI_AUTOMATION`, `ANALYTICS_DATA`, `BUSINESS_OPERATIONS`, `CONSUMER_LIFESTYLE`, `CREATOR_SOCIAL_COMMUNITY`, `DESIGN_CONTENT_MEDIA`, `DEVELOPER_WEB`, `ECOMMERCE_RETAIL`, `EDUCATION_COACHING`, `FINANCE_ACCOUNTING`, `HEALTH_WELLBEING`, `HR_HIRING`, `MARKETING_GROWTH`, `NO_CODE_WEBSITES`, `SALES_CRM_SUPPORT`, or `SECURITY_COMPLIANCE`.
+</ParamField>
+
+<ParamField body="product_format" type="string | null">
+  One of `SAAS_WEB_APP`, `MOBILE_APP`, `PLUGIN_EXTENSION`, `THEME_TEMPLATE`, `DIGITAL_CONTENT_LEARNING`, `DIGITAL_DOWNLOAD_ASSETS`, `SERVICE_AGENCY`, or `PHYSICAL_PRODUCT`.
+</ParamField>
+
+<ParamField body="audience_model" type="string | null">
+  One of `B2B`, `B2C`, or `BOTH`.
+</ParamField>
+
+<ParamField body="market_scope" type="string | null">
+  One of `WORLDWIDE`, `CONTINENTS`, or `COUNTRIES`.
+</ParamField>
+
+<ParamField body="target_continents" type="array">
+  Array of `AFRICA`, `ANTARCTICA`, `ASIA`, `EUROPE`, `NORTH_AMERICA`, `OCEANIA`, or `SOUTH_AMERICA`.
+</ParamField>
+
+<ParamField body="target_country_codes" type="array">
+  Array of uppercase two-letter country codes.
+</ParamField>
+
+<ParamField body="target_industries" type="array">
+  Array of `ALL_INDUSTRIES`, `AGENCIES_CONSULTING`, `CONSTRUCTION_REAL_ESTATE`, `CREATOR_ECONOMY_MEDIA`, `ECOMMERCE_RETAIL`, `EDUCATION`, `FINANCIAL_SERVICES`, `HEALTH_FITNESS`, `LEGAL_SERVICES`, `NONPROFITS`, `PROFESSIONAL_SERVICES`, `SAAS_TECHNOLOGY`, or `TRAVEL_HOSPITALITY`.
+</ParamField>
+
+<ParamField body="roles" type="array">
+  Array of `ALL_ROLES`, `CONSUMERS`, `FOUNDERS_OWNERS`, `EXECUTIVES`, `MARKETING`, `SALES`, `REVENUE_OPERATIONS`, `CUSTOMER_SUCCESS`, `PRODUCT`, `ENGINEERING`, `IT_SECURITY`, `FINANCE`, `HR_PEOPLE`, `OPERATIONS`, `PROCUREMENT`, `LEGAL_COMPLIANCE`, `CREATORS_INFLUENCERS`, or `ECOMMERCE_MANAGERS`.
+</ParamField>
+
+<ParamField body="company_sizes" type="array">
+  Array of `ALL_COMPANY_SIZES`, `SOLO`, `TWO_TO_TEN`, `ELEVEN_TO_FIFTY`, `FIFTY_ONE_TO_TWO_FIFTY`, `TWO_FIFTY_ONE_TO_ONE_THOUSAND`, or `ONE_THOUSAND_PLUS`.
+</ParamField>
+
+<ParamField body="company_stages" type="array">
+  Array of `ALL_COMPANY_STAGES`, `PRE_REVENUE`, `EARLY_STAGE`, `SCALING`, or `ESTABLISHED_ENTERPRISE`.
+</ParamField>
+
+<ParamField body="purchase_contexts" type="array">
+  Array of `SELF_SERVE`, `PRODUCT_LED`, `SALES_ASSISTED`, or `ENTERPRISE_SALES`.
+</ParamField>
+
+<ParamField body="subcategories" type="array">
+  Array of `ACCOUNTING_INVOICING`, `AFFILIATE_PARTNER_GROWTH`, `AI_AGENTS_COPILOTS`, `AI_AUTOMATION`, `AI_CONTENT_CREATION`, `AI_RESEARCH_KNOWLEDGE`, `ANALYTICS_REPORTING`, `APIS_DEVELOPER_INFRASTRUCTURE`, `APP_BUILDERS`, `AUDIENCE_ENGAGEMENT_FAN_COMMUNITIES`, `BRAND_GRAPHIC_DESIGN`, `BUSINESS_INTELLIGENCE`, `BUSINESS_PROCESS_MANAGEMENT`, `COACHING`, `CODE_PRODUCTIVITY`, `COLLABORATION_PRODUCTIVITY`, `COMMUNITY_PLATFORMS_MEMBERSHIPS`, `COMPLIANCE_RISK`, `CONTENT_DESIGN`, `CONTENT_MARKETING`, `COURSE_CREATION`, `CREATOR_MONETISATION`, `CUSTOMER_RETENTION`, `CUSTOMER_SUCCESS`, `CUSTOMER_SUPPORT`, `DATA_PIPELINES`, `DATA_VISUALISATION`, `DATING_RELATIONSHIPS`, `DEVELOPER_TOOLS`, `DOCUMENTATION_KNOWLEDGE`, `ECOMMERCE_GROWTH`, `ECOMMERCE_STOREFRONTS`, `EMAIL_NEWSLETTERS`, `EVENTS_EXPERIENCES`, `EXPENSE_MANAGEMENT`, `FINANCE_OPERATIONS`, `FINANCIAL_REPORTING`, `FITNESS_TRAINING`, `FORMS_SURVEYS_LEAD_CAPTURE`, `FRAUD_PREVENTION`, `GAMING_ENTERTAINMENT`, `HEALTH_WELLNESS`, `HR_HIRING`, `HOME_LIFESTYLE`, `IDENTITY_ACCESS`, `INFLUENCER_CAMPAIGNS`, `INTEGRATIONS_EXTENSIONS`, `LEAD_GENERATION`, `LEARNING_DEVELOPMENT`, `LINK_IN_BIO`, `MARKETING_AUTOMATION`, `MENTAL_WELLBEING`, `NO_CODE_DATABASES_INTERNAL_TOOLS`, `NUTRITION`, `ONLINE_LEARNING`, `OPEN_SOURCE_TOOLING`, `PAID_ADVERTISING`, `PAYMENTS`, `PAYROLL_BENEFITS`, `PEOPLE_OPERATIONS`, `PERSONAL_FINANCE`, `PRODUCT_ANALYTICS`, `PROJECT_TASK_MANAGEMENT`, `PRIVACY_GDPR`, `SALES_CRM`, `SCHEDULING_BOOKING`, `SECURITY`, `SECURITY_AWARENESS`, `SEO_LINK_BUILDING`, `SHOPPING_REWARDS`, `SOCIAL_MEDIA_MARKETING`, `SOCIAL_MEDIA_MANAGEMENT`, `TALENT_SOURCING`, `TEMPLATES_ASSETS`, `TESTING_RELEASE`, `TRADING_INVESTING`, `TRAVEL_HOSPITALITY`, `VIDEO_AUDIO_PRODUCTION`, `WEBSITE_BUILDING`, `WEBSITE_CONVERSION_OPTIMISATION`, `WEBSITE_DESIGN`, or `WORKFLOW_AUTOMATION`.
+</ParamField>
+
+<ParamField body="excluded_target_industries" type="array">
+  Target-industry enum values to exclude. Uses the same values as `target_industries`.
+</ParamField>
+
+<ParamField body="excluded_roles" type="array">
+  Audience-role enum values to exclude. Uses the same values as `roles`.
+</ParamField>
+
+<ParamField body="excluded_market_scope" type="string | null">
+  One of `WORLDWIDE`, `CONTINENTS`, or `COUNTRIES`.
+</ParamField>
+
+<ParamField body="excluded_continents" type="array">
+  Continent enum values to exclude. Uses the same values as `target_continents`.
+</ParamField>
+
+<ParamField body="excluded_country_codes" type="array">
+  Uppercase two-letter country codes to exclude.
+</ParamField>
+
+## Response
+
+Returns the saved brand profile. See [Get Brand Profile](/api/endpoint/program/get-brand-profile) for the response object.
+
+<RequestExample>
+```bash cURL
+curl -X PATCH "https://api.affonso.io/v1/program/brand" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "primary_category": "SALES_CRM_SUPPORT",
+    "product_format": "SAAS_WEB_APP",
+    "audience_model": "B2B",
+    "market_scope": "COUNTRIES",
+    "target_country_codes": ["US", "DE", "GB"],
+    "target_industries": ["SAAS_TECHNOLOGY"],
+    "roles": ["SALES", "MARKETING"],
+    "company_sizes": ["TWO_TO_TEN", "ELEVEN_TO_FIFTY"],
+    "purchase_contexts": ["PRODUCT_LED"],
+    "subcategories": ["SALES_CRM"]
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cmp_brand_profile_123",
+    "affiliate_program_id": "cmp_program_123",
+    "primary_category": "SALES_CRM_SUPPORT",
+    "product_format": "SAAS_WEB_APP",
+    "audience_model": "B2B",
+    "market_scope": "COUNTRIES",
+    "target_continents": [],
+    "target_country_codes": ["US", "DE", "GB"],
+    "target_industries": ["SAAS_TECHNOLOGY"],
+    "roles": ["SALES", "MARKETING"],
+    "company_sizes": ["TWO_TO_TEN", "ELEVEN_TO_FIFTY"],
+    "company_stages": [],
+    "purchase_contexts": ["PRODUCT_LED"],
+    "subcategories": ["SALES_CRM"],
+    "excluded_target_industries": [],
+    "excluded_roles": [],
+    "excluded_market_scope": null,
+    "excluded_continents": [],
+    "excluded_country_codes": [],
+    "created_at": "2026-08-21T10:00:00.000Z",
+    "updated_at": "2026-08-21T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

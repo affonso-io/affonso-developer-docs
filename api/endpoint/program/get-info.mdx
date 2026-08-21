@@ -32,10 +32,6 @@ Retrieve your affiliate program settings including name, description, status, an
   Short tagline for the program
 </ResponseField>
 
-<ResponseField name="category" type="string | null">
-  Program category
-</ResponseField>
-
 <ResponseField name="description" type="string | null">
   Program description
 </ResponseField>
@@ -58,6 +54,10 @@ Retrieve your affiliate program settings including name, description, status, an
 
 <ResponseField name="logo_url" type="string | null">
   URL to the program's logo image
+</ResponseField>
+
+<ResponseField name="customer_information_visibility" type="string">
+  Customer information that affiliates can see: `hidden`, `name`, `email`, or `name_and_email`.
 </ResponseField>
 
 <ResponseField name="default_referral_parameter" type="string">
@@ -108,13 +108,13 @@ curl -X GET "https://api.affonso.io/v1/program" \
     "name": "Acme SaaS",
     "slug": "acme-saas",
     "tagline": "Manage projects effortlessly",
-    "category": "SaaS",
     "description": "The best project management tool for teams",
     "website_url": "https://acme.com",
     "access_mode": "public",
     "status": "active",
     "affiliate_links_enabled": true,
     "logo_url": "https://cdn.affonso.io/logos/acme.png",
+    "customer_information_visibility": "hidden",
     "default_referral_parameter": "ref",
     "created_at": "2024-01-10T08:00:00.000Z",
     "updated_at": "2024-06-15T14:30:00.000Z",

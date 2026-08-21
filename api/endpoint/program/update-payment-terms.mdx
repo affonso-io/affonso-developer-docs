@@ -40,6 +40,10 @@ Update your program's payment terms. All fields are optional — only include th
   List of accepted payment method strings.
 </ParamField>
 
+<ParamField body="custom_payment_terms" type="string | null">
+  Additional free-form payment terms shown to affiliates. Set to `null` to clear.
+</ParamField>
+
 <ParamField body="cookie_lifetime" type="integer">
   Referral cookie lifetime in days. Must be between 1 and 365.
 </ParamField>
@@ -123,6 +127,7 @@ curl -X PATCH "https://api.affonso.io/v1/program/payment-terms" \
     "payment_threshold": 5000,
     "payment_frequency": "weekly",
     "payment_methods": ["paypal", "wise"],
+    "custom_payment_terms": "Payouts are processed within 10 business days.",
     "cookie_lifetime": 90,
     "auto_payout": true,
     "invoice_rule": "none",

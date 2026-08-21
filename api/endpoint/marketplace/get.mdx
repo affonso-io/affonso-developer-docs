@@ -38,11 +38,11 @@ Retrieve a single program that is listed in the marketplace by ID. Only programs
   Short tagline for the program
 </ResponseField>
 
-<ResponseField name="category" type="string | null">
-  Program category
+<ResponseField name="brand" type="object | null">
+  Public brand market profile, or `null` until the program has configured one. See [Get Brand Profile](/api/endpoint/program/get-brand-profile) for its fields.
 </ResponseField>
 
-<ResponseField name="default_promotion_url" type="string | null">
+<ResponseField name="website_url" type="string | null">
   Canonical global default promotion URL from the program's promotion URL configuration
 </ResponseField>
 
@@ -219,8 +219,26 @@ curl -X GET "https://api.affonso.io/v1/marketplace/prg_abc123"
     "name": "Acme SaaS",
     "description": "The best project management tool for teams",
     "tagline": "Manage projects effortlessly",
-    "category": "SaaS",
-    "default_promotion_url": "https://acme.com",
+    "brand": {
+      "primary_category": "SALES_CRM_SUPPORT",
+      "product_format": "SAAS_WEB_APP",
+      "audience_model": "B2B",
+      "market_scope": "WORLDWIDE",
+      "target_continents": [],
+      "target_country_codes": [],
+      "target_industries": ["SAAS_TECHNOLOGY"],
+      "roles": ["SALES", "MARKETING"],
+      "company_sizes": ["TWO_TO_TEN", "ELEVEN_TO_FIFTY"],
+      "company_stages": ["SCALING"],
+      "purchase_contexts": ["PRODUCT_LED"],
+      "subcategories": ["SALES_CRM"],
+      "excluded_target_industries": [],
+      "excluded_roles": [],
+      "excluded_market_scope": null,
+      "excluded_continents": [],
+      "excluded_country_codes": []
+    },
+    "website_url": "https://acme.com",
     "logo_url": "https://cdn.affonso.io/logos/acme.png",
     "access_mode": "public",
     "currency": "USD",

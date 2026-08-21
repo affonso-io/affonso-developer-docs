@@ -143,6 +143,13 @@
                     ]
                   },
                   {
+                    "group": "Brand Profile",
+                    "pages": [
+                      "api/endpoint/program/get-brand-profile",
+                      "api/endpoint/program/update-brand-profile"
+                    ]
+                  },
+                  {
                     "group": "Payment Terms",
                     "pages": [
                       "api/endpoint/program/get-payment-terms",

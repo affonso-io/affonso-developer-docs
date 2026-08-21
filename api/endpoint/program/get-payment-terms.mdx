@@ -48,6 +48,10 @@ Retrieve the payment terms configuration including commission rates, payment fre
   List of accepted payment methods
 </ResponseField>
 
+<ResponseField name="custom_payment_terms" type="string | null">
+  Additional free-form payment terms shown to affiliates.
+</ResponseField>
+
 <ResponseField name="cookie_lifetime" type="integer">
   Cookie lifetime in days (1–365)
 </ResponseField>
@@ -122,6 +126,7 @@ curl -X GET "https://api.affonso.io/v1/program/payment-terms" \
     "payment_threshold": 5000,
     "payment_frequency": "monthly",
     "payment_methods": ["paypal", "wise"],
+    "custom_payment_terms": "Payouts are processed within 10 business days.",
     "cookie_lifetime": 60,
     "auto_payout": false,
     "invoice_rule": "none",
