@@ -218,8 +218,8 @@ Create a new affiliate in your program.
   Custom tracking ID (auto-generated if not provided)
 </ParamField>
 
-<ParamField body="status" type="string" default="PENDING">
-  Initial partnership status: `APPROVED`, `PENDING`
+<ParamField body="status" type="string" default="approved">
+  Initial partnership status: `pending`, `approved`, or `rejected`. Omit to auto-approve. No second update call is required.
 </ParamField>
 
 <ParamField body="responseFormat" type="string" default="markdown">

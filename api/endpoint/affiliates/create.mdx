@@ -26,6 +26,10 @@ description: "Create a new affiliate user"
   Optional affiliate group ID.
 </ParamField>
 
+<ParamField body="status" type="string" default="approved">
+  Partnership status at create time. No follow-up update call is required. Valid values: `pending`, `approved`, `rejected`. Omit to keep the existing auto-approve behavior (`approved`).
+</ParamField>
+
 <ParamField body="company_name" type="string">
   Company name for invoice. Maximum 100 characters.
 </ParamField>
@@ -89,7 +93,7 @@ The response includes the created affiliate object with the following fields:
 </ResponseField>
 
 <ResponseField name="partnership_status" type="string">
-  Partnership status with the program. Will be `"APPROVED"` for newly created affiliates. Can be `"PENDING"`, `"APPROVED"`, `"REJECTED"`, or `null`.
+  Partnership status with the program. Uppercase: `"PENDING"`, `"APPROVED"`, `"REJECTED"`, or `null`. Matches the `status` you sent. Defaults to `"APPROVED"` when `status` is omitted.
 </ResponseField>
 
 <ResponseField name="onboarding_completed" type="boolean">
@@ -138,6 +142,18 @@ curl -X POST "https://api.affonso.io/v1/affiliates" \
       "plan": "pro",
       "signup_source": "landing_page"
     }
+  }'
+```
+
+```bash cURL (pending status)
+curl -X POST "https://api.affonso.io/v1/affiliates" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Alex Rivera",
+    "email": "alex@example.com",
+    "program_id": "cm7xutqbb0001yfkcrnpextmp",
+    "status": "pending"
   }'
 ```
 
@@ -205,6 +221,7 @@ curl -X POST "https://api.affonso.io/v1/affiliates" \
 
 ## Notes
 
+- Set `status` on create when the affiliate should start as `pending` or `rejected`. You do not need a second `PATCH` to change status after create.
 - To retrieve related data like promo codes, commission overrides, invoice details, and payout methods, use `GET /v1/affiliates/{id}?expand=promoCodes,commissionOverrides,invoiceDetails,payoutMethod`.
 - If you provide a custom `tracking_id` that is already in use by another affiliate in your team, the API will return a `409 Conflict` error with the code `DUPLICATE_ERROR`.
 - The `tracking_id` must contain only lowercase letters (a-z), numbers (0-9), and hyphens (-). Any other characters will result in a `400 Bad Request` validation error.
