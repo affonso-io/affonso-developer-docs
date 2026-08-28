@@ -1,0 +1,152 @@
+---
+title: "List Finder Results"
+api: "GET https://api.affonso.io/v1/finder/searches/{id}/results"
+description: "List discovered opportunities for one Finder search"
+---
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Finder search ID
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number for pagination. Must be a positive integer.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Number of results per page. Maximum value is 100. Default is 20.
+</ParamField>
+
+<ParamField query="category" type="string">
+  Filter by result category. Maximum 50 characters.
+</ParamField>
+
+<ParamField query="search" type="string">
+  Case-insensitive filter on title or domain. Maximum 200 characters.
+</ParamField>
+
+## Response
+
+The response includes a paginated list of discovered opportunities and pagination metadata.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of Finder result objects.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Unique identifier for the result
+</ResponseField>
+
+<ResponseField name="search_id" type="string">
+  Finder search ID this result belongs to
+</ResponseField>
+
+<ResponseField name="domain" type="string">
+  Domain of the opportunity
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  URL of the opportunity
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Result title
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Result description
+</ResponseField>
+
+<ResponseField name="category" type="string | null">
+  Result category, or `null` if unset
+</ResponseField>
+
+<ResponseField name="search_intent" type="string | null">
+  Search intent assigned during analysis, or `null` if unset
+</ResponseField>
+
+<ResponseField name="social_media_data" type="object | null">
+  Social metadata returned by the processor, or `null` if unset
+</ResponseField>
+
+<ResponseField name="relevance_score" type="integer | null">
+  Relevance score assigned during analysis, or `null` if unset
+</ResponseField>
+
+<ResponseField name="review_status" type="string">
+  Review status for the result
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the result was created
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="pagination" type="object">
+  Pagination metadata object containing:
+  - `page` (integer): Current page number
+  - `limit` (integer): Number of results per page
+  - `total` (integer): Total number of results matching the filters
+  - `total_pages` (integer): Total number of pages
+  - `has_next_page` (boolean): Whether there is a next page
+  - `has_prev_page` (boolean): Whether there is a previous page
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/finder/searches/cmk2q1wau0001sb01lpvka001/results?limit=20" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": [
+    {
+      "id": "cmk2q1wau0002sb01lpvka002",
+      "search_id": "cmk2q1wau0001sb01lpvka001",
+      "domain": "example.com",
+      "url": "https://example.com/article",
+      "title": "Example",
+      "description": "Affiliate marketing guide",
+      "category": "google",
+      "search_intent": null,
+      "social_media_data": null,
+      "relevance_score": null,
+      "review_status": "PENDING_REVIEW",
+      "created_at": "2026-08-28T00:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 1,
+    "total_pages": 1,
+    "has_next_page": false,
+    "has_prev_page": false
+  }
+}
+```
+</ResponseExample>
+
+## Errors
+
+| Status | Code | Description |
+|--------|------|-------------|
+| `400` | `VALIDATION_ERROR` | Invalid query parameters |
+| `404` | `NOT_FOUND` | Finder search not found |
+
+## Notes
+
+- Requires the `read:finder` permission.
+- Adding a result to the shortlist removes matching URLs for that domain from this list.

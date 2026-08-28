@@ -1,0 +1,459 @@
+---
+title: 'Finder Tools'
+description: 'MCP tools for Affiliate Finder searches, results, and saved opportunities'
+---
+
+## Overview
+
+The Finder tools start discovery searches, list results, and manage the team shortlist. All tools support `response_format` (`markdown` or `json`). Markdown returns the same JSON payload inside a fenced `json` block. List tools use `limit` and `offset`, not `page`.
+
+<Info>
+Starting a search consumes one discovery credit per unique search term for the selected channel. Failed starts and completed public searches with zero results are refunded automatically. Searches whose results were later shortlisted are not refunded.
+</Info>
+
+## Available Tools
+
+| Tool | Description | Permission |
+|------|-------------|------------|
+| `affonso_start_finder_search` | Start an asynchronous Finder search | `write:finder` |
+| `affonso_list_finder_searches` | List searches with status, progress, and credit usage | `read:finder` |
+| `affonso_list_finder_results` | List discovered opportunities for one search | `read:finder` |
+| `affonso_list_finder_shortlist` | List saved opportunities | `read:finder` |
+| `affonso_add_finder_result_to_shortlist` | Save a result to the shortlist | `write:finder` |
+| `affonso_update_finder_shortlist_item` | Update emails, social links, notes, or status | `write:finder` |
+| `affonso_delete_finder_shortlist_item` | Permanently delete a saved opportunity | `delete:finder` |
+
+---
+
+## affonso_start_finder_search
+
+Start an Affiliate Finder search.
+
+### Parameters
+
+<ParamField body="name" type="string" required>
+  Search name. Must be between 1 and 120 characters.
+</ParamField>
+
+<ParamField body="search_type" type="string" required>
+  How search terms are interpreted: `topic` or `competitor`
+</ParamField>
+
+<ParamField body="search_terms" type="string[]" required>
+  Topic queries or competitor names. Minimum 1 term, maximum 50. Each term must be between 1 and 200 characters. Duplicate terms are searched and charged only once.
+</ParamField>
+
+<ParamField body="channel" type="string" required>
+  Channel to search: `websites`, `youtube`, `reddit`, `instagram`, `tiktok`, `linkedin`, `facebook`, `x`, `medium`, `substack`
+</ParamField>
+
+<ParamField body="location" type="string" default="2840">
+  Location code as a digit string. Default `2840` is the United States.
+</ParamField>
+
+<ParamField body="language" type="string" default="en">
+  Two-letter language code. Default `en`.
+</ParamField>
+
+<ParamField body="exclude_domains" type="string[]" default="[]">
+  Domains to exclude. Maximum 100 items. Each domain is at most 253 characters.
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`
+</ParamField>
+
+### Example Prompts
+
+```
+Start a Finder search named Creator tools for affiliate marketing on YouTube
+Search competitors HubSpot and Mailchimp on websites
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "cmk2q1wau0001sb01lpvka001",
+    "name": "Creator tools",
+    "status": "pending",
+    "search_type": "topic",
+    "channel": "youtube",
+    "location": "2840",
+    "language": "en",
+    "exclude_domains": [],
+    "credits_used": 1,
+    "total_search_terms": 0,
+    "completed_search_terms": 0,
+    "total_results": 0,
+    "created_at": "2026-08-28T00:00:00.000Z",
+    "updated_at": "2026-08-28T00:00:00.000Z",
+    "completed_at": null
+  }
+}
+```
+
+---
+
+## affonso_list_finder_searches
+
+List Finder searches and their processing status, progress, result totals, and discovery-credit usage.
+
+### Parameters
+
+<ParamField body="limit" type="number" default="20">
+  Number of results to return (max 100)
+</ParamField>
+
+<ParamField body="offset" type="number" default="0">
+  Number of results to skip
+</ParamField>
+
+<ParamField body="status" type="string">
+  Filter by status: `pending`, `queued`, `running`, `analyzing`, `completed`, `failed`, `paused`, `reviewing`
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`
+</ParamField>
+
+### Example Prompts
+
+```
+List my Finder searches
+Show completed Finder searches
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "cmk2q1wau0001sb01lpvka001",
+      "name": "Creator tools",
+      "status": "completed",
+      "search_type": "topic",
+      "channel": "youtube",
+      "location": "2840",
+      "language": "en",
+      "exclude_domains": [],
+      "credits_used": 1,
+      "total_search_terms": 1,
+      "completed_search_terms": 1,
+      "total_results": 12,
+      "created_at": "2026-08-28T00:00:00.000Z",
+      "updated_at": "2026-08-28T01:00:00.000Z",
+      "completed_at": "2026-08-28T01:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "count": 1,
+    "offset": 0,
+    "limit": 20,
+    "has_more": false
+  }
+}
+```
+
+---
+
+## affonso_list_finder_results
+
+List discovered affiliate opportunities for one Finder search.
+
+### Parameters
+
+<ParamField body="search_id" type="string" required>
+  Finder search ID
+</ParamField>
+
+<ParamField body="limit" type="number" default="20">
+  Number of results to return (max 100)
+</ParamField>
+
+<ParamField body="offset" type="number" default="0">
+  Number of results to skip
+</ParamField>
+
+<ParamField body="category" type="string">
+  Filter by result category. Maximum 50 characters.
+</ParamField>
+
+<ParamField body="search" type="string">
+  Filter by title or domain. Maximum 200 characters.
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`
+</ParamField>
+
+### Example Prompts
+
+```
+Show results for Finder search cmk2q1wau0001sb01lpvka001
+Find results with example.com in that search
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "cmk2q1wau0002sb01lpvka002",
+      "search_id": "cmk2q1wau0001sb01lpvka001",
+      "domain": "example.com",
+      "url": "https://example.com/article",
+      "title": "Example",
+      "description": "Affiliate marketing guide",
+      "category": "google",
+      "search_intent": null,
+      "social_media_data": null,
+      "relevance_score": null,
+      "review_status": "PENDING_REVIEW",
+      "created_at": "2026-08-28T00:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "count": 1,
+    "offset": 0,
+    "limit": 20,
+    "has_more": false
+  }
+}
+```
+
+---
+
+## affonso_list_finder_shortlist
+
+List saved Affiliate Finder opportunities across the team.
+
+### Parameters
+
+<ParamField body="limit" type="number" default="20">
+  Number of results to return (max 100)
+</ParamField>
+
+<ParamField body="offset" type="number" default="0">
+  Number of results to skip
+</ParamField>
+
+<ParamField body="category" type="string">
+  Filter by category. Maximum 50 characters.
+</ParamField>
+
+<ParamField body="status" type="string">
+  Filter by workflow status. Maximum 50 characters.
+</ParamField>
+
+<ParamField body="search" type="string">
+  Filter by name or domain. Maximum 200 characters.
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`
+</ParamField>
+
+### Example Prompts
+
+```
+Show my Finder shortlist
+Find shortlisted opportunities for example.com
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "cmk2q1wau0003sb01lpvka003",
+      "name": "Example",
+      "domain": "example.com",
+      "urls": [
+        "https://example.com/article"
+      ],
+      "category": "google",
+      "emails": [],
+      "social_media": [],
+      "notes": null,
+      "status": "NEW",
+      "created_at": "2026-08-28T00:00:00.000Z",
+      "updated_at": "2026-08-28T00:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "count": 1,
+    "offset": 0,
+    "limit": 20,
+    "has_more": false
+  }
+}
+```
+
+---
+
+## affonso_add_finder_result_to_shortlist
+
+Save a Finder result to the team shortlist. When the domain is not already saved, matching URLs in that search are grouped into one item and removed from the results. Existing shortlist domains are returned unchanged.
+
+### Parameters
+
+<ParamField body="search_id" type="string" required>
+  Finder search ID
+</ParamField>
+
+<ParamField body="result_id" type="string" required>
+  Finder result ID to save
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`
+</ParamField>
+
+### Example Prompts
+
+```
+Add result cmk2q1wau0002sb01lpvka002 from search cmk2q1wau0001sb01lpvka001 to the shortlist
+Save that Finder result
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "cmk2q1wau0003sb01lpvka003",
+    "name": "Example",
+    "domain": "example.com",
+    "urls": [
+      "https://example.com/article"
+    ],
+    "category": "google",
+    "emails": [],
+    "social_media": [],
+    "notes": null,
+    "status": "NEW",
+    "created_at": "2026-08-28T00:00:00.000Z",
+    "updated_at": "2026-08-28T00:00:00.000Z"
+  }
+}
+```
+
+---
+
+## affonso_update_finder_shortlist_item
+
+Update a saved Finder opportunity's emails, social links, notes, or workflow status. At least one shortlist field must be provided.
+
+### Parameters
+
+<ParamField body="shortlist_id" type="string" required>
+  Shortlist item ID
+</ParamField>
+
+<ParamField body="emails" type="string[]">
+  Replacement list of contact emails. Maximum 100 items.
+</ParamField>
+
+<ParamField body="social_media" type="string[]">
+  Replacement list of social profile URLs. Maximum 100 items.
+</ParamField>
+
+<ParamField body="notes" type="string | null">
+  Notes. Maximum 5000 characters. Set to `null` to clear.
+</ParamField>
+
+<ParamField body="status" type="string | null">
+  Workflow status. Maximum 50 characters. Set to `null` to clear.
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`
+</ParamField>
+
+### Example Prompts
+
+```
+Update shortlist item cmk2q1wau0003sb01lpvka003 with email hello@example.com
+Set notes on that saved opportunity
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "cmk2q1wau0003sb01lpvka003",
+    "name": "Example",
+    "domain": "example.com",
+    "urls": [
+      "https://example.com/article"
+    ],
+    "category": "google",
+    "emails": [
+      "hello@example.com"
+    ],
+    "social_media": [
+      "https://x.com/example"
+    ],
+    "notes": "Reached out on Monday",
+    "status": "CONTACTED",
+    "created_at": "2026-08-28T00:00:00.000Z",
+    "updated_at": "2026-08-28T02:00:00.000Z"
+  }
+}
+```
+
+---
+
+## affonso_delete_finder_shortlist_item
+
+<Warning>
+This permanently deletes the saved opportunity from the shortlist.
+</Warning>
+
+### Parameters
+
+<ParamField body="shortlist_id" type="string" required>
+  Shortlist item ID
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`
+</ParamField>
+
+### Example Prompts
+
+```
+Delete shortlist item cmk2q1wau0003sb01lpvka003
+Remove that saved Finder opportunity
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "cmk2q1wau0003sb01lpvka003",
+    "deleted": true
+  }
+}
+```
+
+---
+
+## Error Handling
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `VALIDATION_ERROR` | Invalid parameter value | Check parameter format and required fields |
+| `NOT_FOUND` | Search, result, or shortlist item does not exist | Verify the ID is correct |
+| `INSUFFICIENT_CREDITS` | Not enough discovery credits | Reduce unique search terms or add credits |
+| `PROCESSING_UNAVAILABLE` | Search could not be started | Retry later. No credits were consumed |

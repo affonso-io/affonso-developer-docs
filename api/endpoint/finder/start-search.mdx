@@ -1,0 +1,169 @@
+---
+title: "Start Finder Search"
+api: "POST https://api.affonso.io/v1/finder/searches"
+description: "Start an asynchronous Affiliate Finder search"
+---
+
+<Info>
+Each unique search term consumes one discovery credit for the selected channel. Failed starts and completed public searches with zero results are refunded automatically. Searches whose results were later shortlisted are not refunded.
+</Info>
+
+## Body Parameters
+
+<ParamField body="name" type="string" required>
+  Search name. Must be between 1 and 120 characters.
+</ParamField>
+
+<ParamField body="search_type" type="string" required>
+  How search terms are interpreted. Valid values: `topic`, `competitor`.
+</ParamField>
+
+<ParamField body="search_terms" type="string[]" required>
+  Topic queries or competitor names. Minimum 1 term, maximum 50. Each term must be between 1 and 200 characters. Duplicate terms are searched and charged only once.
+</ParamField>
+
+<ParamField body="channel" type="string" required>
+  Channel to search. Valid values: `websites`, `youtube`, `reddit`, `instagram`, `tiktok`, `linkedin`, `facebook`, `x`, `medium`, `substack`.
+</ParamField>
+
+<ParamField body="location" type="string" default="2840">
+  Location code as a digit string. Default `2840` is the United States.
+</ParamField>
+
+<ParamField body="language" type="string" default="en">
+  Two-letter language code. Default `en`.
+</ParamField>
+
+<ParamField body="exclude_domains" type="string[]" default="[]">
+  Domains to exclude. Maximum 100 items. Each domain is at most 253 characters. Defaults to an empty list.
+</ParamField>
+
+## Response
+
+The response includes the created Finder search. Processing continues asynchronously.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created Finder search object.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Unique identifier for the search
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Search name
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Current processing status, lowercase. Newly created searches start as `pending`. Other values: `queued`, `running`, `analyzing`, `completed`, `failed`, `paused`, `reviewing`.
+</ResponseField>
+
+<ResponseField name="search_type" type="string | null">
+  `topic` or `competitor`
+</ResponseField>
+
+<ResponseField name="channel" type="string | null">
+  Channel used for the search
+</ResponseField>
+
+<ResponseField name="location" type="string">
+  Location code used for the search
+</ResponseField>
+
+<ResponseField name="language" type="string">
+  Two-letter language code used for the search
+</ResponseField>
+
+<ResponseField name="exclude_domains" type="string[]">
+  Domains excluded from the search
+</ResponseField>
+
+<ResponseField name="credits_used" type="integer">
+  Discovery credits charged for unique search terms
+</ResponseField>
+
+<ResponseField name="total_search_terms" type="integer">
+  Progress total for search terms. Starts at `0` until the processor updates it.
+</ResponseField>
+
+<ResponseField name="completed_search_terms" type="integer">
+  Search terms that have finished processing
+</ResponseField>
+
+<ResponseField name="total_results" type="integer">
+  Number of discovered results
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the search was created
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp of when the search was last updated
+</ResponseField>
+
+<ResponseField name="completed_at" type="string | null">
+  ISO 8601 timestamp of when the search completed, otherwise `null`
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/finder/searches" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Creator tools",
+    "search_type": "topic",
+    "search_terms": ["affiliate marketing"],
+    "channel": "youtube",
+    "location": "2840",
+    "language": "en",
+    "exclude_domains": []
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cmk2q1wau0001sb01lpvka001",
+    "name": "Creator tools",
+    "status": "pending",
+    "search_type": "topic",
+    "channel": "youtube",
+    "location": "2840",
+    "language": "en",
+    "exclude_domains": [],
+    "credits_used": 1,
+    "total_search_terms": 0,
+    "completed_search_terms": 0,
+    "total_results": 0,
+    "created_at": "2026-08-28T00:00:00.000Z",
+    "updated_at": "2026-08-28T00:00:00.000Z",
+    "completed_at": null
+  }
+}
+```
+</ResponseExample>
+
+## Errors
+
+| Status | Code | Description |
+|--------|------|-------------|
+| `400` | `VALIDATION_ERROR` | Invalid request body |
+| `403` | `INSUFFICIENT_CREDITS` | Not enough discovery credits for the unique search terms |
+| `404` | `NOT_FOUND` | No affiliate program found for the API key's team |
+| `503` | `PROCESSING_UNAVAILABLE` | The search could not be started and no discovery credits were consumed |
+
+## Notes
+
+- Requires the `write:finder` permission.
+- Use `GET /v1/finder/searches` to poll status, then `GET /v1/finder/searches/{id}/results` to read discovered opportunities.

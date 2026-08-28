@@ -126,6 +126,18 @@
                   "api/endpoint/embed/get-data",
                   "api/endpoint/embed/create-coupon"
                 ]
+              },
+              {
+                "group": "Affiliate Finder",
+                "pages": [
+                  "api/endpoint/finder/start-search",
+                  "api/endpoint/finder/list-searches",
+                  "api/endpoint/finder/list-results",
+                  "api/endpoint/finder/list-shortlist",
+                  "api/endpoint/finder/add-shortlist",
+                  "api/endpoint/finder/update-shortlist",
+                  "api/endpoint/finder/delete-shortlist"
+                ]
               }
             ]
           },
@@ -274,7 +286,8 @@
               "mcp/tools/affiliates",
               "mcp/tools/referrals",
               "mcp/tools/commissions",
-              "mcp/tools/payouts"
+              "mcp/tools/payouts",
+              "mcp/tools/finder"
             ]
           }
         ]
