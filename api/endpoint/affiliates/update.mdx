@@ -31,7 +31,25 @@ All body parameters are optional. Only include the fields you want to update.
 </ParamField>
 
 <ParamField body="country_code" type="string | null">
-  2-letter ISO country code. Set to `null` to clear.
+  2-letter ISO country code. Set to `null` to clear. Legacy alias for invoice country when `invoice_details` is omitted.
+</ParamField>
+
+<ParamField body="invoice_details" type="object">
+  Partial billing and invoice details. Omitted keys keep their current values. `null` clears optional fields. If the affiliate has no invoice record yet, you must send `first_name`, `last_name`, `address_line_1`, `city`, and `country`. Required fields cannot be cleared. `vat_validated` and `vat_validated_at` are read-only on `GET` with `expand=invoiceDetails` and are rejected on write.
+
+  - `company_name` (string | null, max 100)
+  - `first_name` (string)
+  - `last_name` (string)
+  - `address_line_1` (string)
+  - `address_line_2` (string | null)
+  - `city` (string)
+  - `postal_code` (string | null)
+  - `state` (string | null)
+  - `country` (2-letter ISO 3166-1 alpha-2)
+  - `vat_id` (string | null)
+  - `tax_id` (string | null)
+
+  If both `invoice_details` and the top-level `company_name` / `country_code` aliases are sent, `invoice_details` wins.
 </ParamField>
 
 <ParamField body="payout_method" type="string">
@@ -128,8 +146,16 @@ curl -X PUT "https://api.affonso.io/v1/affiliates/cmj8pptm10002p3010z8mk9ak" \
   -H "Authorization: Bearer sk_live_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{
-    "company_name": "John LLC",
-    "country_code": "US",
+    "invoice_details": {
+      "company_name": "John LLC",
+      "first_name": "John",
+      "last_name": "Doe",
+      "address_line_1": "123 Main St",
+      "city": "New York",
+      "postal_code": "10001",
+      "state": "NY",
+      "country": "US"
+    },
     "payout_method": "paypal",
     "payout_details": {
       "email": "john@example.com"
@@ -167,5 +193,5 @@ curl -X PUT "https://api.affonso.io/v1/affiliates/cmj8pptm10002p3010z8mk9ak" \
 ```
 </ResponseExample>
 
-**Note:** To retrieve updated related data like promo codes, commission overrides, invoice details, and payout methods, use `GET /v1/affiliates/{id}?expand=promoCodes,commissionOverrides,invoiceDetails,payoutMethod`.
+**Note:** Read the saved invoice record with `GET /v1/affiliates/{id}?expand=invoiceDetails`. Combine expands as needed: `promoCodes,commissionOverrides,invoiceDetails,payoutMethod`.
 
