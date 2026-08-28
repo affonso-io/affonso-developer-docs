@@ -273,6 +273,10 @@ Update an existing affiliate's information.
   New partnership status: `APPROVED`, `PENDING`, `REJECTED`
 </ParamField>
 
+<ParamField body="invoice_details" type="object">
+  Partial billing and invoice details. Omitted keys keep their current values. `null` clears optional fields. Creating a first invoice record requires `first_name`, `last_name`, `address_line_1`, `city`, and `country`.
+</ParamField>
+
 <ParamField body="responseFormat" type="string" default="markdown">
   Response format: `markdown` or `json`
 </ParamField>
