@@ -1,0 +1,156 @@
+---
+title: "List Finder Searches"
+api: "GET https://api.affonso.io/v1/finder/searches"
+description: "List Affiliate Finder searches with status, progress, and credit usage"
+---
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number for pagination. Must be a positive integer.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="50">
+  Number of results per page. Maximum value is 200. Default is 50.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by processing status. Valid values: `pending`, `queued`, `running`, `analyzing`, `completed`, `failed`, `paused`, `reviewing`.
+</ParamField>
+
+## Response
+
+The response includes a paginated list of Finder searches and pagination metadata.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of Finder search objects. Each object has the same structure as the Start Finder Search response.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Unique identifier for the search
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Search name
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Current processing status, lowercase
+</ResponseField>
+
+<ResponseField name="search_type" type="string | null">
+  `topic` or `competitor`
+</ResponseField>
+
+<ResponseField name="channel" type="string | null">
+  Channel used for the search
+</ResponseField>
+
+<ResponseField name="location" type="string">
+  Location code used for the search
+</ResponseField>
+
+<ResponseField name="language" type="string">
+  Two-letter language code used for the search
+</ResponseField>
+
+<ResponseField name="exclude_domains" type="string[]">
+  Domains excluded from the search
+</ResponseField>
+
+<ResponseField name="credits_used" type="integer">
+  Discovery credits charged for unique search terms
+</ResponseField>
+
+<ResponseField name="total_search_terms" type="integer">
+  Progress total for search terms
+</ResponseField>
+
+<ResponseField name="completed_search_terms" type="integer">
+  Search terms that have finished processing
+</ResponseField>
+
+<ResponseField name="total_results" type="integer">
+  Number of discovered results
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the search was created
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp of when the search was last updated
+</ResponseField>
+
+<ResponseField name="completed_at" type="string | null">
+  ISO 8601 timestamp of when the search completed, otherwise `null`
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="pagination" type="object">
+  Pagination metadata object containing:
+  - `page` (integer): Current page number
+  - `limit` (integer): Number of results per page
+  - `total` (integer): Total number of searches matching the filter
+  - `total_pages` (integer): Total number of pages
+  - `has_next_page` (boolean): Whether there is a next page
+  - `has_prev_page` (boolean): Whether there is a previous page
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/finder/searches?limit=10&status=completed" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": [
+    {
+      "id": "cmk2q1wau0001sb01lpvka001",
+      "name": "Creator tools",
+      "status": "completed",
+      "search_type": "topic",
+      "channel": "youtube",
+      "location": "2840",
+      "language": "en",
+      "exclude_domains": [],
+      "credits_used": 1,
+      "total_search_terms": 1,
+      "completed_search_terms": 1,
+      "total_results": 12,
+      "created_at": "2026-08-28T00:00:00.000Z",
+      "updated_at": "2026-08-28T01:00:00.000Z",
+      "completed_at": "2026-08-28T01:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 1,
+    "total_pages": 1,
+    "has_next_page": false,
+    "has_prev_page": false
+  }
+}
+```
+</ResponseExample>
+
+## Errors
+
+| Status | Code | Description |
+|--------|------|-------------|
+| `400` | `VALIDATION_ERROR` | Invalid query parameters |
+
+## Notes
+
+- Requires the `read:finder` permission.
+- Completed public searches with zero results are refunded automatically when they are listed. Searches whose results were later shortlisted are not refunded.

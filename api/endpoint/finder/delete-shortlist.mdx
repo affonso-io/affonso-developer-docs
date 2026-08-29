@@ -1,0 +1,63 @@
+---
+title: "Delete Finder Shortlist Item"
+api: "DELETE https://api.affonso.io/v1/finder/shortlist/{id}"
+description: "Permanently delete a saved Finder opportunity"
+---
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Shortlist item ID
+</ParamField>
+
+## Response
+
+The response confirms the deletion.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Deletion result.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  ID of the deleted shortlist item
+</ResponseField>
+
+<ResponseField name="deleted" type="boolean">
+  Always `true` when the item was deleted
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE "https://api.affonso.io/v1/finder/shortlist/cmk2q1wau0003sb01lpvka003" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cmk2q1wau0003sb01lpvka003",
+    "deleted": true
+  }
+}
+```
+</ResponseExample>
+
+## Errors
+
+| Status | Code | Description |
+|--------|------|-------------|
+| `404` | `NOT_FOUND` | Finder shortlist item not found |
+
+## Notes
+
+- Requires the `delete:finder` permission.
+- This permanently deletes the shortlist item.
