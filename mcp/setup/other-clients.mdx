@@ -5,7 +5,7 @@ description: 'Configure Affonso MCP with any MCP-compatible client'
 
 ## Overview
 
-Affonso MCP uses the **Streamable HTTP** transport, which is the standard for cloud-hosted MCP servers. Any client that supports this transport can connect to Affonso.
+Affonso MCP uses the **Streamable HTTP** transport, which is the standard for cloud-hosted MCP servers. Any client that supports this transport can connect to Affonso. The server negotiates protocol `2026-07-28` and still accepts legacy initialize-based clients on the same URL.
 
 ## Connection Details
 
@@ -43,12 +43,13 @@ For clients that don't support OAuth, authenticate with a Bearer token:
 
 ## HTTP Request Format
 
-For custom implementations, MCP requests are standard HTTP POST:
+For custom implementations, MCP requests are standard HTTP POST. Send `Accept: application/json, text/event-stream`. A missing Accept header returns HTTP 406. An unsupported protocol version returns HTTP 400.
 
 ```bash
 curl -X POST https://api.affonso.io/mcp \
   -H "Authorization: Bearer sk_live_your_api_key" \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
