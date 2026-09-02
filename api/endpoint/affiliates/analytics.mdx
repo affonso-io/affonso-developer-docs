@@ -1,0 +1,372 @@
+---
+title: "Get Affiliate Analytics"
+api: "GET https://api.affonso.io/v1/affiliates/{id}/analytics"
+description: "Retrieve performance analytics for a single affiliate"
+---
+
+Returns period totals, a zero-filled time series, traffic, geography, and device breakdowns, and a paginated list of recent conversions for one affiliate. Requires the `read:affiliates` permission. Successful responses are cached for 60 seconds after the affiliate is authorized.
+
+Custom `start_date` and `end_date` take precedence over `range`. `page` and `limit` paginate `recent_conversions` only.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the affiliate
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="range" type="string" default="30d">
+  Preset reporting window. Valid values: `24h`, `7d`, `30d`, `3m`, `12m`, `alltime`. Ignored when both `start_date` and `end_date` are set.
+</ParamField>
+
+<ParamField query="start_date" type="string">
+  Custom range start date in `YYYY-MM-DD` (UTC). Must be sent together with `end_date`.
+</ParamField>
+
+<ParamField query="end_date" type="string">
+  Custom range end date in `YYYY-MM-DD` (UTC), inclusive. Must be sent together with `start_date`. Must be on or after `start_date`.
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  Page of `recent_conversions`. Must be a positive integer. Does not paginate summary, time series, or breakdowns.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Number of `recent_conversions` per page. Minimum 1, maximum 100.
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Analytics payload for the requested affiliate and period.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="period" type="object">
+  The resolved reporting window.
+
+<Expandable title="Period Properties">
+<ResponseField name="range" type="string">
+  Preset used for the query, or `"custom"` when both custom dates are set. Valid values: `"24h"`, `"7d"`, `"30d"`, `"3m"`, `"12m"`, `"alltime"`, `"custom"`
+</ResponseField>
+
+<ResponseField name="start_date" type="string | null">
+  ISO 8601 timestamp for the start of the window. `null` for `alltime`
+</ResponseField>
+
+<ResponseField name="end_date" type="string">
+  ISO 8601 timestamp for the inclusive end of the window
+</ResponseField>
+
+<ResponseField name="bucket" type="string">
+  Time-series granularity: `"hour"` (`24h`, or a custom range of about one day), `"day"` (`7d`, `30d`, `3m`, `12m`, and most custom ranges), or `"month"` (`alltime`, or a custom range longer than 366 days)
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="summary" type="object">
+  Totals for the period. Monetary values are grouped by currency.
+
+<Expandable title="Summary Properties">
+<ResponseField name="clicks" type="integer">
+  Number of referred clicks in the period
+</ResponseField>
+
+<ResponseField name="sign_ups" type="integer">
+  Number of referrals that are no longer a click
+</ResponseField>
+
+<ResponseField name="conversions" type="integer">
+  Number of referrals with status `TRIALING`, `CUSTOMER`, or `ACTIVE`
+</ResponseField>
+
+<ResponseField name="conversion_rate" type="number">
+  Conversions divided by clicks, as a percentage. `0` when there are no clicks
+</ResponseField>
+
+<ResponseField name="sales" type="array">
+  Gross sales grouped by currency from eligible transactions (`OPEN`, `COMPLETE`, `PARTIAL_REFUNDED`). Each item is `{ amount, currency }`. Uses `UNKNOWN` when a legacy transaction has no stored currency
+</ResponseField>
+
+<ResponseField name="commissions" type="array">
+  Direct commission earnings grouped by currency. Each item is `{ amount, currency }`
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="time_series" type="array">
+  Zero-filled points for every bucket in the period, ordered by `date`.
+
+<Expandable title="Time Series Point Properties">
+<ResponseField name="date" type="string">
+  ISO 8601 timestamp for the start of the bucket
+</ResponseField>
+
+<ResponseField name="clicks" type="integer">
+  Clicks in this bucket
+</ResponseField>
+
+<ResponseField name="sign_ups" type="integer">
+  Sign-ups in this bucket
+</ResponseField>
+
+<ResponseField name="conversions" type="integer">
+  Conversions in this bucket
+</ResponseField>
+
+<ResponseField name="sales" type="array">
+  Gross sales in this bucket, grouped by currency
+</ResponseField>
+
+<ResponseField name="commissions" type="array">
+  Direct commissions in this bucket, grouped by currency
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="breakdowns" type="object">
+  Click counts grouped by attribution, geography, and device, plus new versus recurring sales.
+
+<Expandable title="Breakdown Properties">
+<ResponseField name="traffic" type="object">
+  Attribution dimensions. Each listed key is always present and may be an empty array. Each value is `{ value, clicks }`. Empty referrer values are returned as `Direct`. Keys: `referrer`, `sub1`, `sub2`, `sub3`, `sub4`, `sub5`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `gclid`, `gbraid`, `wbraid`, `gad_source`, `utm_agid`, `gad_campaign_id`, `utm_adid`, `fbclid`, `fbadid`, `fbgid`, `igshid`, `msclkid`, `ttclid`, `li_fat_id`, `twclid`, `epik`, `sc_cid`, `rdt_cid`
+</ResponseField>
+
+<ResponseField name="geography" type="object">
+  Location dimensions. Each key is an array of `{ value, clicks }`. Empty values are returned as `Unknown`. Keys: `country`, `city`, `region`, `continent`
+</ResponseField>
+
+<ResponseField name="device" type="object">
+  Device dimensions. Each key is an array of `{ value, clicks }`. Empty values are returned as `Unknown Browser`, `Unknown OS`, or `Unknown Device`. Keys: `browser`, `os`, `device_type`
+</ResponseField>
+
+<ResponseField name="new_vs_recurring_sales" type="array">
+  Sales split by type and currency. Subscription transactions are `recurring`. Repeat one-time purchases stay `new`.
+
+<Expandable title="New vs Recurring Sale Properties">
+<ResponseField name="type" type="string">
+  `"new"` or `"recurring"`
+</ResponseField>
+
+<ResponseField name="count" type="integer">
+  Number of eligible transactions in this group
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  Gross sales amount for this group
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  Currency code, or `UNKNOWN` for legacy data
+</ResponseField>
+</Expandable>
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="recent_conversions" type="object">
+  Paginated recent conversions. Customer email and IP are never returned.
+
+<Expandable title="Recent Conversions Properties">
+<ResponseField name="data" type="array">
+  Conversion rows for the current page.
+
+<Expandable title="Conversion Properties">
+<ResponseField name="id" type="string">
+  Transaction identifier
+</ResponseField>
+
+<ResponseField name="date" type="string">
+  ISO 8601 timestamp of the transaction
+</ResponseField>
+
+<ResponseField name="sale" type="object">
+  Sale amount and currency (`{ amount, currency }`)
+</ResponseField>
+
+<ResponseField name="commission" type="object | null">
+  Direct commission amount and currency, or `null` when none exists
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Lowercase transaction status (for example `"open"`, `"complete"`, `"partial_refunded"`)
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="pagination" type="object">
+  Pagination metadata for `recent_conversions` only.
+
+<Expandable title="Pagination Properties">
+<ResponseField name="page" type="integer">
+  Current page
+</ResponseField>
+
+<ResponseField name="limit" type="integer">
+  Page size
+</ResponseField>
+
+<ResponseField name="total" type="integer">
+  Total matching conversions
+</ResponseField>
+
+<ResponseField name="total_pages" type="integer">
+  Total number of pages
+</ResponseField>
+
+<ResponseField name="has_next_page" type="boolean">
+  Whether a next page exists
+</ResponseField>
+
+<ResponseField name="has_prev_page" type="boolean">
+  Whether a previous page exists
+</ResponseField>
+</Expandable>
+</ResponseField>
+</Expandable>
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `400` | Validation error. Common cases: invalid `range`, unpaired `start_date` / `end_date`, `end_date` before `start_date`, invalid date, or `page` / `limit` out of range |
+| `401` | Missing or invalid API key |
+| `403` | API key lacks `read:affiliates` |
+| `404` | Affiliate not found |
+| `429` | Rate limit exceeded |
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/affiliates/cmj8pptm10002p3010z8mk9ak/analytics" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+
+```bash cURL with Custom Dates
+curl -X GET "https://api.affonso.io/v1/affiliates/cmj8pptm10002p3010z8mk9ak/analytics?start_date=2026-06-01&end_date=2026-06-30&page=1&limit=20" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "period": {
+      "range": "30d",
+      "start_date": "2026-07-30T00:00:00.000Z",
+      "end_date": "2026-08-29T23:59:59.999Z",
+      "bucket": "day"
+    },
+    "summary": {
+      "clicks": 4,
+      "sign_ups": 3,
+      "conversions": 2,
+      "conversion_rate": 50,
+      "sales": [
+        { "amount": 100, "currency": "EUR" },
+        { "amount": 0.3, "currency": "USD" }
+      ],
+      "commissions": [
+        { "amount": 10, "currency": "EUR" },
+        { "amount": 5, "currency": "USD" }
+      ]
+    },
+    "time_series": [
+      {
+        "date": "2026-08-01T00:00:00.000Z",
+        "clicks": 4,
+        "sign_ups": 3,
+        "conversions": 2,
+        "sales": [
+          { "amount": 100, "currency": "EUR" },
+          { "amount": 0.1, "currency": "USD" }
+        ],
+        "commissions": [
+          { "amount": 10, "currency": "EUR" },
+          { "amount": 5, "currency": "USD" }
+        ]
+      },
+      {
+        "date": "2026-08-02T00:00:00.000Z",
+        "clicks": 0,
+        "sign_ups": 0,
+        "conversions": 0,
+        "sales": [
+          { "amount": 0.2, "currency": "USD" }
+        ],
+        "commissions": []
+      }
+    ],
+    "breakdowns": {
+      "traffic": {
+        "referrer": [
+          { "value": "google.com", "clicks": 3 },
+          { "value": "Direct", "clicks": 1 }
+        ],
+        "utm_source": [
+          { "value": "newsletter", "clicks": 2 }
+        ]
+      },
+      "geography": {
+        "country": [
+          { "value": "DE", "clicks": 4 }
+        ],
+        "city": [
+          { "value": "Berlin", "clicks": 3 },
+          { "value": "Unknown", "clicks": 1 }
+        ],
+        "region": [
+          { "value": "BE", "clicks": 3 }
+        ],
+        "continent": [
+          { "value": "EU", "clicks": 4 }
+        ]
+      },
+      "device": {
+        "browser": [
+          { "value": "Chrome", "clicks": 4 }
+        ],
+        "os": [
+          { "value": "macOS", "clicks": 3 },
+          { "value": "Unknown OS", "clicks": 1 }
+        ],
+        "device_type": [
+          { "value": "desktop", "clicks": 4 }
+        ]
+      },
+      "new_vs_recurring_sales": [
+        { "type": "new", "count": 2, "amount": 175, "currency": "EUR" },
+        { "type": "recurring", "count": 1, "amount": 25, "currency": "EUR" }
+      ]
+    },
+    "recent_conversions": {
+      "data": [
+        {
+          "id": "txn_1",
+          "date": "2026-08-20T10:00:00.000Z",
+          "sale": { "amount": 100, "currency": "EUR" },
+          "commission": { "amount": 10, "currency": "EUR" },
+          "status": "complete"
+        }
+      ],
+      "pagination": {
+        "page": 1,
+        "limit": 20,
+        "total": 1,
+        "total_pages": 1,
+        "has_next_page": false,
+        "has_prev_page": false
+      }
+    }
+  }
+}
+```
+</ResponseExample>

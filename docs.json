@@ -76,6 +76,7 @@
                 "pages": [
                   "api/endpoint/affiliates/list",
                   "api/endpoint/affiliates/get",
+                  "api/endpoint/affiliates/analytics",
                   "api/endpoint/affiliates/create",
                   "api/endpoint/affiliates/update",
                   "api/endpoint/affiliates/delete",
