@@ -49,8 +49,8 @@ List and search affiliates with powerful filtering options.
   Sort order: `asc` or `desc`
 </ParamField>
 
-<ParamField body="responseFormat" type="string" default="markdown">
-  Response format: `markdown` or `json`
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
@@ -122,8 +122,8 @@ Retrieve detailed information about a specific affiliate.
   Include related data: `promoCodes`, `commissionOverrides`, `invoiceDetails`, `payoutMethod`, `onboardingResponses`
 </ParamField>
 
-<ParamField body="responseFormat" type="string" default="markdown">
-  Response format: `markdown` or `json`
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
@@ -222,8 +222,8 @@ Create a new affiliate in your program.
   Initial partnership status: `pending`, `approved`, or `rejected`. Omit to auto-approve. No second update call is required.
 </ParamField>
 
-<ParamField body="responseFormat" type="string" default="markdown">
-  Response format: `markdown` or `json`
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
@@ -277,8 +277,8 @@ Update an existing affiliate's information.
   Partial billing and invoice details. Omitted keys keep their current values. `null` clears optional fields. Creating a first invoice record requires `first_name`, `last_name`, `address_line_1`, `city`, and `country`.
 </ParamField>
 
-<ParamField body="responseFormat" type="string" default="markdown">
-  Response format: `markdown` or `json`
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
@@ -315,8 +315,8 @@ This is a destructive operation. The affiliate and all their data will be perman
   The affiliate ID to delete
 </ParamField>
 
-<ParamField body="responseFormat" type="string" default="markdown">
-  Response format: `markdown` or `json`
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts

@@ -5,7 +5,7 @@ description: 'MCP tools for Affiliate Finder searches, results, and saved opport
 
 ## Overview
 
-The Finder tools start discovery searches, list results, and manage the team shortlist. All tools support `response_format` (`markdown` or `json`). Markdown returns the same JSON payload inside a fenced `json` block. List tools use `limit` and `offset`, not `page`.
+The Finder tools start discovery searches, list results, and manage the team shortlist. All tools support `response_format` (`markdown` or `json`). `responseFormat` is accepted as an alias. Markdown returns the same JSON payload inside a fenced `json` block. List tools use `limit` and `offset`, not `page`.
 
 <Info>
 Starting a search consumes one discovery credit per unique search term for the selected channel. Failed starts and completed public searches with zero results are refunded automatically. Searches whose results were later shortlisted are not refunded.
@@ -60,7 +60,7 @@ Start an Affiliate Finder search.
 </ParamField>
 
 <ParamField body="response_format" type="string" default="markdown">
-  Response format: `markdown` or `json`
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
@@ -115,7 +115,7 @@ List Finder searches and their processing status, progress, result totals, and d
 </ParamField>
 
 <ParamField body="response_format" type="string" default="markdown">
-  Response format: `markdown` or `json`
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
@@ -187,7 +187,7 @@ List discovered affiliate opportunities for one Finder search.
 </ParamField>
 
 <ParamField body="response_format" type="string" default="markdown">
-  Response format: `markdown` or `json`
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
@@ -256,7 +256,7 @@ List saved Affiliate Finder opportunities across the team.
 </ParamField>
 
 <ParamField body="response_format" type="string" default="markdown">
-  Response format: `markdown` or `json`
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
@@ -314,7 +314,7 @@ Save a Finder result to the team shortlist. When the domain is not already saved
 </ParamField>
 
 <ParamField body="response_format" type="string" default="markdown">
-  Response format: `markdown` or `json`
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
@@ -375,7 +375,7 @@ Update a saved Finder opportunity's emails, social links, notes, or workflow sta
 </ParamField>
 
 <ParamField body="response_format" type="string" default="markdown">
-  Response format: `markdown` or `json`
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
@@ -426,7 +426,7 @@ This permanently deletes the saved opportunity from the shortlist.
 </ParamField>
 
 <ParamField body="response_format" type="string" default="markdown">
-  Response format: `markdown` or `json`
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
 
 ### Example Prompts
