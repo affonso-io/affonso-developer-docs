@@ -288,7 +288,8 @@
               "mcp/tools/referrals",
               "mcp/tools/commissions",
               "mcp/tools/payouts",
-              "mcp/tools/finder"
+              "mcp/tools/finder",
+              "mcp/tools/creatives"
             ]
           }
         ]

@@ -1,0 +1,399 @@
+---
+title: 'Creative Tools'
+description: 'MCP tools for managing Success Hub Creative Library assets'
+---
+
+## Overview
+
+The Creative Library tools list, create, update, and delete program creatives (banners, brand assets, videos, and more). They mirror REST `/v1/program/creatives` and use the same program scopes. All tools support `response_format` (`markdown` or `json`). `responseFormat` is accepted as an alias. List tools use `limit` and `offset`, not `page`.
+
+<Info>
+Creatives belong to your team's affiliate program. There is no separate `*:creatives` scope. Use `read:program`, `write:program`, and `delete:program`.
+</Info>
+
+## Available Tools
+
+| Tool | Description | Permission |
+|------|-------------|------------|
+| `affonso_list_creatives` | List creatives with pagination and optional category filter | `read:program` |
+| `affonso_get_creative` | Get a single creative by ID | `read:program` |
+| `affonso_create_creative` | Create a Creative Library asset | `write:program` |
+| `affonso_update_creative` | Update an existing creative (partial updates supported) | `write:program` |
+| `affonso_delete_creative` | Permanently delete a creative | `delete:program` |
+
+## Creative Categories
+
+| Category | Typical use |
+|----------|-------------|
+| `brand` | Logos and brand kits |
+| `banner` | Display ads and leaderboards |
+| `product` | Product images and screenshots |
+| `content` | Copy templates and HTML snippets |
+| `video` | Video assets |
+| `document` | PDFs and other documents |
+
+---
+
+## affonso_list_creatives
+
+List Creative Library assets for your program. Same data as `GET /v1/program/creatives`.
+
+### Parameters
+
+<ParamField body="limit" type="number" default="20">
+  Number of results to return (max 100)
+</ParamField>
+
+<ParamField body="offset" type="number" default="0">
+  Number of results to skip
+</ParamField>
+
+<ParamField body="category" type="string">
+  Filter by category: `brand`, `banner`, `product`, `content`, `video`, `document`
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+List my Creative Library assets
+Show banner creatives
+List creatives with limit 10
+What creatives do we have in the brand category?
+```
+
+### Response
+
+<CodeGroup>
+```markdown Markdown Format
+## Creatives (2)
+Showing 2 of 2 items
+
+### Summer Sale Banner
+**ID:** `cm3creative123abc`
+**Category:** banner
+**Subcategory:** leaderboard
+**URL:** https://cdn.acme.com/banners/summer-728x90.png
+**Tags:** summer, sale
+**Dimensions:** 728x90
+**Usage notes:** Use on blog sidebars and headers
+**Created:** Jan 15, 2024
+---
+### Brand Logo
+**ID:** `cm3creative456def`
+**Category:** brand
+**Subcategory:** logo
+**URL:** https://cdn.acme.com/brand/logo.svg
+**Created:** Jan 10, 2024
+```
+
+```json JSON Format
+{
+  "data": [
+    {
+      "id": "cm3creative123abc",
+      "name": "Summer Sale Banner",
+      "description": null,
+      "category": "banner",
+      "subcategory": "leaderboard",
+      "url": "https://cdn.acme.com/banners/summer-728x90.png",
+      "content": null,
+      "tags": ["summer", "sale"],
+      "dimensions": { "width": 728, "height": 90 },
+      "usage_notes": "Use on blog sidebars and headers",
+      "restrictions": null,
+      "created_at": "2024-01-15T10:00:00.000Z",
+      "updated_at": "2024-01-15T10:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "total": 2,
+    "count": 2,
+    "offset": 0,
+    "limit": 20,
+    "has_more": false
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## affonso_get_creative
+
+Get a single Creative Library asset by ID. Same data as `GET /v1/program/creatives/:id`.
+
+### Parameters
+
+<ParamField body="creative_id" type="string" required>
+  Unique Creative Library asset identifier. Example: `cm3creative123abc`
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Get creative cm3creative123abc
+Show details for creative cm3creative456def
+What is the URL for creative cm3creative123abc?
+```
+
+### Response
+
+<CodeGroup>
+```markdown Markdown Format
+### Summer Sale Banner
+**ID:** `cm3creative123abc`
+**Category:** banner
+**Subcategory:** leaderboard
+**URL:** https://cdn.acme.com/banners/summer-728x90.png
+**Tags:** summer, sale
+**Dimensions:** 728x90
+**Usage notes:** Use on blog sidebars and headers
+**Created:** Jan 15, 2024
+```
+
+```json JSON Format
+{
+  "data": {
+    "id": "cm3creative123abc",
+    "name": "Summer Sale Banner",
+    "description": null,
+    "category": "banner",
+    "subcategory": "leaderboard",
+    "url": "https://cdn.acme.com/banners/summer-728x90.png",
+    "content": null,
+    "tags": ["summer", "sale"],
+    "dimensions": { "width": 728, "height": 90 },
+    "usage_notes": "Use on blog sidebars and headers",
+    "restrictions": null,
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## affonso_create_creative
+
+Create a Creative Library asset for your program. Same fields and validation as `POST /v1/program/creatives`. All write fields are optional.
+
+### Parameters
+
+<ParamField body="name" type="string | null">
+  Creative name. Maximum 255 characters. Example: `Summer banner`
+</ParamField>
+
+<ParamField body="description" type="string | null">
+  Creative description
+</ParamField>
+
+<ParamField body="category" type="string | null">
+  Creative category: `brand`, `banner`, `product`, `content`, `video`, `document`
+</ParamField>
+
+<ParamField body="subcategory" type="string | null">
+  Optional subcategory such as `logo`, `leaderboard`, or `product-image`
+</ParamField>
+
+<ParamField body="url" type="string | null">
+  URL for an external creative asset. Must be a valid URL. Example: `https://cdn.example.com/banner.png`
+</ParamField>
+
+<ParamField body="content" type="string | null">
+  Text or HTML content for templates. Example: `<p>Summer sale</p>`
+</ParamField>
+
+<ParamField body="tags" type="string[]">
+  Tags for organizing creatives. Example: `["summer", "promo"]`
+</ParamField>
+
+<ParamField body="dimensions" type="object | null">
+  Asset dimensions in pixels. Object with integer `width` and `height`. Example: `{ "width": 728, "height": 90 }`
+</ParamField>
+
+<ParamField body="usage_notes" type="string | null">
+  Instructions for affiliates using this creative
+</ParamField>
+
+<ParamField body="restrictions" type="string | null">
+  Usage restrictions for this creative
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Create a banner creative named Summer Sale Banner with url https://cdn.acme.com/banners/summer-728x90.png
+Add a brand logo creative with subcategory logo and url https://cdn.acme.com/brand/logo.svg
+Create a content creative with HTML for a summer promo email
+Create a 728x90 banner tagged summer and sale
+```
+
+### Response
+
+```markdown
+### Summer Sale Banner
+**ID:** `cm3creative123abc`
+**Category:** banner
+**Subcategory:** leaderboard
+**URL:** https://cdn.acme.com/banners/summer-728x90.png
+**Tags:** summer, sale
+**Dimensions:** 728x90
+**Usage notes:** Use on blog sidebars and headers
+**Created:** Jan 15, 2024
+```
+
+---
+
+## affonso_update_creative
+
+Update a Creative Library asset. Partial updates are supported. Same fields as `PATCH /v1/program/creatives/:id`.
+
+### Parameters
+
+<ParamField body="creative_id" type="string" required>
+  Unique Creative Library asset identifier to update
+</ParamField>
+
+<ParamField body="name" type="string | null">
+  Creative name. Maximum 255 characters
+</ParamField>
+
+<ParamField body="description" type="string | null">
+  Creative description
+</ParamField>
+
+<ParamField body="category" type="string | null">
+  Creative category: `brand`, `banner`, `product`, `content`, `video`, `document`
+</ParamField>
+
+<ParamField body="subcategory" type="string | null">
+  Optional subcategory such as `logo`, `leaderboard`, or `product-image`
+</ParamField>
+
+<ParamField body="url" type="string | null">
+  URL for an external creative asset. Must be a valid URL
+</ParamField>
+
+<ParamField body="content" type="string | null">
+  Text or HTML content for templates
+</ParamField>
+
+<ParamField body="tags" type="string[]">
+  Tags for organizing creatives
+</ParamField>
+
+<ParamField body="dimensions" type="object | null">
+  Asset dimensions in pixels (`width`, `height`)
+</ParamField>
+
+<ParamField body="usage_notes" type="string | null">
+  Instructions for affiliates using this creative
+</ParamField>
+
+<ParamField body="restrictions" type="string | null">
+  Usage restrictions for this creative
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Update creative cm3creative123abc name to Fall Sale Banner
+Set usage notes on creative cm3creative123abc to Use only on partner blogs
+Change creative cm3creative456def category to brand
+Add tags promo and q4 to creative cm3creative123abc
+```
+
+### Response
+
+```markdown
+### Fall Sale Banner
+**ID:** `cm3creative123abc`
+**Category:** banner
+**Subcategory:** leaderboard
+**URL:** https://cdn.acme.com/banners/fall-728x90.png
+**Tags:** fall, sale
+**Dimensions:** 728x90
+**Usage notes:** Use only on partner blogs
+**Created:** Jan 15, 2024
+```
+
+---
+
+## affonso_delete_creative
+
+<Warning>
+This is a destructive operation. The creative is permanently deleted and cannot be undone. Same behavior as `DELETE /v1/program/creatives/:id`.
+</Warning>
+
+### Parameters
+
+<ParamField body="creative_id" type="string" required>
+  Unique Creative Library asset identifier to delete
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Delete creative cm3creative123abc
+Remove the outdated summer banner creative cm3creative123abc
+```
+
+### Response
+
+```markdown
+Successfully deleted creative: Summer Sale Banner
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "cm3creative123abc",
+    "name": "Summer Sale Banner",
+    "deleted": true
+  }
+}
+```
+
+---
+
+## Related REST Endpoints
+
+| Operation | REST |
+|-----------|------|
+| List | [List Creatives](/api/endpoint/program/list-creatives) |
+| Get | [Get Creative](/api/endpoint/program/get-creative) |
+| Create | [Create Creative](/api/endpoint/program/create-creative) |
+| Update | [Update Creative](/api/endpoint/program/update-creative) |
+| Delete | [Delete Creative](/api/endpoint/program/delete-creative) |
+
+## Error Handling
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `NOT_FOUND` | Creative ID does not exist in your program | Verify the ID is correct |
+| Program not found | Team has no affiliate program | Set up your program in the Affonso dashboard |
+| `PERMISSION_DENIED` | Missing required program scope | Use `read:program`, `write:program`, or `delete:program` |
+| Invalid URL | `url` is not a valid URL | Provide a full `https://` URL |
+| Invalid category | Category not in the allowed set | Use `brand`, `banner`, `product`, `content`, `video`, or `document` |
