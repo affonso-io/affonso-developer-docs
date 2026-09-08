@@ -277,6 +277,16 @@ Update an existing affiliate's information.
   Partial billing and invoice details. Omitted keys keep their current values. `null` clears optional fields. Creating a first invoice record requires `first_name`, `last_name`, `address_line_1`, `city`, and `country`.
 </ParamField>
 
+<ParamField body="payout_method" type="string">
+  Payout method (`none` to remove). Valid values match `PUT /v1/affiliates/{id}`.
+
+  If you send `payout_method` without `payout_details`, or with empty / method-incomplete details, only the method type is updated. Existing PayPal, bank, and crypto credentials stay in place.
+</ParamField>
+
+<ParamField body="payout_details" type="object">
+  Payout details for the selected method. Sending this object replaces credentials and clears fields from other methods. Omit it to keep stored credentials when you only change `payout_method`.
+</ParamField>
+
 <ParamField body="response_format" type="string" default="markdown">
   Response format: `markdown` or `json`. Also accepted as `responseFormat`.
 </ParamField>
@@ -288,6 +298,7 @@ Approve affiliate aff_abc123
 Update affiliate aff_xyz to have email new@example.com
 Change the name of affiliate aff_123 to "John Smith Jr."
 Reject affiliate aff_pending456
+Set affiliate aff_abc123 payout method to PayPal without changing the saved email
 ```
 
 ### Response
