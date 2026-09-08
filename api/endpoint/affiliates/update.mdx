@@ -53,12 +53,16 @@ All body parameters are optional. Only include the fields you want to update.
 </ParamField>
 
 <ParamField body="payout_method" type="string">
-  Payout method (none to remove). Valid values: `paypal`, `wise`, `payoneer`, `paxum`, `webmoney`, `skrill`, `wire_transfer`, `bitcoin`, `ethereum`, `alipay`, `wechat`, `manual`, `none`.
+  Payout method (`none` to remove). Valid values: `paypal`, `wise`, `payoneer`, `paxum`, `webmoney`, `skrill`, `wire_transfer`, `bitcoin`, `ethereum`, `alipay`, `wechat`, `manual`, `none`.
+
+  If you send `payout_method` without `payout_details`, or with empty / method-incomplete details, only the method type is updated. Existing PayPal, bank, and crypto credentials stay in place.
 </ParamField>
 
 <ParamField body="payout_details" type="object">
-  Payout details (snake_case fields). The required fields depend on the `payout_method`:
-  
+  Payout details (snake_case fields). Sending this object replaces credentials for the selected method and clears fields that belong to other methods. Omit it to keep stored credentials when you only change `payout_method`.
+
+  The required fields depend on the `payout_method`:
+
   - **Email-based methods** (`paypal`, `wise`, `payoneer`, `paxum`, `skrill`): `email` (string, valid email)
   - **ID-based methods** (`webmoney`, `alipay`, `wechat`): `account_id` (string)
   - **Crypto methods** (`bitcoin`, `ethereum`): `address` (string, wallet address)
