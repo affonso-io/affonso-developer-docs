@@ -1,7 +1,7 @@
 ---
 title: "Create Affiliate"
 api: "POST https://api.affonso.io/v1/affiliates"
-description: "Create a new affiliate user"
+description: "Create a new affiliate Account and program contact"
 ---
 
 ## Body Parameters
@@ -11,7 +11,7 @@ description: "Create a new affiliate user"
 </ParamField>
 
 <ParamField body="email" type="string" required>
-  The affiliate's email address. Must be a valid email format. If a user with this email already exists, they will be linked to the affiliate account.
+  The affiliate's email address. Must be a valid email format. Creates or resolves an affiliate Account and a durable program contact for this email. Does not create a merchant User.
 </ParamField>
 
 <ParamField body="program_id" type="string" required>
@@ -221,6 +221,7 @@ curl -X POST "https://api.affonso.io/v1/affiliates" \
 
 ## Notes
 
+- Creates an affiliate Account and durable program contact. Existing program IDs, tracking, and financial relations stay intact. Does not create a customer/merchant User.
 - Set `status` on create when the affiliate should start as `pending` or `rejected`. You do not need a second `PATCH` to change status after create.
 - To retrieve related data like promo codes, commission overrides, invoice details, and payout methods, use `GET /v1/affiliates/{id}?expand=promoCodes,commissionOverrides,invoiceDetails,payoutMethod`.
 - If you provide a custom `tracking_id` that is already in use by another affiliate in your team, the API will return a `409 Conflict` error with the code `DUPLICATE_ERROR`.
