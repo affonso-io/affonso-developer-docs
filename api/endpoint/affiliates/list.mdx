@@ -4,6 +4,8 @@ api: "GET https://api.affonso.io/v1/affiliates"
 description: "Get a paginated list of all affiliates with optional filtering and expansion"
 ---
 
+The API key selects the program whose affiliates are returned.
+
 ## Query Parameters
 
 <ParamField query="page" type="integer" default="1">
@@ -24,10 +26,6 @@ description: "Get a paginated list of all affiliates with optional filtering and
 
 <ParamField query="group_id" type="string">
   Filter by affiliate group.
-</ParamField>
-
-<ParamField query="program_id" type="string">
-  Filter by specific program (defaults to team's program).
 </ParamField>
 
 <ParamField query="sort" type="string">
@@ -229,4 +227,3 @@ curl -X GET "https://api.affonso.io/v1/affiliates?limit=10&expand=promoCodes,com
 }
 ```
 </ResponseExample>
-
