@@ -125,10 +125,6 @@ The response includes the created conversion object. On a duplicate
   Affiliate who received credit for the conversion.
 </ResponseField>
 
-<ResponseField name="program_id" type="string | null">
-  Affiliate program ID for the conversion.
-</ResponseField>
-
 <ResponseField name="sale_amount" type="number">
   Sale amount stored on the transaction.
 </ResponseField>
@@ -237,7 +233,6 @@ curl -X POST "https://api.affonso.io/v1/conversions" \
     "id": "com_abc123",
     "referral_id": "ref_456def",
     "affiliate_id": "aff_789ghi",
-    "program_id": "prog_123xyz",
     "sale_amount": 99,
     "sale_amount_currency": "USD",
     "commission_amount": 29.7,

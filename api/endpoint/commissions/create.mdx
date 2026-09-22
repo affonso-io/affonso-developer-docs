@@ -78,10 +78,6 @@ The response includes the created commission object.
   The affiliate ID who will receive this commission
 </ResponseField>
 
-<ResponseField name="program_id" type="string">
-  The affiliate program ID
-</ResponseField>
-
 <ResponseField name="sale_amount" type="number">
   The total sale/transaction amount (automatically converted to team currency if different)
 </ResponseField>
@@ -152,7 +148,6 @@ curl -X POST "https://api.affonso.io/v1/commissions" \
     "id": "com_abc123",
     "referral_id": "ref_456def",
     "affiliate_id": "aff_789ghi",
-    "program_id": "prog_123xyz",
       "sale_amount": 99.00,
       "sale_amount_currency": "USD",
       "commission_amount": 9.90,

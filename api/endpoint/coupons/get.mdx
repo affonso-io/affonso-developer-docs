@@ -40,10 +40,6 @@ Retrieve a single coupon by ID with optional expanded fields.
   The ID of the affiliate who owns this coupon
 </ResponseField>
 
-<ResponseField name="program_id" type="string">
-  The ID of the affiliate program this coupon belongs to
-</ResponseField>
-
 <ResponseField name="discount_type" type="string">
   Type of discount: `percentage` or `fixed`
 </ResponseField>
@@ -118,7 +114,6 @@ curl -X GET "https://api.affonso.io/v1/coupons/cpn_abc123?expand=affiliate" \
     "id": "cpn_abc123",
     "code": "SAVE25",
     "affiliate_id": "aff_123",
-    "program_id": "prg_789ghi",
     "discount_type": "percentage",
     "discount_value": 25,
     "duration": "forever",
@@ -149,7 +144,6 @@ curl -X GET "https://api.affonso.io/v1/coupons/cpn_abc123?expand=affiliate" \
     "id": "cpn_abc123",
     "code": "SAVE25",
     "affiliate_id": "aff_123",
-    "program_id": "prg_789ghi",
     "discount_type": "percentage",
     "discount_value": 25,
     "duration": "forever",
@@ -176,7 +170,6 @@ curl -X GET "https://api.affonso.io/v1/coupons/cpn_abc123?expand=affiliate" \
       "tracking_id": "PARTNER123",
       "source": "api",
       "onboarding_completed": true,
-      "program_id": "prg_789ghi",
       "group_id": null,
       "created_at": "2024-01-15T10:30:00Z"
     }

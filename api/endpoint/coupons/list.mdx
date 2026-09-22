@@ -18,10 +18,6 @@ description: "Get a paginated list of affiliate promotional coupons"
   Filter coupons by affiliate ID.
 </ParamField>
 
-<ParamField query="program_id" type="string">
-  Filter coupons by program ID.
-</ParamField>
-
 <ParamField query="search" type="string">
   Search by coupon code. Case-insensitive partial matching. Maximum 100 characters.
 </ParamField>
@@ -56,10 +52,6 @@ The response includes a paginated list of coupons and pagination metadata.
 
 <ResponseField name="affiliate_id" type="string">
   The ID of the affiliate who owns this coupon
-</ResponseField>
-
-<ResponseField name="program_id" type="string">
-  The ID of the affiliate program this coupon belongs to
 </ResponseField>
 
 <ResponseField name="discount_type" type="string">
@@ -147,7 +139,6 @@ curl -X GET "https://api.affonso.io/v1/coupons?affiliate_id=aff_123&expand=affil
       "id": "cpn_abc123",
       "code": "SAVE25",
       "affiliate_id": "aff_123",
-      "program_id": "prg_789ghi",
       "discount_type": "percentage",
       "discount_value": 25,
       "duration": "forever",

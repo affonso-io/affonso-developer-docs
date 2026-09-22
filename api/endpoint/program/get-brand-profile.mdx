@@ -17,7 +17,6 @@ Retrieve your program's brand market profile. The profile is used to categorise 
 
 <Expandable title="Brand Profile Properties">
 <ResponseField name="id" type="string">Unique profile identifier.</ResponseField>
-<ResponseField name="affiliate_program_id" type="string">Identifier of the program that owns the profile.</ResponseField>
 <ResponseField name="primary_category" type="string | null">Primary marketplace category.</ResponseField>
 <ResponseField name="product_format" type="string | null">Format of the product or service.</ResponseField>
 <ResponseField name="audience_model" type="string | null">Whether the product is `B2B`, `B2C`, or `BOTH`.</ResponseField>
@@ -55,7 +54,6 @@ curl -X GET "https://api.affonso.io/v1/program/brand" \
   "success": true,
   "data": {
     "id": "cmp_brand_profile_123",
-    "affiliate_program_id": "cmp_program_123",
     "primary_category": "SALES_CRM_SUPPORT",
     "product_format": "SAAS_WEB_APP",
     "audience_model": "B2B",

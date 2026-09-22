@@ -8,10 +8,6 @@ Use this endpoint to track when a visitor clicks an affiliate link. This is usef
 
 ## Body Parameters
 
-<ParamField body="programId" type="string" required>
-  The unique identifier of the affiliate program. The program must belong to your team.
-</ParamField>
-
 <ParamField body="trackingId" type="string" required>
   The affiliate's tracking ID. The affiliate must have an approved partnership with the specified program.
 </ParamField>
@@ -104,10 +100,6 @@ The response includes the created click object.
   The affiliate's tracking ID
 </ResponseField>
 
-<ResponseField name="programId" type="string">
-  The affiliate program ID
-</ResponseField>
-
 <ResponseField name="createdAt" type="string">
   ISO 8601 timestamp of when the click was recorded
 </ResponseField>
@@ -120,7 +112,6 @@ curl -X POST "https://api.affonso.io/v1/clicks" \
   -H "Authorization: Bearer sk_live_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{
-    "programId": "prg_456def",
     "trackingId": "PARTNER123",
     "referrer": "https://partner-blog.com/review",
     "utmSource": "partner-blog",
@@ -137,7 +128,6 @@ curl -X POST "https://api.affonso.io/v1/clicks" \
   "data": {
     "id": "clk_xyz789",
     "trackingId": "PARTNER123",
-    "programId": "prg_456def",
     "createdAt": "2024-01-25T12:00:00Z"
   }
 }

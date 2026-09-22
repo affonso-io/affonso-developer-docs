@@ -14,10 +14,6 @@ description: "Create a new affiliate user"
   The affiliate's email address. Must be a valid email format. If a user with this email already exists, they will be linked to the affiliate account.
 </ParamField>
 
-<ParamField body="program_id" type="string" required>
-  Program ID to associate affiliate with.
-</ParamField>
-
 <ParamField body="tracking_id" type="string">
   Custom tracking ID for the affiliate. Must contain only lowercase letters, numbers, and hyphens. Maximum 100 characters. If not provided, a tracking ID will be automatically generated from the affiliate's name. Must be unique within your team.
 </ParamField>
@@ -100,10 +96,6 @@ The response includes the created affiliate object with the following fields:
   Whether the affiliate has completed their onboarding process. Always `false` for newly created affiliates.
 </ResponseField>
 
-<ResponseField name="program_id" type="string">
-  The affiliate program ID the affiliate is assigned to
-</ResponseField>
-
 <ResponseField name="group_id" type="string | null">
   The affiliate group ID if assigned, otherwise `null`
 </ResponseField>
@@ -130,7 +122,6 @@ curl -X POST "https://api.affonso.io/v1/affiliates" \
   -d '{
     "name": "Jane Smith",
     "email": "jane@example.com",
-    "program_id": "cm7xutqbb0001yfkcrnpextmp",
     "company_name": "Jane LLC",
     "country_code": "US",
     "payout_method": "paypal",
@@ -152,7 +143,6 @@ curl -X POST "https://api.affonso.io/v1/affiliates" \
   -d '{
     "name": "Alex Rivera",
     "email": "alex@example.com",
-    "program_id": "cm7xutqbb0001yfkcrnpextmp",
     "status": "pending"
   }'
 ```
@@ -164,7 +154,6 @@ curl -X POST "https://api.affonso.io/v1/affiliates" \
   -d '{
     "name": "Jane Smith",
     "email": "jane@example.com",
-    "program_id": "cm7xutqbb0001yfkcrnpextmp",
     "tracking_id": "janesmith-2024",
     "payout_method": "paypal",
     "payout_details": {
@@ -186,7 +175,6 @@ curl -X POST "https://api.affonso.io/v1/affiliates" \
     "source": "api",
     "partnership_status": "APPROVED",
     "onboarding_completed": false,
-    "program_id": "cm7xutqbb0001yfkcrnpextmp",
     "group_id": null,
     "external_user_id": "user_123",
     "metadata": {
@@ -209,7 +197,6 @@ curl -X POST "https://api.affonso.io/v1/affiliates" \
     "source": "api",
     "partnership_status": "APPROVED",
     "onboarding_completed": false,
-    "program_id": "cm7xutqbb0001yfkcrnpextmp",
     "group_id": null,
     "external_user_id": null,
     "metadata": null,

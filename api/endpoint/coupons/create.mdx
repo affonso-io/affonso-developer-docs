@@ -75,10 +75,6 @@ The response includes the created coupon object.
   The ID of the affiliate who owns this coupon
 </ResponseField>
 
-<ResponseField name="program_id" type="string">
-  The ID of the affiliate program this coupon belongs to
-</ResponseField>
-
 <ResponseField name="discount_type" type="string">
   Type of discount: `percentage` or `fixed`
 </ResponseField>
@@ -184,7 +180,6 @@ curl -X POST "https://api.affonso.io/v1/coupons" \
     "id": "cpn_abc123",
     "code": "SAVE25",
     "affiliate_id": "aff_123",
-    "program_id": "prg_789ghi",
     "discount_type": "percentage",
     "discount_value": 25,
     "duration": "forever",

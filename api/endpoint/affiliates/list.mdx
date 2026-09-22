@@ -84,10 +84,6 @@ The response includes a paginated list of affiliates and pagination metadata.
   Whether the affiliate has completed their onboarding process
 </ResponseField>
 
-<ResponseField name="program_id" type="string">
-  The affiliate program ID the affiliate is assigned to
-</ResponseField>
-
 <ResponseField name="group_id" type="string | null">
   The affiliate group ID if assigned, otherwise `null`
 </ResponseField>
@@ -133,7 +129,6 @@ curl -X GET "https://api.affonso.io/v1/affiliates?limit=10&expand=promoCodes,com
       "source": "api",
       "partnership_status": "APPROVED",
       "onboarding_completed": true,
-      "program_id": "cm7xutqbb0001yfkcrnpextmp",
       "group_id": "efbf3f29-efb1-4837-8924-7322606858f3",
       "created_at": "2024-01-15T10:30:00Z"
     }
@@ -161,7 +156,6 @@ curl -X GET "https://api.affonso.io/v1/affiliates?limit=10&expand=promoCodes,com
       "source": "api",
       "partnership_status": "APPROVED",
       "onboarding_completed": true,
-      "program_id": "cm7xutqbb0001yfkcrnpextmp",
       "group_id": "efbf3f29-efb1-4837-8924-7322606858f3",
       "created_at": "2024-01-15T10:30:00Z",
       "promoCodes": [
