@@ -64,10 +64,6 @@ All body parameters are optional. Only include the fields you want to update.
   The affiliate ID who will receive this commission
 </ResponseField>
 
-<ResponseField name="program_id" type="string">
-  The affiliate program ID
-</ResponseField>
-
 <ResponseField name="sale_amount" type="number">
   The total sale/transaction amount
 </ResponseField>
@@ -137,7 +133,6 @@ curl -X PUT "https://api.affonso.io/v1/commissions/com_abc123" \
     "id": "com_abc123",
     "referral_id": "ref_456def",
     "affiliate_id": "aff_789ghi",
-    "program_id": "prog_123xyz",
     "sale_amount": 149.00,
     "sale_amount_currency": "USD",
     "commission_amount": 14.90,

@@ -35,10 +35,6 @@ Create an API route on your server that generates a token. This keeps your API k
 
 ### Body Parameters
 
-<ParamField body="programId" type="string" required>
-  Your affiliate program ID.
-</ParamField>
-
 <ParamField body="partner" type="object" required>
   Information about the user you want to display the dashboard for.
 
@@ -68,7 +64,6 @@ curl -X POST "https://api.affonso.io/v1/embed/token" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "programId": "cm12x98yz0005bnp8h9ld2ff9",
     "partner": {
       "email": "user@example.com",
       "name": "Jane Smith",
@@ -144,7 +139,6 @@ export async function POST() {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      programId: process.env.AFFONSO_PROGRAM_ID,
       partner: {
         email: session.user.email,
         name: session.user.name,

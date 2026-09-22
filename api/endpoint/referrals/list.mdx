@@ -66,10 +66,6 @@ The response includes a cursor-paginated list of referrals.
   The affiliate ID who referred this customer
 </ResponseField>
 
-<ResponseField name="program_id" type="string">
-  The affiliate program ID
-</ResponseField>
-
 <ResponseField name="email" type="string | null">
   The customer's email address
 </ResponseField>
@@ -137,7 +133,6 @@ curl -X GET "https://api.affonso.io/v1/referrals?limit=10&expand=affiliate" \
     {
       "id": "ref_abc123",
       "affiliate_id": "aff_456def",
-      "program_id": "prg_789ghi",
       "email": "customer@example.com",
       "customer_id": "cust_123",
       "external_user_id": "user_42",
@@ -162,7 +157,6 @@ curl -X GET "https://api.affonso.io/v1/referrals?limit=10&expand=affiliate" \
     {
       "id": "ref_abc123",
       "affiliate_id": "aff_456def",
-      "program_id": "prg_789ghi",
       "email": "customer@example.com",
       "customer_id": "cust_123",
       "external_user_id": "user_42",
@@ -182,7 +176,6 @@ curl -X GET "https://api.affonso.io/v1/referrals?limit=10&expand=affiliate" \
         "source": "api",
         "partnership_status": "APPROVED",
         "onboarding_completed": true,
-        "program_id": "prg_789ghi",
         "group_id": null,
         "created_at": "2024-01-15T10:30:00Z"
       }

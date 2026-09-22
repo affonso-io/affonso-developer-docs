@@ -75,10 +75,6 @@ The response returns the updated conversion object.
   Affiliate who received credit for the conversion.
 </ResponseField>
 
-<ResponseField name="program_id" type="string | null">
-  Affiliate program ID for the conversion.
-</ResponseField>
-
 <ResponseField name="sale_amount" type="number">
   Remaining sale amount after the refund is applied.
 </ResponseField>
@@ -151,7 +147,6 @@ curl -X POST "https://api.affonso.io/v1/conversions/com_abc123/refund" \
     "id": "com_abc123",
     "referral_id": "ref_456def",
     "affiliate_id": "aff_789ghi",
-    "program_id": "prog_123xyz",
     "sale_amount": 49.5,
     "sale_amount_currency": "USD",
     "commission_amount": 14.85,

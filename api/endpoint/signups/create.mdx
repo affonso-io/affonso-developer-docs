@@ -47,9 +47,6 @@ If the affiliate's program has a lead incentive configured, this call also creat
     <ResponseField name="affiliate_id" type="string">
       The affiliate user who owns this lead.
     </ResponseField>
-    <ResponseField name="program_id" type="string">
-      The affiliate program ID.
-    </ResponseField>
     <ResponseField name="email" type="string | null">
       The lead's email (omitted when the program disables email tracking).
     </ResponseField>
@@ -130,7 +127,6 @@ print("Lead created:", resp.json()["data"]["id"])
   "data": {
     "id": "ref_clk_xyz789",
     "affiliate_id": "aff_abc123",
-    "program_id": "prg_456def",
     "email": "jane@example.com",
     "customer_id": null,
     "subscription_id": null,
@@ -149,7 +145,6 @@ print("Lead created:", resp.json()["data"]["id"])
   "data": {
     "id": "ref_clk_xyz789",
     "affiliate_id": "aff_abc123",
-    "program_id": "prg_456def",
     "email": "jane@example.com",
     "status": "lead",
     "name": "Jane Doe",

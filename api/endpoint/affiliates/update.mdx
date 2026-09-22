@@ -118,10 +118,6 @@ The response includes the updated affiliate object with the same structure as th
   Whether the affiliate has completed their onboarding process
 </ResponseField>
 
-<ResponseField name="program_id" type="string">
-  The affiliate program ID the affiliate is assigned to
-</ResponseField>
-
 <ResponseField name="group_id" type="string | null">
   The affiliate group ID if assigned, otherwise `null`
 </ResponseField>
@@ -181,7 +177,6 @@ curl -X PUT "https://api.affonso.io/v1/affiliates/cmj8pptm10002p3010z8mk9ak" \
     "source": "api",
     "partnership_status": "APPROVED",
     "onboarding_completed": false,
-    "program_id": "cm7xutqbb0001yfkcrnpextmp",
     "group_id": null,
     "external_user_id": "user_456",
     "metadata": {

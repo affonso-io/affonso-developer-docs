@@ -56,10 +56,6 @@ All body parameters are optional. Only include the fields you want to update.
   The affiliate ID who referred this customer
 </ResponseField>
 
-<ResponseField name="program_id" type="string">
-  The affiliate program ID
-</ResponseField>
-
 <ResponseField name="email" type="string | null">
   The customer's email address
 </ResponseField>
@@ -112,7 +108,6 @@ curl -X PUT "https://api.affonso.io/v1/referrals/ref_abc123" \
   "data": {
     "id": "ref_abc123",
     "affiliate_id": "aff_456def",
-    "program_id": "prg_789ghi",
     "email": "customer@example.com",
     "customer_id": "cust_123",
     "subscription_id": null,

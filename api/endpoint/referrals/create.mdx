@@ -62,10 +62,6 @@ The response includes the created referral object.
   The affiliate ID who referred this customer
 </ResponseField>
 
-<ResponseField name="program_id" type="string">
-  The affiliate program ID
-</ResponseField>
-
 <ResponseField name="email" type="string | null">
   The customer's email address
 </ResponseField>
@@ -130,7 +126,6 @@ curl -X POST "https://api.affonso.io/v1/referrals" \
   "data": {
     "id": "ref_abc123",
     "affiliate_id": "aff_123abc",
-    "program_id": "prog_789xyz",
     "email": "newcustomer@example.com",
     "customer_id": "cust_456",
     "external_user_id": null,
