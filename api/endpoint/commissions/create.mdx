@@ -5,9 +5,10 @@ description: "Create a new commission transaction manually"
 ---
 
 <Info>
-  This endpoint is for manual commission creation. If you want Affonso to
-  resolve the referral, match the incentive, calculate the commission, and
-  deduplicate retries automatically, use
+  This endpoint is for manual sale commission creation. Every create needs
+  `referral_id`, a positive `sale_amount`, and `commission_amount` (may be `0`).
+  If you want Affonso to resolve the referral, match the incentive, calculate
+  the commission, and deduplicate retries automatically, use
   <a href="/api/endpoint/conversions/create">POST /conversions</a>
   instead. For a non-sale cash bonus with no referral, use
   <a href="/api/endpoint/commissions/bonus">POST /commissions/bonus</a>.
