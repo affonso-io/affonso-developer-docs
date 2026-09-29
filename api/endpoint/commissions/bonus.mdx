@@ -1,0 +1,121 @@
+---
+title: "Create Bonus"
+api: "POST https://api.affonso.io/v1/commissions/bonus"
+description: "Create a first-class Bonus earning for an affiliate without a sale or referral"
+---
+
+<Info>
+  This endpoint creates a first-class Bonus earning with no sale and no referral. The earning is `bonus`, `ready_for_payment`, and payout-eligible. Do not send `referral_id` or `sale_amount`. For sale commissions, use
+  <a href="/api/endpoint/commissions/create">POST /commissions</a>
+  or
+  <a href="/api/endpoint/conversions/create">POST /conversions</a>
+  instead.
+</Info>
+
+## Body Parameters
+
+The request body is strict. Extra properties are rejected.
+
+<ParamField body="affiliate_id" type="string" required>
+  Affiliate to credit. Must belong to the authenticated team.
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Bonus amount in the team's currency. Must be between `0.0001` and `999999.9999` with at most 4 decimal places. Zero, negative, overflow, and extra-precision values are rejected.
+</ParamField>
+
+<ParamField body="note" type="string">
+  Optional note stored as the earning description. Maximum 2000 characters.
+</ParamField>
+
+## Response
+
+The response includes the created Bonus earning.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created Bonus earning.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Unique identifier for the Bonus earning
+</ResponseField>
+
+<ResponseField name="affiliate_id" type="string">
+  The affiliate ID who will receive this Bonus earning
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  The Bonus amount in the team's currency
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  The team's currency code (3 letters, e.g., USD, EUR)
+</ResponseField>
+
+<ResponseField name="earning_type" type="string">
+  Always `bonus`
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Always `ready_for_payment`. The earning is approved and ready for payout in the next cycle.
+</ResponseField>
+
+<ResponseField name="incentive_type" type="string">
+  Always `commission`
+</ResponseField>
+
+<ResponseField name="hold_period_days" type="integer | null">
+  Number of days the earning is on hold before becoming available for payment. Can be `null`.
+</ResponseField>
+
+<ResponseField name="note" type="string | null">
+  Optional note stored as the earning description. Can be `null`.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the Bonus earning was created
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp of when the Bonus earning was last updated
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/commissions/bonus" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "affiliate_id": "aff_789ghi",
+    "amount": 50,
+    "note": "Q3 partner bonus"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cm3earningabc123",
+    "affiliate_id": "aff_789ghi",
+    "amount": 50,
+    "currency": "USD",
+    "earning_type": "bonus",
+    "status": "ready_for_payment",
+    "incentive_type": "commission",
+    "hold_period_days": null,
+    "note": "Q3 partner bonus",
+    "created_at": "2024-01-20T15:30:00Z",
+    "updated_at": "2024-01-20T15:30:00Z"
+  }
+}
+```
+</ResponseExample>

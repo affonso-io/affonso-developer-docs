@@ -99,6 +99,7 @@
                   "api/endpoint/commissions/list",
                   "api/endpoint/commissions/get",
                   "api/endpoint/commissions/create",
+                  "api/endpoint/commissions/bonus",
                   "api/endpoint/commissions/update",
                   "api/endpoint/commissions/delete"
                 ]
