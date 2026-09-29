@@ -14,6 +14,7 @@ The commission tools allow you to track and manage commission transactions for y
 | `affonso_list_commissions` | List commission transactions | `read:commissions` |
 | `affonso_get_commission` | Get a single commission | `read:commissions` |
 | `affonso_create_commission` | Create a new commission | `write:commissions` |
+| `affonso_create_bonus` | Create a Bonus earning (no sale or referral) | `write:commissions` |
 | `affonso_update_commission` | Update commission status | `write:commissions` |
 | `affonso_delete_commission` | Delete a commission | `delete:commissions` |
 
@@ -226,7 +227,6 @@ Create a new commission transaction manually.
 Create a $50 commission for affiliate aff_abc123
 Add a commission of $25.50 for aff_xyz from sale of $255
 Create an approved commission for aff_123 with amount $100
-Record a bonus commission of $50 for affiliate aff_top with description "Q1 bonus"
 ```
 
 ### Response
@@ -243,6 +243,51 @@ Record a bonus commission of $50 for affiliate aff_top with description "Q1 bonu
 | Created | Jan 15, 2024 |
 
 The commission is pending approval.
+```
+
+---
+
+## affonso_create_bonus
+
+Create a first-class Bonus earning for an affiliate. This is not a sale commission: do not send a referral or sale amount. The result is `bonus` and `ready_for_payment`, and it is payout-eligible like other ready earnings.
+
+### Parameters
+
+<ParamField body="affiliate_id" type="string" required>
+  Affiliate to credit. Must belong to the authenticated team. Example: `cm3abc123def456`
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Bonus amount in the team's currency. Must be between `0.0001` and `999999.9999` with at most 4 decimal places. Zero, negative, overflow, and extra-precision values are rejected. Example: `50`
+</ParamField>
+
+<ParamField body="note" type="string">
+  Optional note shown to the brand and affiliate (stored as the earning description). Maximum 2000 characters. Example: `Q3 partner bonus`
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Create a $50 bonus for affiliate aff_abc123
+Add a Q3 partner bonus of $100 for aff_top with note "Q3 partner bonus"
+Credit affiliate cm3abc123def456 a 25.50 bonus
+Give aff_xyz a 0.5 bonus with note "referral contest"
+```
+
+### Response
+
+The created earning is a Bonus with status `ready_for_payment`. There is no sale and no referral.
+
+```markdown
+### $50.00 👍
+**Earning Type:** bonus
+**Status:** ready_for_payment
+**Affiliate:** `aff_abc123`
+**Note:** Q3 partner bonus
 ```
 
 ---
