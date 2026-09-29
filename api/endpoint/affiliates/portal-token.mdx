@@ -82,5 +82,6 @@ res.redirect(data.portalUrl);
 - **No request body required** — the team's program is resolved automatically from your API key.
 - The token expires after **5 minutes** and can only be used **once**. Generate a new token for each redirect.
 - The affiliate must be in **ACTIVE** status. Suspended, banned, or inactive affiliates cannot receive portal tokens.
+- Portal JWTs carry explicit Account and program bindings. Issuance rejects deleted, inactive, and incorrectly bound Accounts.
 - Requires the `write:affiliates` permission on your API key.
 - The `portalUrl` automatically uses your custom domain if configured and verified, otherwise falls back to `{subdomain}.affonso.io`.
