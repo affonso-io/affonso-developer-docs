@@ -1,0 +1,246 @@
+---
+title: "List Fraud Events"
+api: "GET https://api.affonso.io/v1/fraud-events"
+description: "Get a paginated list of Risk Center fraud events with optional filtering"
+---
+
+Lists Risk Center fraud events for the authenticated team. Requires the `read:affiliates` permission.
+
+<Info>
+  Summary counts (`pending_count`, `resolved_count`, `auto_blocked_count`) ignore `search` and `status`. They stay team-wide for the selected `event_type`.
+</Info>
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number for pagination. Must be a positive integer. Default is 1.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="50">
+  Number of results per page. Minimum value is 1, maximum value is 200. Default is 50.
+</ParamField>
+
+<ParamField query="status" type="string" default="PENDING">
+  Filter by event status. Valid values: `PENDING` (queue), `RESOLVED` (cleared or auto-blocked). Default is `PENDING`.
+</ParamField>
+
+<ParamField query="event_type" type="string">
+  Filter by fraud rule type. Valid values: `SELF_REFERRAL`, `CROSS_PROGRAM_BAN`, `DUPLICATE_PAYOUT_METHOD`, `SUSPICIOUS_EMAIL_DOMAIN`, `BANNED_REFERRAL_SOURCE`, `PAID_TRAFFIC`, `BLOCKED_COUNTRY`.
+</ParamField>
+
+<ParamField query="search" type="string">
+  Case-insensitive match on referral email or affiliate name/email.
+</ParamField>
+
+## Response
+
+The response includes a paginated list of fraud events, pagination metadata, and team-wide summary counts.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of fraud event objects.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Unique identifier for the fraud event
+</ResponseField>
+
+<ResponseField name="event_type" type="string">
+  Fraud rule type. Valid values: `SELF_REFERRAL`, `CROSS_PROGRAM_BAN`, `DUPLICATE_PAYOUT_METHOD`, `SUSPICIOUS_EMAIL_DOMAIN`, `BANNED_REFERRAL_SOURCE`, `PAID_TRAFFIC`, `BLOCKED_COUNTRY`.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Event status. Valid values: `PENDING`, `RESOLVED`.
+</ResponseField>
+
+<ResponseField name="description" type="string | null">
+  Human-readable description of the event. Can be `null`.
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  Event-specific metadata payload
+</ResponseField>
+
+<ResponseField name="internal_note" type="string | null">
+  Internal note on the event. Can be `null`.
+</ResponseField>
+
+<ResponseField name="resolution" type="string | null">
+  How the event was closed. Valid values: `AUTO_BLOCKED`, `RESOLVED`, `CONFIRMED_FRAUD`, or `null` while pending.
+</ResponseField>
+
+<ResponseField name="resolved_at" type="string | null">
+  ISO 8601 timestamp of when the event was resolved. Can be `null`.
+</ResponseField>
+
+<ResponseField name="resolved_note" type="string | null">
+  Merchant note stored on the resolution. Can be `null`.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the event was created
+</ResponseField>
+
+<ResponseField name="referral_id" type="string | null">
+  Related referral ID. Can be `null`.
+</ResponseField>
+
+<ResponseField name="referral_email" type="string | null">
+  Related referral email. Can be `null`.
+</ResponseField>
+
+<ResponseField name="resolved_by" type="object | null">
+  Dashboard user who resolved the event. `null` for API callers.
+
+<Expandable title="resolved_by Properties">
+<ResponseField name="id" type="string">
+  User ID
+</ResponseField>
+
+<ResponseField name="name" type="string | null">
+  User display name. Can be `null`.
+</ResponseField>
+
+<ResponseField name="email" type="string | null">
+  User email. Can be `null`.
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="affiliate" type="object | null">
+  Related affiliate. Can be `null`.
+
+<Expandable title="affiliate Properties">
+<ResponseField name="id" type="string">
+  Affiliate ID
+</ResponseField>
+
+<ResponseField name="name" type="string | null">
+  Affiliate display name. Can be `null`.
+</ResponseField>
+
+<ResponseField name="email" type="string | null">
+  Affiliate contact email. Can be `null`.
+</ResponseField>
+
+<ResponseField name="country" type="string | null">
+  Affiliate invoice country. Can be `null`.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Affiliate status
+</ResponseField>
+
+<ResponseField name="total_fraud_events" type="integer">
+  Count of this affiliate's fraud events that are not marked resolution `RESOLVED`
+</ResponseField>
+
+<ResponseField name="pending_commission" type="number">
+  Sum of the affiliate's pending and ready-for-payment commission credit
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="program" type="object | null">
+  Related program. Can be `null`.
+
+<Expandable title="program Properties">
+<ResponseField name="id" type="string">
+  Program ID
+</ResponseField>
+
+<ResponseField name="name" type="string | null">
+  Program name. Can be `null`.
+</ResponseField>
+</Expandable>
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="pagination" type="object">
+  Pagination metadata object containing:
+  - `page` (integer): Current page number
+  - `limit` (integer): Number of results per page
+  - `total` (integer): Total number of events matching the filters
+  - `total_pages` (integer): Total number of pages
+  - `has_next_page` (boolean): Whether there is a next page
+  - `has_prev_page` (boolean): Whether there is a previous page
+</ResponseField>
+
+<ResponseField name="pending_count" type="integer">
+  Team-wide count of `PENDING` events for the selected `event_type`. Ignores `search` and `status`.
+</ResponseField>
+
+<ResponseField name="resolved_count" type="integer">
+  Team-wide count of reviewed events (`RESOLVED` and not `AUTO_BLOCKED`) for the selected `event_type`. Ignores `search` and `status`.
+</ResponseField>
+
+<ResponseField name="auto_blocked_count" type="integer">
+  Team-wide count of `AUTO_BLOCKED` events for the selected `event_type`. Ignores `search` and `status`.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/fraud-events?status=PENDING&limit=20" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+
+```bash cURL with Filters
+curl -X GET "https://api.affonso.io/v1/fraud-events?status=PENDING&event_type=SELF_REFERRAL&search=alice&page=1&limit=20" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": [
+    {
+      "id": "cmevent123abc",
+      "event_type": "SELF_REFERRAL",
+      "status": "PENDING",
+      "description": "Self-referral",
+      "metadata": {
+        "originalReferralStatus": "LEAD"
+      },
+      "internal_note": null,
+      "resolution": null,
+      "resolved_at": null,
+      "resolved_note": null,
+      "created_at": "2024-01-20T15:30:00.000Z",
+      "referral_id": "ref_456def",
+      "referral_email": "alice@example.com",
+      "resolved_by": null,
+      "affiliate": {
+        "id": "aff_789ghi",
+        "name": "Alice Partner",
+        "email": "alice@example.com",
+        "country": "US",
+        "status": "ACTIVE",
+        "total_fraud_events": 1,
+        "pending_commission": 0
+      },
+      "program": {
+        "id": "prog_123",
+        "name": "Demo Program"
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 4,
+    "total_pages": 1,
+    "has_next_page": false,
+    "has_prev_page": false
+  },
+  "pending_count": 4,
+  "resolved_count": 2,
+  "auto_blocked_count": 1
+}
+```
+</ResponseExample>

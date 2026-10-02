@@ -1,0 +1,281 @@
+---
+title: 'Fraud Event Tools'
+description: 'MCP tools for listing, confirming, and resolving Risk Center fraud events'
+---
+
+## Overview
+
+The fraud event tools list the Risk Center queue and confirm or resolve events by ID. They mirror REST `/v1/fraud-events`. All tools support `response_format` (`markdown` or `json`). `responseFormat` is accepted as an alias. List tools use `limit` and `offset`, not `page`.
+
+<Info>
+There is no filter-scoped bulk. List a page, then confirm or resolve up to 100 IDs. Confirm rejects the referral and declines its commissions. Resolve clears a false positive and can restore an auto-blocked referral. Resolve does not undecline commissions.
+</Info>
+
+## Available Tools
+
+| Tool | Description | Permission |
+|------|-------------|------------|
+| `affonso_list_fraud_events` | List Risk Center fraud events | `read:affiliates` |
+| `affonso_confirm_fraud_events` | Confirm events as fraud | `write:affiliates` |
+| `affonso_resolve_fraud_events` | Resolve events as a false positive | `write:affiliates` |
+
+## Event Types
+
+| Type | Description |
+|------|-------------|
+| `SELF_REFERRAL` | Self-referral |
+| `CROSS_PROGRAM_BAN` | Cross-program ban |
+| `DUPLICATE_PAYOUT_METHOD` | Duplicate payout method |
+| `SUSPICIOUS_EMAIL_DOMAIN` | Suspicious email domain |
+| `BANNED_REFERRAL_SOURCE` | Banned referral source |
+| `PAID_TRAFFIC` | Paid traffic |
+| `BLOCKED_COUNTRY` | Blocked country |
+
+## Event Statuses
+
+| Status | Description |
+|--------|-------------|
+| `PENDING` | Open Risk Center queue item (default list filter) |
+| `RESOLVED` | Cleared, confirmed, or auto-blocked |
+
+---
+
+## affonso_list_fraud_events
+
+List Risk Center fraud events for your team. Same filters as `GET /v1/fraud-events`: `status` (default `PENDING`), `event_type`, `search` (referral or affiliate email/name), and `limit`/`offset` pagination.
+
+### Parameters
+
+<ParamField body="limit" type="number" default="20">
+  Number of results to return (max 100)
+</ParamField>
+
+<ParamField body="offset" type="number" default="0">
+  Number of results to skip
+</ParamField>
+
+<ParamField body="search" type="string">
+  Case-insensitive match on referral email or affiliate name/email
+</ParamField>
+
+<ParamField body="event_type" type="string">
+  Filter by fraud rule type: `SELF_REFERRAL`, `CROSS_PROGRAM_BAN`, `DUPLICATE_PAYOUT_METHOD`, `SUSPICIOUS_EMAIL_DOMAIN`, `BANNED_REFERRAL_SOURCE`, `PAID_TRAFFIC`, `BLOCKED_COUNTRY`
+</ParamField>
+
+<ParamField body="status" type="string" default="PENDING">
+  Filter by status: `PENDING` (default) or `RESOLVED`
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+List pending fraud events
+Show self-referral fraud events
+Find fraud events for alice@example.com
+List resolved fraud events with limit 20
+```
+
+### Response
+
+<CodeGroup>
+```markdown Markdown Format
+## Fraud events (1)
+Pending: 4 · Reviewed: 2 · Auto-blocked: 1
+Showing 1 of 4 (offset 0)
+
+- `cmevent123abc` SELF_REFERRAL PENDING · Alice Partner · alice@example.com
+```
+
+```json JSON Format
+{
+  "data": [
+    {
+      "id": "cmevent123abc",
+      "event_type": "SELF_REFERRAL",
+      "status": "PENDING",
+      "description": "Self-referral",
+      "metadata": {
+        "originalReferralStatus": "LEAD"
+      },
+      "internal_note": null,
+      "resolution": null,
+      "resolved_at": null,
+      "resolved_note": null,
+      "created_at": "2024-01-20T15:30:00.000Z",
+      "referral_id": "ref_456def",
+      "referral_email": "alice@example.com",
+      "resolved_by": null,
+      "affiliate": {
+        "id": "aff_789ghi",
+        "name": "Alice Partner",
+        "email": "alice@example.com",
+        "country": "US",
+        "status": "ACTIVE",
+        "total_fraud_events": 1,
+        "pending_commission": 0
+      },
+      "program": {
+        "id": "prog_123",
+        "name": "Demo Program"
+      }
+    }
+  ],
+  "pagination": {
+    "total": 4,
+    "count": 1,
+    "offset": 0,
+    "limit": 20,
+    "has_more": true,
+    "next_offset": 1
+  },
+  "pending_count": 4,
+  "resolved_count": 2,
+  "auto_blocked_count": 1
+}
+```
+</CodeGroup>
+
+---
+
+## affonso_confirm_fraud_events
+
+<Warning>
+This is a destructive, money-moving operation. Confirming marks `CONFIRMED_FRAUD`, rejects the referral, and declines its commissions to amount `0`.
+</Warning>
+
+Confirm one or many fraud events. Same as `POST /v1/fraud-events/confirm`. Foreign-team IDs come back as not found. Use resolve for false positives.
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  One or many fraud event IDs from `affonso_list_fraud_events`. Minimum 1, maximum 100.
+</ParamField>
+
+<ParamField body="note" type="string">
+  Optional merchant note stored on the resolution. Maximum 2000 characters.
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Confirm these fraud events as real fraud
+Confirm fraud event cmevent123abc with note "Matched chargeback"
+Mark these self-referral events as confirmed fraud
+```
+
+### Response
+
+<CodeGroup>
+```markdown Markdown Format
+## Confirm fraud
+Processed 1 of 1. Failed: 0.
+
+- `cmevent123abc` ok
+```
+
+```json JSON Format
+{
+  "success": true,
+  "partial_success": false,
+  "total_requested": 1,
+  "processed": 1,
+  "failed": 0,
+  "results": [
+    {
+      "id": "cmevent123abc",
+      "success": true
+    }
+  ]
+}
+```
+</CodeGroup>
+
+---
+
+## affonso_resolve_fraud_events
+
+Resolve one or many fraud events as a false positive. Same as `POST /v1/fraud-events/resolve`. Marks `RESOLVED` and restores an `AUTO_BLOCKED` referral to its original status (default `LEAD`). Does not undecline commissions. Already-reviewed (non-auto-blocked) events fail as already resolved.
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  One or many fraud event IDs from `affonso_list_fraud_events`. Minimum 1, maximum 100.
+</ParamField>
+
+<ParamField body="note" type="string">
+  Optional merchant note stored on the resolution. Maximum 2000 characters.
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Resolve the self-referral events that are false positives
+Resolve fraud event cmevent123abc
+Clear these auto-blocked events as false positives
+```
+
+### Response
+
+<CodeGroup>
+```markdown Markdown Format
+## Resolve fraud
+Processed 1 of 1. Failed: 0.
+
+- `cmevent123abc` ok
+```
+
+```json JSON Format
+{
+  "success": true,
+  "partial_success": false,
+  "total_requested": 1,
+  "processed": 1,
+  "failed": 0,
+  "results": [
+    {
+      "id": "cmevent123abc",
+      "success": true
+    }
+  ]
+}
+```
+</CodeGroup>
+
+---
+
+## Common Workflows
+
+### Drain the pending queue
+
+```
+1. "List pending fraud events"
+2. "Confirm fraud event cmevent123abc"
+3. "Resolve fraud event cmevent456def as a false positive"
+```
+
+### Filter then act
+
+```
+"Show self-referral fraud events"
+"Confirm these fraud events as real fraud"
+```
+
+## Error Handling
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `NOT_FOUND` | Event ID does not exist on this team | Verify the ID from `affonso_list_fraud_events` |
+| `ALREADY_RESOLVED` | Event is already reviewed | Skip it or list `PENDING` events only |
+| `PERMISSION_DENIED` | Missing required scope | List needs `read:affiliates`. Confirm and resolve need `write:affiliates`. |
