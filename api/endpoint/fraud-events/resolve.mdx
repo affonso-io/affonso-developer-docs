@@ -1,0 +1,135 @@
+---
+title: "Resolve Fraud Events"
+api: "POST https://api.affonso.io/v1/fraud-events/resolve"
+description: "Resolve one or many Risk Center events as a false positive"
+---
+
+<Info>
+  Resolve marks a false positive as `RESOLVED`. An `AUTO_BLOCKED` referral is restored to its original status (default `LEAD`). Resolve does not undecline commissions.
+</Info>
+
+Resolve one or many fraud events by ID. Requires the `write:affiliates` permission. There is no filter-scoped bulk: list a page, then send up to 100 IDs.
+
+Foreign-team IDs return as `NOT_FOUND` in the per-item results and are not mutated. Already-reviewed events (resolved and not `AUTO_BLOCKED`) return `ALREADY_RESOLVED`. Extra body properties are rejected.
+
+## Body Parameters
+
+The request body is strict. Extra properties are rejected.
+
+<ParamField body="ids" type="string[]" required>
+  Fraud event IDs to resolve. Minimum 1, maximum 100. Each ID must be a non-empty string.
+</ParamField>
+
+<ParamField body="note" type="string">
+  Optional merchant note stored on the resolution. Maximum 2000 characters.
+</ParamField>
+
+## Response
+
+The response wraps a per-ID batch result.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful HTTP responses. Check `data.success` and `data.results` for per-ID outcomes.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Batch resolve result.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="success" type="boolean">
+  `true` when at least one ID was processed
+</ResponseField>
+
+<ResponseField name="partial_success" type="boolean">
+  `true` when some IDs succeeded and some failed
+</ResponseField>
+
+<ResponseField name="total_requested" type="integer">
+  Number of IDs in the request
+</ResponseField>
+
+<ResponseField name="processed" type="integer">
+  Number of IDs that were resolved
+</ResponseField>
+
+<ResponseField name="failed" type="integer">
+  Number of IDs that were not resolved
+</ResponseField>
+
+<ResponseField name="results" type="array">
+  Per-ID outcomes.
+
+<Expandable title="Result Item Properties">
+<ResponseField name="id" type="string">
+  Fraud event ID
+</ResponseField>
+
+<ResponseField name="success" type="boolean">
+  Whether this ID was resolved
+</ResponseField>
+
+<ResponseField name="error" type="string">
+  Failure message. Present when `success` is `false`.
+</ResponseField>
+
+<ResponseField name="error_code" type="string">
+  Machine-readable failure. Valid values: `NOT_FOUND`, `ALREADY_RESOLVED`.
+</ResponseField>
+</Expandable>
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/fraud-events/resolve" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ids": ["cmevent123abc"],
+    "note": "False positive"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "partial_success": false,
+    "total_requested": 1,
+    "processed": 1,
+    "failed": 0,
+    "results": [
+      {
+        "id": "cmevent123abc",
+        "success": true
+      }
+    ]
+  }
+}
+```
+
+```json Already Resolved
+{
+  "success": true,
+  "data": {
+    "success": false,
+    "partial_success": false,
+    "total_requested": 1,
+    "processed": 0,
+    "failed": 1,
+    "results": [
+      {
+        "id": "cmevent123abc",
+        "success": false,
+        "error": "Fraud event is already resolved",
+        "error_code": "ALREADY_RESOLVED"
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

@@ -84,6 +84,14 @@
                 ]
               },
               {
+                "group": "Fraud Events",
+                "pages": [
+                  "api/endpoint/fraud-events/list",
+                  "api/endpoint/fraud-events/confirm",
+                  "api/endpoint/fraud-events/resolve"
+                ]
+              },
+              {
                 "group": "Referrals",
                 "pages": [
                   "api/endpoint/referrals/list",
@@ -286,6 +294,7 @@
             "group": "Tools",
             "pages": [
               "mcp/tools/affiliates",
+              "mcp/tools/fraud-events",
               "mcp/tools/referrals",
               "mcp/tools/commissions",
               "mcp/tools/payouts",
