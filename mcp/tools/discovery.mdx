@@ -1,0 +1,110 @@
+---
+title: 'Discovery Tools'
+description: 'MCP tools for reading and setting Discovery match review decisions'
+---
+
+## Overview
+
+The Discovery match decision tools read and set the customer accept/reject decision on a Discovery match. They mirror REST `GET|PATCH /v1/discovery/matches/:id`. All tools support `response_format` (`markdown` or `json`). `responseFormat` is accepted as an alias. Markdown returns the same JSON payload inside a fenced `json` block.
+
+<Info>
+This page documents only the Discovery match decision tools. Other Discovery agent and run tools exist in the API but are not documented here yet.
+</Info>
+
+<Info>
+Unset is `none`, not `rejected`. Setting `none` clears the decision. These tools do not change fit score or start a new search. Updates are idempotent. A match owned by another team is forbidden.
+</Info>
+
+## Available Tools
+
+| Tool | Description | Permission |
+|------|-------------|------------|
+| `affonso_get_discovery_match_decision` | Read the customer decision on a Discovery match | `read:discovery` |
+| `affonso_update_discovery_match_decision` | Set `accepted`, `rejected`, or `none` on a Discovery match | `write:discovery` |
+
+## Decision Values
+
+| Value | Description |
+|-------|-------------|
+| `accepted` | Customer accepted the match |
+| `rejected` | Customer rejected the match |
+| `none` | No decision (unset). Clears a previous decision. Not the same as `rejected`. |
+
+---
+
+## affonso_get_discovery_match_decision
+
+Read the customer accept/reject decision on a Discovery match. Same as `GET /v1/discovery/matches/:id`. Fit score is not returned or changed.
+
+### Parameters
+
+<ParamField body="match_id" type="string" required>
+  Discovery match ID
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Get the Discovery match decision for cmmatch123abc
+Show whether match cmmatch123abc was accepted or rejected
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "cmmatch123abc",
+    "agent_id": "cmagent456def",
+    "prospect_id": "cmprospect789ghi",
+    "decision": "accepted",
+    "decided_at": "2026-10-04T10:30:00.000Z"
+  }
+}
+```
+
+---
+
+## affonso_update_discovery_match_decision
+
+Set accept, reject, or none on a Discovery match. Same as `PATCH /v1/discovery/matches/:id`. `none` clears the decision and is not reject. Idempotent. Does not change fit score or start a new search.
+
+### Parameters
+
+<ParamField body="match_id" type="string" required>
+  Discovery match ID
+</ParamField>
+
+<ParamField body="decision" type="string" required>
+  Customer review decision: `accepted`, `rejected`, or `none`
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Accept Discovery match cmmatch123abc
+Reject Discovery match cmmatch123abc
+Clear the decision on Discovery match cmmatch123abc
+```
+
+### Response
+
+```json
+{
+  "data": {
+    "id": "cmmatch123abc",
+    "agent_id": "cmagent456def",
+    "prospect_id": "cmprospect789ghi",
+    "decision": "accepted",
+    "decided_at": "2026-10-04T10:30:00.000Z"
+  }
+}
+```

@@ -148,6 +148,13 @@
                   "api/endpoint/finder/update-shortlist",
                   "api/endpoint/finder/delete-shortlist"
                 ]
+              },
+              {
+                "group": "Discovery",
+                "pages": [
+                  "api/endpoint/discovery/get-match-decision",
+                  "api/endpoint/discovery/update-match-decision"
+                ]
               }
             ]
           },
@@ -299,6 +306,7 @@
               "mcp/tools/commissions",
               "mcp/tools/payouts",
               "mcp/tools/finder",
+              "mcp/tools/discovery",
               "mcp/tools/creatives"
             ]
           }

@@ -1,0 +1,88 @@
+---
+title: "Get Discovery Match Decision"
+api: "GET https://api.affonso.io/v1/discovery/matches/{id}"
+description: "Read the customer accept/reject decision on a Discovery match"
+---
+
+Read the customer review decision on one Discovery match. Requires the `read:discovery` permission.
+
+<Info>
+  An unset decision is `none`, not `rejected`. Fit score is not returned. This endpoint does not change fit score or start a new search.
+</Info>
+
+A match owned by another team returns `403` with code `FORBIDDEN`. A missing match returns `404` with code `NOT_FOUND`.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Discovery match ID
+</ParamField>
+
+## Response
+
+The response wraps a `DiscoveryMatchReview` object.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Discovery match review decision.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Discovery match ID
+</ResponseField>
+
+<ResponseField name="agent_id" type="string | null">
+  Discovery agent that produced the match. Can be `null`.
+</ResponseField>
+
+<ResponseField name="prospect_id" type="string">
+  Prospect ID linked to the match
+</ResponseField>
+
+<ResponseField name="decision" type="string">
+  Customer review decision. Valid values: `accepted`, `rejected`, `none`. Unset is `none`, not `rejected`.
+</ResponseField>
+
+<ResponseField name="decided_at" type="string | null">
+  ISO 8601 timestamp of when the decision was set. `null` when `decision` is `none`.
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/discovery/matches/cmmatch123abc" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Accepted
+{
+  "success": true,
+  "data": {
+    "id": "cmmatch123abc",
+    "agent_id": "cmagent456def",
+    "prospect_id": "cmprospect789ghi",
+    "decision": "accepted",
+    "decided_at": "2026-10-04T10:30:00.000Z"
+  }
+}
+```
+
+```json Unset (none)
+{
+  "success": true,
+  "data": {
+    "id": "cmmatch123abc",
+    "agent_id": "cmagent456def",
+    "prospect_id": "cmprospect789ghi",
+    "decision": "none",
+    "decided_at": null
+  }
+}
+```
+</ResponseExample>
