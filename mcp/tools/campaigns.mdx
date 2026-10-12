@@ -1,0 +1,424 @@
+---
+title: 'Campaign Tools'
+description: 'MCP tools for program campaigns, applications, submissions, and retainers'
+---
+
+## Overview
+
+Campaign tools manage your team's program campaigns through natural language. They mirror REST `/v1/program/campaigns`, including retainer create/update, application accept with conditions, and period approve/reject. All tools support `response_format` (`markdown` or `json`). `responseFormat` is accepted as an alias. List tools use `limit` and `offset`, not `page`.
+
+<Info>
+Campaign create/update/list/get use `read:program` / `write:program`. Application, submission, and retainer period actions use `read:affiliates` / `write:affiliates`. See permissions below.
+</Info>
+
+## Available Tools
+
+| Tool | Description | Permission |
+|------|-------------|------------|
+| `affonso_list_campaigns` | List team campaigns (reward type, retainer fields, owner max_budget) | `read:program` |
+| `affonso_get_campaign` | Get one team campaign by encoded id | `read:program` |
+| `affonso_create_campaign` | Create a draft campaign, including retainer | `write:program` |
+| `affonso_update_campaign` | Update application, reward, retainer, status, and/or max_budget | `write:program` |
+| `affonso_apply_to_campaign` | Submit an application for an affiliate on your team | `write:affiliates` |
+| `affonso_list_campaign_applications` | List applications for one campaign | `read:affiliates` |
+| `affonso_accept_campaign_application` | Accept a pending application (retainer requires has_condition) | `write:affiliates` |
+| `affonso_reject_campaign_application` | Reject a pending application | `write:affiliates` |
+| `affonso_approve_campaign_submission` | Approve a pending submission (custom/range need amount) | `write:affiliates` |
+| `affonso_update_retainer_condition` | Change the retainer condition on an accepted application | `write:affiliates` |
+| `affonso_end_campaign_retainer` | End a partner retainer (no new periods) | `write:affiliates` |
+| `affonso_resume_campaign_retainer` | Resume an ended partner retainer | `write:affiliates` |
+| `affonso_list_campaign_retainer_periods` | List PENDING_MANUAL_APPROVAL retainer periods | `read:affiliates` |
+| `affonso_approve_campaign_retainer_period` | Approve a period earning to READY_FOR_PAYMENT | `write:affiliates` |
+| `affonso_reject_campaign_retainer_period` | Reject a period earning to DECLINED | `write:affiliates` |
+
+---
+
+## affonso_create_campaign
+
+Create a draft program campaign. Same as `POST /v1/program/campaigns`.
+
+Retainer requires `reward_amount`, `retainer_interval`, and either `retainer_day_of_month` (monthly) or `retainer_weekday` (weekly). Forces `application_required` and ignores `max_budget`.
+
+### Parameters
+
+<ParamField body="name" type="string" required>
+  Campaign title (1-255 characters)
+</ParamField>
+
+<ParamField body="reward_type" type="string" required>
+  `flat_rate`, `custom`, `range`, or `retainer`
+</ParamField>
+
+<ParamField body="start_date" type="string" required>
+  ISO start datetime
+</ParamField>
+
+<ParamField body="description" type="string | null">
+  Campaign description (max 10,000 characters)
+</ParamField>
+
+<ParamField body="reward_amount" type="number | null">
+  Flat rate / retainer amount (min 0.01). Null for custom and range.
+</ParamField>
+
+<ParamField body="reward_amount_min" type="number | null">
+  Range minimum. Required when reward_type is range.
+</ParamField>
+
+<ParamField body="reward_amount_max" type="number | null">
+  Range maximum. Must be >= reward_amount_min.
+</ParamField>
+
+<ParamField body="max_budget" type="number | null">
+  Owner-only spend cap. Null or omit for no cap. Ignored on retainer.
+</ParamField>
+
+<ParamField body="retainer_interval" type="string | null">
+  Required for retainer: `monthly` or `weekly`
+</ParamField>
+
+<ParamField body="retainer_day_of_month" type="integer | string | null">
+  Monthly day: 1-28 or `last`
+</ParamField>
+
+<ParamField body="retainer_weekday" type="string | null">
+  Weekly weekday: monday through sunday
+</ParamField>
+
+<ParamField body="end_date" type="string | null">
+  ISO end datetime
+</ParamField>
+
+<ParamField body="application_required" type="boolean">
+  Whether affiliates must apply first. Forced true for retainer.
+</ParamField>
+
+<ParamField body="application_prompt" type="string | null">
+  Application question text
+</ParamField>
+
+<ParamField body="max_submissions_per_user" type="integer | null">
+  Per-affiliate submission cap (>= 1), or null
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Create a monthly retainer campaign named Creator Retainer for 500 on the 1st
+Add a weekly retainer for 150 every Monday
+Create a flat rate campaign Launch Review Bounty for 100 with max budget 2000
+```
+
+---
+
+## affonso_update_campaign
+
+Update application settings, reward type, retainer cadence, status, and/or owner max_budget. Same as `PATCH /v1/program/campaigns/{id}`. Does not create earnings.
+
+Switching to or from retainer is blocked when applications exist. ENDED or ARCHIVED to ACTIVE sets `retainer_resumed_at`. Retainer ignores max_budget and cannot turn application_required off.
+
+### Parameters
+
+<ParamField body="campaign_id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField body="application_required" type="boolean">
+  Whether affiliates must apply before submitting proof
+</ParamField>
+
+<ParamField body="application_prompt" type="string | null">
+  Application question text
+</ParamField>
+
+<ParamField body="reward_type" type="string">
+  `flat_rate`, `custom`, `range`, or `retainer`
+</ParamField>
+
+<ParamField body="reward_amount" type="number | null">
+  Fixed reward amount
+</ParamField>
+
+<ParamField body="reward_amount_min" type="number | null">
+  Range minimum
+</ParamField>
+
+<ParamField body="reward_amount_max" type="number | null">
+  Range maximum
+</ParamField>
+
+<ParamField body="max_budget" type="number | null">
+  Set, change, or clear (null) the owner-only spend cap. Ignored on retainer.
+</ParamField>
+
+<ParamField body="retainer_interval" type="string | null">
+  `monthly` or `weekly`
+</ParamField>
+
+<ParamField body="retainer_day_of_month" type="integer | string | null">
+  1-28 or `last`
+</ParamField>
+
+<ParamField body="retainer_weekday" type="string | null">
+  monday through sunday
+</ParamField>
+
+<ParamField body="status" type="string">
+  `DRAFT`, `SCHEDULED`, `ACTIVE`, `ENDED`, or `ARCHIVED`
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Update campaign cmretainer01camp0001 to pay on the last day of the month
+Set campaign cmretainer01camp0001 status to ACTIVE
+Change retainer reward amount to 600 on campaign cmretainer01camp0001
+```
+
+---
+
+## affonso_accept_campaign_application
+
+Accept a pending campaign application. Assignment only: no earnings and no budget reserve. Same as `POST /v1/program/campaigns/{id}/applications/{applicationId}/accept`.
+
+Retainer requires `has_condition` (`true` or `false`). When true, `condition` is required (max 2000 characters).
+
+### Parameters
+
+<ParamField body="campaign_id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField body="application_id" type="string" required>
+  Encoded application id
+</ParamField>
+
+<ParamField body="has_condition" type="boolean">
+  Retainer only. Required true or false. Choose whether this retainer has a condition.
+</ParamField>
+
+<ParamField body="condition" type="string | null">
+  Retainer only. Required when has_condition is true. Max 2000 characters.
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Accept application cmapp01retainer0001 on campaign cmretainer01camp0001 with condition "Post 2 Shorts per week"
+Accept retainer application cmapp01retainer0002 with has_condition false
+```
+
+---
+
+## affonso_update_retainer_condition
+
+Change the retainer condition on an accepted application. Requires `has_condition`. Same as `PATCH /v1/program/campaigns/{id}/applications/{applicationId}/condition`.
+
+### Parameters
+
+<ParamField body="campaign_id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField body="application_id" type="string" required>
+  Encoded application id
+</ParamField>
+
+<ParamField body="has_condition" type="boolean" required>
+  True to keep or set a condition. False clears it.
+</ParamField>
+
+<ParamField body="condition" type="string | null">
+  Condition text. Required when has_condition is true. Max 2000 characters.
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Update retainer condition on application cmapp01retainer0001 to "Post 3 Shorts per week"
+Clear the retainer condition on application cmapp01retainer0001
+```
+
+---
+
+## affonso_end_campaign_retainer
+
+End a partner retainer. No new periods are created for that application. Same as `POST /v1/program/campaigns/{id}/applications/{applicationId}/end-retainer`.
+
+### Parameters
+
+<ParamField body="campaign_id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField body="application_id" type="string" required>
+  Encoded application id
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+End the retainer for application cmapp01retainer0001 on campaign cmretainer01camp0001
+Stop new retainer periods for partner application cmapp01retainer0001
+```
+
+---
+
+## affonso_resume_campaign_retainer
+
+Resume an ended partner retainer. Same as `POST /v1/program/campaigns/{id}/applications/{applicationId}/resume-retainer`.
+
+### Parameters
+
+<ParamField body="campaign_id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField body="application_id" type="string" required>
+  Encoded application id
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Resume the retainer for application cmapp01retainer0001
+Restart partner retainer periods on campaign cmretainer01camp0001 for application cmapp01retainer0001
+```
+
+---
+
+## affonso_list_campaign_retainer_periods
+
+List open retainer periods waiting for manual approval. Same as `GET /v1/program/campaigns/{id}/retainer-periods`.
+
+### Parameters
+
+<ParamField body="campaign_id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField body="limit" type="number" default="20">
+  Number of results to return
+</ParamField>
+
+<ParamField body="offset" type="number" default="0">
+  Number of results to skip
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+List open retainer periods for campaign cmretainer01camp0001
+Show PENDING_MANUAL_APPROVAL retainer periods on my Creator Retainer campaign
+```
+
+### Response
+
+Period objects include: `id`, `campaign_id`, `application_id`, `affiliate_id`, `period_start`, `amount`, `earning_id`, `earning_status`, `condition`, `created_at`.
+
+---
+
+## affonso_approve_campaign_retainer_period
+
+Approve a retainer period earning that is `PENDING_MANUAL_APPROVAL`. Writes `READY_FOR_PAYMENT`. Same as `POST /v1/program/campaigns/{id}/retainer-periods/{periodId}/approve`.
+
+### Parameters
+
+<ParamField body="campaign_id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField body="period_id" type="string" required>
+  Encoded retainer period id
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Approve retainer period cmperiod01retainer001 on campaign cmretainer01camp0001
+Mark period cmperiod01retainer001 as ready for payment
+```
+
+---
+
+## affonso_reject_campaign_retainer_period
+
+Reject a retainer period earning that is `PENDING_MANUAL_APPROVAL`. Writes `DECLINED`. Same as `POST /v1/program/campaigns/{id}/retainer-periods/{periodId}/reject`.
+
+### Parameters
+
+<ParamField body="campaign_id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField body="period_id" type="string" required>
+  Encoded retainer period id
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`. Also accepted as `responseFormat`.
+</ParamField>
+
+### Example Prompts
+
+```
+Reject retainer period cmperiod01retainer001
+Decline period cmperiod01retainer001 on campaign cmretainer01camp0001
+```
+
+---
+
+## Other campaign tools
+
+These tools are part of the same campaigns surface and appear in the overview table:
+
+- `affonso_list_campaigns` / `affonso_get_campaign`: read team campaigns including retainer fields and owner `max_budget`
+- `affonso_apply_to_campaign`: body needs `campaign_id`, `affiliate_id`, and `answers`
+- `affonso_list_campaign_applications`: filter by status and affiliate; uses `limit` / `offset`
+- `affonso_reject_campaign_application`: pending applications only; affiliate may apply again
+- `affonso_approve_campaign_submission`: custom/range need `amount`; optional `reject_open_applications` on budget close; does not create earnings
+
+---
+
+## Error Handling
+
+Common errors you may encounter:
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `NOT_FOUND` | Campaign, application, or period id is missing or belongs to another team | Verify the encoded id |
+| `VALIDATION_ERROR` | Missing retainer fields, has_condition, or invalid amounts | Check required parameters for the reward type |
+| `CONFLICT` | Wrong status (for example switching to retainer with applications, or approving a non-pending period) | Refresh state and retry with a valid transition |
+| `PERMISSION_DENIED` | Missing required scope | Check your API key permissions |

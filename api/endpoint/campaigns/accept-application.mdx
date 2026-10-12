@@ -1,0 +1,151 @@
+---
+title: "Accept Campaign Application"
+api: "POST https://api.affonso.io/v1/program/campaigns/{id}/applications/{applicationId}/accept"
+description: "Accept a pending campaign application, including retainer conditions"
+---
+
+Accept a pending application. Assignment only: no earnings and no budget reserve. Only accepted partners may submit proof when `application_required` is true. Requires `write:affiliates`.
+
+For retainer campaigns, the body must include `has_condition` (`true` or `false`). When `has_condition` is true, `condition` is required (max 2000 characters). For non-retainer campaigns, omit both fields.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField path="applicationId" type="string" required>
+  Encoded application id
+</ParamField>
+
+## Body Parameters
+
+Body is optional for non-retainer campaigns. For retainer, `has_condition` is required.
+
+<ParamField body="has_condition" type="boolean">
+  Retainer only. Required. Choose whether this retainer has a condition.
+</ParamField>
+
+<ParamField body="condition" type="string | null">
+  Retainer only. Required when `has_condition` is true. Trimmed text, maximum 2000 characters. Cleared when `has_condition` is false.
+</ParamField>
+
+## Response
+
+Returns the accepted application object.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The application.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Encoded application id
+</ResponseField>
+
+<ResponseField name="campaign_id" type="string">
+  Encoded campaign id
+</ResponseField>
+
+<ResponseField name="affiliate_id" type="string">
+  Affiliate id
+</ResponseField>
+
+<ResponseField name="affiliate" type="object">
+  Nested affiliate summary with `id`, `name`, and `email`
+</ResponseField>
+
+<ResponseField name="answers" type="string">
+  Application answers submitted by the affiliate
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Application status. After accept this is `"ACCEPTED"`. Valid values: `PENDING`, `ACCEPTED`, `REJECTED`.
+</ResponseField>
+
+<ResponseField name="reviewed_at" type="string | null">
+  ISO 8601 review timestamp
+</ResponseField>
+
+<ResponseField name="retainer_has_condition" type="boolean">
+  Whether this accepted retainer has a condition
+</ResponseField>
+
+<ResponseField name="retainer_condition" type="string | null">
+  Condition text, or `null`
+</ResponseField>
+
+<ResponseField name="retainer_ended_at" type="string | null">
+  ISO 8601 timestamp when the partner retainer was ended, or `null`
+</ResponseField>
+
+<ResponseField name="retainer_resumed_at" type="string | null">
+  ISO 8601 timestamp when an ended partner retainer was resumed, or `null`
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 creation timestamp
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 update timestamp
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL (retainer with condition)
+curl -X POST "https://api.affonso.io/v1/program/campaigns/cmretainer01camp0001/applications/cmapp01retainer0001/accept" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "has_condition": true,
+    "condition": "Post at least 2 Shorts per week mentioning Affonso"
+  }'
+```
+
+```bash cURL (retainer without condition)
+curl -X POST "https://api.affonso.io/v1/program/campaigns/cmretainer01camp0001/applications/cmapp01retainer0002/accept" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "has_condition": false
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cmapp01retainer0001",
+    "campaign_id": "cmretainer01camp0001",
+    "affiliate_id": "aff_abc123",
+    "affiliate": {
+      "id": "aff_abc123",
+      "name": "Jane Smith",
+      "email": "jane@example.com"
+    },
+    "answers": "I publish weekly Shorts to 40k followers",
+    "status": "ACCEPTED",
+    "reviewed_at": "2026-10-12T16:00:00.000Z",
+    "retainer_has_condition": true,
+    "retainer_condition": "Post at least 2 Shorts per week mentioning Affonso",
+    "retainer_ended_at": null,
+    "retainer_resumed_at": null,
+    "created_at": "2026-10-10T12:00:00.000Z",
+    "updated_at": "2026-10-12T16:00:00.000Z"
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Requires `write:affiliates`.
+- Sending `has_condition` or `condition` on a non-retainer campaign returns a validation error.
+- Pending applications only. Already accepted or rejected applications return a conflict.

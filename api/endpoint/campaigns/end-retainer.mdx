@@ -1,0 +1,61 @@
+---
+title: "End Partner Retainer"
+api: "POST https://api.affonso.io/v1/program/campaigns/{id}/applications/{applicationId}/end-retainer"
+description: "End a partner retainer so no new periods are created"
+---
+
+End a partner retainer on an accepted application. No new retainer periods are created for that application. Requires `write:affiliates`. Foreign-team IDs return 404.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField path="applicationId" type="string" required>
+  Encoded application id
+</ParamField>
+
+## Response
+
+Returns the application with `retainer_ended_at` set. Same structure as [Accept Campaign Application](/api/endpoint/campaigns/accept-application).
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/program/campaigns/cmretainer01camp0001/applications/cmapp01retainer0001/end-retainer" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cmapp01retainer0001",
+    "campaign_id": "cmretainer01camp0001",
+    "affiliate_id": "aff_abc123",
+    "affiliate": {
+      "id": "aff_abc123",
+      "name": "Jane Smith",
+      "email": "jane@example.com"
+    },
+    "answers": "I publish weekly Shorts to 40k followers",
+    "status": "ACCEPTED",
+    "reviewed_at": "2026-10-12T16:00:00.000Z",
+    "retainer_has_condition": true,
+    "retainer_condition": "Post at least 3 Shorts per week mentioning Affonso",
+    "retainer_ended_at": "2026-10-12T17:00:00.000Z",
+    "retainer_resumed_at": null,
+    "created_at": "2026-10-10T12:00:00.000Z",
+    "updated_at": "2026-10-12T17:00:00.000Z"
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Requires `write:affiliates`.
+- No request body.
+- Use [Resume Partner Retainer](/api/endpoint/campaigns/resume-retainer) to start periods again.
