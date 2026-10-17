@@ -16,33 +16,45 @@ import crypto from 'crypto';
 
 const WEBHOOK_SECRET = process.env.AFFONSO_WEBHOOK_SECRET!;
 
-function verifySignature(payload: string, signature: string): boolean {
-  const [timestampPart, signaturePart] = signature.split(',');
-  const timestamp = timestampPart.replace('t=', '');
-  const expectedSignature = signaturePart.replace('v1=', '');
-  
-  const currentTime = Math.floor(Date.now() / 1000);
-  if (Math.abs(currentTime - parseInt(timestamp)) > 300) {
+function verifySignature(
+  rawBody: string,
+  timestampHeader: string | null,
+  signatureHeader: string | null
+): boolean {
+  if (!timestampHeader || !signatureHeader) {
     return false;
   }
-  
-  const signedPayload = `${timestamp}.${payload}`;
+
+  if (!/^\d+$/.test(timestampHeader)) {
+    return false;
+  }
+
+  const currentTime = Math.floor(Date.now() / 1000);
+  if (Math.abs(currentTime - parseInt(timestampHeader, 10)) > 300) {
+    return false;
+  }
+
+  const signedPayload = `${timestampHeader}.${rawBody}`;
   const computedSignature = crypto
     .createHmac('sha256', WEBHOOK_SECRET)
     .update(signedPayload)
     .digest('hex');
-  
-  return crypto.timingSafeEqual(
-    Buffer.from(expectedSignature),
-    Buffer.from(computedSignature)
-  );
+
+  const expected = Buffer.from(signatureHeader);
+  const computed = Buffer.from(computedSignature);
+  if (expected.length !== computed.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(expected, computed);
 }
 
 export async function POST(req: NextRequest) {
   const payload = await req.text();
+  const timestamp = req.headers.get('x-affonso-timestamp');
   const signature = req.headers.get('x-affonso-signature');
   
-  if (!signature || !verifySignature(payload, signature)) {
+  if (!verifySignature(payload, timestamp, signature)) {
     return NextResponse.json(
       { error: 'Invalid signature' },
       { status: 401 }
@@ -116,34 +128,41 @@ import hmac
 import hashlib
 import time
 import json
+import os
 
 app = FastAPI()
 WEBHOOK_SECRET = os.environ.get('AFFONSO_WEBHOOK_SECRET')
 
-def verify_signature(payload: str, signature: str) -> bool:
-    parts = signature.split(',')
-    timestamp = parts[0].replace('t=', '')
-    expected_signature = parts[1].replace('v1=', '')
-    
-    current_time = int(time.time())
-    if abs(current_time - int(timestamp)) > 300:
+def verify_signature(
+    raw_body: str,
+    timestamp_header: str | None,
+    signature_header: str | None,
+) -> bool:
+    if not timestamp_header or not signature_header:
         return False
-    
-    signed_payload = f"{timestamp}.{payload}"
+
+    if not timestamp_header.isdigit():
+        return False
+
+    if abs(int(time.time()) - int(timestamp_header)) > 300:
+        return False
+
+    signed_payload = f"{timestamp_header}.{raw_body}"
     computed_signature = hmac.new(
-        WEBHOOK_SECRET.encode(),
-        signed_payload.encode(),
-        hashlib.sha256
+        WEBHOOK_SECRET.encode("utf-8"),
+        signed_payload.encode("utf-8"),
+        hashlib.sha256,
     ).hexdigest()
-    
-    return hmac.compare_digest(expected_signature, computed_signature)
+
+    return hmac.compare_digest(signature_header, computed_signature)
 
 @app.post("/webhooks/affonso")
 async def handle_webhook(request: Request):
     payload = await request.body()
+    timestamp = request.headers.get('x-affonso-timestamp')
     signature = request.headers.get('x-affonso-signature')
     
-    if not signature or not verify_signature(payload.decode(), signature):
+    if not verify_signature(payload.decode(), timestamp, signature):
         raise HTTPException(status_code=401, detail="Invalid signature")
     
     event = json.loads(payload)
@@ -189,35 +208,46 @@ import (
     "net/http"
     "os"
     "strconv"
-    "strings"
     "time"
 )
 
 var webhookSecret = os.Getenv("AFFONSO_WEBHOOK_SECRET")
 
-func verifySignature(payload, signature string) bool {
-    parts := strings.Split(signature, ",")
-    timestamp := strings.TrimPrefix(parts[0], "t=")
-    expectedSig := strings.TrimPrefix(parts[1], "v1=")
-    
-    ts, _ := strconv.ParseInt(timestamp, 10, 64)
+func abs(n int64) int64 {
+    if n < 0 {
+        return -n
+    }
+    return n
+}
+
+func verifySignature(rawBody, timestampHeader, signatureHeader string) bool {
+    if timestampHeader == "" || signatureHeader == "" {
+        return false
+    }
+
+    ts, err := strconv.ParseInt(timestampHeader, 10, 64)
+    if err != nil {
+        return false
+    }
+
     if abs(time.Now().Unix()-ts) > 300 {
         return false
     }
-    
-    signedPayload := timestamp + "." + payload
+
+    signedPayload := timestampHeader + "." + rawBody
     h := hmac.New(sha256.New, []byte(webhookSecret))
     h.Write([]byte(signedPayload))
     computedSig := hex.EncodeToString(h.Sum(nil))
-    
-    return hmac.Equal([]byte(expectedSig), []byte(computedSig))
+
+    return hmac.Equal([]byte(signatureHeader), []byte(computedSig))
 }
 
 func webhookHandler(w http.ResponseWriter, r *http.Request) {
     body, _ := io.ReadAll(r.Body)
+    timestamp := r.Header.Get("X-Affonso-Timestamp")
     signature := r.Header.Get("X-Affonso-Signature")
     
-    if !verifySignature(string(body), signature) {
+    if !verifySignature(string(body), timestamp, signature) {
         http.Error(w, "Invalid signature", http.StatusUnauthorized)
         return
     }

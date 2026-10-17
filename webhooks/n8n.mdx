@@ -52,6 +52,7 @@ n8n is a powerful, self-hosted workflow automation tool. It's perfect for teams 
 HTTP Method: POST
 Path: affonso-events
 Authentication: None (use Affonso's signature verification instead)
+Raw Body: enabled (required for signature verification)
 ```
 
 4. Copy the **Production URL** or **Test URL**
@@ -155,32 +156,62 @@ const crypto = require('crypto');
 const webhookSecret = $env.AFFONSO_WEBHOOK_SECRET;
 const signature = $input.first().headers['x-affonso-signature'];
 const timestamp = $input.first().headers['x-affonso-timestamp'];
-const body = JSON.stringify($input.first().body);
+// Enable Options → Raw Body on the Webhook node so this is the exact request body
+const rawBody = $input.first().json.body;
 
-// Reconstruct the signed payload
-const signedPayload = `${timestamp}.${body}`;
+if (!signature || !timestamp || rawBody == null) {
+  return [{
+    json: {
+      isValid: false,
+      reason: 'Missing signature, timestamp, or raw body'
+    }
+  }];
+}
 
-// Calculate expected signature
-const expectedSignature = crypto
+if (!/^\d+$/.test(String(timestamp))) {
+  return [{
+    json: {
+      isValid: false,
+      reason: 'Non-numeric timestamp'
+    }
+  }];
+}
+
+const timestampAge = Math.abs(Math.floor(Date.now() / 1000) - parseInt(timestamp, 10));
+if (timestampAge > 300) {
+  return [{
+    json: {
+      isValid: false,
+      reason: 'Timestamp outside 5-minute tolerance'
+    }
+  }];
+}
+
+const signedPayload = `${timestamp}.${rawBody}`;
+const computedSignature = crypto
   .createHmac('sha256', webhookSecret)
   .update(signedPayload)
   .digest('hex');
 
-// Verify signature
-const isValid = crypto.timingSafeEqual(
-  Buffer.from(signature),
-  Buffer.from(expectedSignature)
-);
+const signatureBuffer = Buffer.from(String(signature));
+const computedBuffer = Buffer.from(computedSignature);
+if (signatureBuffer.length !== computedBuffer.length) {
+  return [{
+    json: {
+      isValid: false,
+      reason: 'Signature length mismatch'
+    }
+  }];
+}
 
-// Check timestamp (prevent replay attacks - 5 minute window)
-const timestampAge = Math.floor(Date.now() / 1000) - parseInt(timestamp);
-const isRecent = timestampAge < 300;
+const isValid = crypto.timingSafeEqual(signatureBuffer, computedBuffer);
+const parsed = typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody;
 
 return [{
   json: {
-    isValid: isValid && isRecent,
-    event: $input.first().body.event,
-    data: $input.first().body.data
+    isValid,
+    event: parsed.event,
+    data: parsed.data
   }
 }];
 ```

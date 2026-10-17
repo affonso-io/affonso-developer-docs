@@ -44,8 +44,10 @@ Before setting up webhooks, ensure you have:
     After creating the endpoint, copy your **Signing Secret**. You'll need this to verify webhook signatures.
     
     ```
-    whsec_abc123xyz...
+    0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
     ```
+    
+    The secret is a 64-character hex string. Use it as-is as a string key; do not hex-decode it.
     
     <Warning>
       Store this secret securely. It's only shown once!
@@ -59,15 +61,15 @@ Always verify webhook signatures to ensure requests are from Affonso.
 
 ### Signature Header
 
-Each webhook request includes a signature header:
+Each webhook request includes two headers:
 
 ```
-X-Affonso-Signature: t=1704067200,v1=abc123...
+X-Affonso-Timestamp: 1704067200
+X-Affonso-Signature: 4f2c8a1b9d3e7f0a6c5b8d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a
 ```
 
-The header contains:
-- `t` - Unix timestamp of when the signature was generated
-- `v1` - The HMAC-SHA256 signature
+- `X-Affonso-Timestamp` — Unix timestamp (seconds) of when the signature was generated
+- `X-Affonso-Signature` — lowercase hex HMAC-SHA256 of `{timestamp}.{rawBody}`, with no prefix
 
 ### Verification Process
 
@@ -77,31 +79,38 @@ The header contains:
 import crypto from 'crypto';
 
 function verifyWebhookSignature(
-  payload: string,
-  signature: string,
+  rawBody: string,
+  timestampHeader: string | undefined,
+  signatureHeader: string | undefined,
   secret: string
 ): boolean {
-  const [timestampPart, signaturePart] = signature.split(',');
-  const timestamp = timestampPart.replace('t=', '');
-  const expectedSignature = signaturePart.replace('v1=', '');
-  
-  // Check timestamp is within 5 minutes
-  const currentTime = Math.floor(Date.now() / 1000);
-  if (Math.abs(currentTime - parseInt(timestamp)) > 300) {
+  if (!timestampHeader || !signatureHeader) {
     return false;
   }
-  
-  // Compute expected signature
-  const signedPayload = `${timestamp}.${payload}`;
+
+  if (!/^\d+$/.test(timestampHeader)) {
+    return false;
+  }
+
+  const timestamp = parseInt(timestampHeader, 10);
+  const currentTime = Math.floor(Date.now() / 1000);
+  if (Math.abs(currentTime - timestamp) > 300) {
+    return false;
+  }
+
+  const signedPayload = `${timestampHeader}.${rawBody}`;
   const computedSignature = crypto
-    .createHmac('sha256', secret)
+    .createHmac('sha256', secret) // UTF-8 string key; do not hex-decode
     .update(signedPayload)
     .digest('hex');
-  
-  return crypto.timingSafeEqual(
-    Buffer.from(expectedSignature),
-    Buffer.from(computedSignature)
-  );
+
+  const expected = Buffer.from(signatureHeader);
+  const computed = Buffer.from(computedSignature);
+  if (expected.length !== computed.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(expected, computed);
 }
 ```
 
@@ -110,25 +119,30 @@ import hmac
 import hashlib
 import time
 
-def verify_webhook_signature(payload: str, signature: str, secret: str) -> bool:
-    parts = signature.split(',')
-    timestamp = parts[0].replace('t=', '')
-    expected_signature = parts[1].replace('v1=', '')
-    
-    # Check timestamp is within 5 minutes
-    current_time = int(time.time())
-    if abs(current_time - int(timestamp)) > 300:
+def verify_webhook_signature(
+    raw_body: str,
+    timestamp_header: str | None,
+    signature_header: str | None,
+    secret: str,
+) -> bool:
+    if not timestamp_header or not signature_header:
         return False
-    
-    # Compute expected signature
-    signed_payload = f"{timestamp}.{payload}"
+
+    if not timestamp_header.isdigit():
+        return False
+
+    timestamp = int(timestamp_header)
+    if abs(int(time.time()) - timestamp) > 300:
+        return False
+
+    signed_payload = f"{timestamp_header}.{raw_body}"
     computed_signature = hmac.new(
-        secret.encode(),
-        signed_payload.encode(),
-        hashlib.sha256
+        secret.encode("utf-8"),  # string key; do not hex-decode
+        signed_payload.encode("utf-8"),
+        hashlib.sha256,
     ).hexdigest()
-    
-    return hmac.compare_digest(expected_signature, computed_signature)
+
+    return hmac.compare_digest(signature_header, computed_signature)
 ```
 
 ```go Go
@@ -139,28 +153,36 @@ import (
     "crypto/sha256"
     "encoding/hex"
     "strconv"
-    "strings"
     "time"
 )
 
-func verifyWebhookSignature(payload, signature, secret string) bool {
-    parts := strings.Split(signature, ",")
-    timestamp := strings.TrimPrefix(parts[0], "t=")
-    expectedSignature := strings.TrimPrefix(parts[1], "v1=")
-    
-    // Check timestamp is within 5 minutes
-    ts, _ := strconv.ParseInt(timestamp, 10, 64)
+func abs(n int64) int64 {
+    if n < 0 {
+        return -n
+    }
+    return n
+}
+
+func verifyWebhookSignature(rawBody, timestampHeader, signatureHeader, secret string) bool {
+    if timestampHeader == "" || signatureHeader == "" {
+        return false
+    }
+
+    ts, err := strconv.ParseInt(timestampHeader, 10, 64)
+    if err != nil {
+        return false
+    }
+
     if abs(time.Now().Unix()-ts) > 300 {
         return false
     }
-    
-    // Compute expected signature
-    signedPayload := timestamp + "." + payload
-    h := hmac.New(sha256.New, []byte(secret))
+
+    signedPayload := timestampHeader + "." + rawBody
+    h := hmac.New(sha256.New, []byte(secret)) // UTF-8 string key; do not hex-decode
     h.Write([]byte(signedPayload))
     computedSignature := hex.EncodeToString(h.Sum(nil))
-    
-    return hmac.Equal([]byte(expectedSignature), []byte(computedSignature))
+
+    return hmac.Equal([]byte(signatureHeader), []byte(computedSignature))
 }
 ```
 
@@ -182,7 +204,9 @@ Return a `2xx` status code to acknowledge receipt:
 
 ### Response Time
 
-Your endpoint should respond within **30 seconds**. If processing takes longer:
+Affonso waits up to **10 seconds** for a response; slower responses count as failed and are retried. See the [retry policy](/webhooks/introduction#retry-policy) for how failed deliveries are retried.
+
+If processing takes longer:
 
 1. Acknowledge the webhook immediately
 2. Process the event asynchronously
@@ -239,6 +263,8 @@ lt --port 3000
   
   <Accordion title="Signature verification failing">
     - Ensure you're using the raw request body, not parsed JSON
+    - Use the secret as a plain string (not hex-decoded, no prefix)
+    - Sign `{timestamp}.{rawBody}` using the X-Affonso-Timestamp header
     - Check that your signing secret is correct
     - Verify the timestamp is within 5 minutes
   </Accordion>

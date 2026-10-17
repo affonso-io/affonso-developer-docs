@@ -34,7 +34,7 @@ sequenceDiagram
     Monitor referral clicks, leads, and conversions
   </Card>
   <Card title="Transaction Events" icon="receipt" href="/webhooks/events/transaction">
-    Get notified about sales, commissions, and refunds
+    Get notified about sales and commissions. Refunds are not a separate event: a full refund arrives as `transaction.rejected`, a partial refund as `transaction.updated`.
   </Card>
   <Card title="Payout Events" icon="money-bill-transfer" href="/webhooks/events/payout">
     Track affiliate payouts and payment status
@@ -43,27 +43,20 @@ sequenceDiagram
 
 ## Security
 
-All webhook requests include a signature header for verification:
+All webhook requests include two headers for verification:
 
 ```
-X-Affonso-Signature: sha256=...
+X-Affonso-Timestamp: 1704067200
+X-Affonso-Signature: 4f2c8a1b9d3e7f0a6c5b8d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a
 ```
 
-We sign each payload using HMAC-SHA256 with your webhook secret. Always verify this signature before processing webhook data.
+Affonso signs the string `{timestamp}.{rawBody}` with HMAC-SHA256 using your endpoint secret and sends the lowercase hex digest, without any prefix, in X-Affonso-Signature. The timestamp is sent in X-Affonso-Timestamp. Reject requests older than 5 minutes.
+
+See [Webhook Setup](/webhooks/setup) for verification examples.
 
 ## Retry Policy
 
-If your endpoint doesn't respond with a `2xx` status code, we'll retry the webhook with exponential backoff:
-
-| Attempt | Delay |
-|---------|-------|
-| 1 | Immediate |
-| 2 | 1 minute |
-| 3 | 5 minutes |
-| 4 | 30 minutes |
-| 5 | 2 hours |
-
-After 5 failed attempts, the webhook delivery is marked as failed.
+If your endpoint returns a non-`2xx` status code or does not respond within 10 seconds, the delivery is treated as failed. Affonso retries with exponential backoff for up to 48 hours, 11 attempts total. After that, the delivery is marked as failed.
 
 ## Payload Structure
 
