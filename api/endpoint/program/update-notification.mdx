@@ -6,6 +6,12 @@ description: "Update a notification setting by email type ID"
 
 Update a notification setting for a specific email type. If no custom setting exists yet, it will be created. All fields are optional.
 
+Use `campaign-submission-approved` as `emailTypeId` to enable, disable, or customize the email sent to the partner after a campaign submission is approved. Disabling it does not affect earning creation.
+
+<Info>
+The same operation is available through the [`affonso_update_email_notification`](/mcp/tools/email-notifications#affonso_update_email_notification) MCP tool.
+</Info>
+
 ## Path Parameters
 
 <ParamField path="emailTypeId" type="string" required>
@@ -19,11 +25,11 @@ Update a notification setting for a specific email type. If no custom setting ex
 </ParamField>
 
 <ParamField body="custom_subject" type="string | null">
-  Custom email subject line. Set to `null` to revert to default.
+  Custom email subject line. Maximum 20,000 characters. Set to `null` to revert to default.
 </ParamField>
 
 <ParamField body="custom_body" type="string | null">
-  Custom email body content. Set to `null` to revert to default.
+  Custom email body content. Maximum 20,000 characters. Set to `null` to revert to default.
 </ParamField>
 
 ## Response

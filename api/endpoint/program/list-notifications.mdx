@@ -4,7 +4,13 @@ api: "GET https://api.affonso.io/v1/program/notifications"
 description: "Get all notification types with your team-specific settings"
 ---
 
-Retrieve all available notification types along with your team-specific customizations. If you haven't customized a notification type yet, defaults are returned.
+Retrieve all available notification types along with your team-specific customizations. If you haven't customized a notification type yet, defaults are returned with `is_active` set to `true`.
+
+The list includes the `campaign-submission-approved` type, which emails the partner after a campaign submission is approved. Disabling it does not affect earning creation.
+
+<Info>
+The same data is available through the [`affonso_list_email_notifications`](/mcp/tools/email-notifications#affonso_list_email_notifications) MCP tool.
+</Info>
 
 ## Response
 
