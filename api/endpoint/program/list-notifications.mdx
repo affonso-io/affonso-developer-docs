@@ -63,7 +63,7 @@ The same data is available through the [`affonso_list_email_notifications`](/mcp
 </ResponseField>
 
 <ResponseField name="target_audience" type="string">
-  Who receives this notification (e.g. `affiliate`, `owner`)
+  Who receives this notification (`affiliate` or `client`)
 </ResponseField>
 </Expandable>
 </ResponseField>
@@ -83,29 +83,29 @@ curl -X GET "https://api.affonso.io/v1/program/notifications" \
   "success": true,
   "data": [
     {
-      "id": "ns_abc123",
-      "email_type_id": "nt_welcome",
+      "id": "cmvicip2d000d711cwlezg3nt",
+      "email_type_id": "welcome",
       "is_active": true,
       "custom_subject": "Welcome to our affiliate program!",
       "custom_body": null,
       "type": {
         "name": "Welcome Email",
-        "description": "Sent when an affiliate is approved",
-        "icon": "mail",
+        "description": "Sent when an affiliate joins a program",
+        "icon": "Mail",
         "is_customizable": true,
         "target_audience": "affiliate"
       }
     },
     {
       "id": null,
-      "email_type_id": "nt_payout",
+      "email_type_id": "campaign-submission-approved",
       "is_active": true,
       "custom_subject": null,
       "custom_body": null,
       "type": {
-        "name": "Payout Notification",
-        "description": "Sent when a payout is processed",
-        "icon": "dollar-sign",
+        "name": "Campaign submission approved",
+        "description": "Sent to partners when a campaign submission is approved",
+        "icon": "Trophy",
         "is_customizable": true,
         "target_audience": "affiliate"
       }

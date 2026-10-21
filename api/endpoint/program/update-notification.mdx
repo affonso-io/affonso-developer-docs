@@ -15,7 +15,7 @@ The same operation is available through the [`affonso_update_email_notification`
 ## Path Parameters
 
 <ParamField path="emailTypeId" type="string" required>
-  The notification type ID to update settings for.
+  The notification type ID to update settings for, for example `welcome`.
 </ParamField>
 
 ## Body Parameters
@@ -38,7 +38,7 @@ Returns the updated notification setting object. Same structure as items in the 
 
 <RequestExample>
 ```bash cURL
-curl -X PATCH "https://api.affonso.io/v1/program/notifications/nt_welcome" \
+curl -X PATCH "https://api.affonso.io/v1/program/notifications/welcome" \
   -H "Authorization: Bearer sk_live_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -53,15 +53,15 @@ curl -X PATCH "https://api.affonso.io/v1/program/notifications/nt_welcome" \
 {
   "success": true,
   "data": {
-    "id": "ns_abc123",
-    "email_type_id": "nt_welcome",
+    "id": "cmvicip2d000d711cwlezg3nt",
+    "email_type_id": "welcome",
     "is_active": true,
     "custom_subject": "Welcome to the Acme affiliate family!",
     "custom_body": null,
     "type": {
       "name": "Welcome Email",
-      "description": "Sent when an affiliate is approved",
-      "icon": "mail",
+      "description": "Sent when an affiliate joins a program",
+      "icon": "Mail",
       "is_customizable": true,
       "target_audience": "affiliate"
     }
