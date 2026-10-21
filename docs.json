@@ -299,7 +299,8 @@
               "mcp/tools/commissions",
               "mcp/tools/payouts",
               "mcp/tools/finder",
-              "mcp/tools/creatives"
+              "mcp/tools/creatives",
+              "mcp/tools/email-notifications"
             ]
           }
         ]

@@ -1,0 +1,158 @@
+---
+title: 'Email Notification Tools'
+description: 'MCP tools for listing and updating your team email notification settings'
+---
+
+## Overview
+
+The email notification tools read and change your team's email notification settings. They use the same logic as the REST [List Notification Settings](/api/endpoint/program/list-notifications) and [Update Notification Setting](/api/endpoint/program/update-notification) endpoints. All tools support `response_format` (`markdown` or `json`).
+
+<Info>
+Notification types without a saved team setting are returned with `is_active: true`. The `campaign-submission-approved` type emails the partner after you approve a campaign submission. Disabling it does not affect earning creation.
+</Info>
+
+## Available Tools
+
+| Tool | Description | Permission |
+|------|-------------|------------|
+| `affonso_list_email_notifications` | List all notification types with your team's settings | `read:program` |
+| `affonso_update_email_notification` | Enable, disable, or customize one notification | `write:program` |
+
+---
+
+## affonso_list_email_notifications
+
+List all email notification types with your team's settings, including `campaign-submission-approved`. Same as `GET /v1/program/notifications`.
+
+### Parameters
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`
+</ParamField>
+
+### Example Prompts
+
+```
+List my email notification settings
+Which email notifications are turned off?
+Is the campaign submission approved email enabled?
+```
+
+### Response
+
+<CodeGroup>
+```markdown Markdown Format
+campaign-submission-approved: on
+```
+
+```json JSON Format
+{
+  "data": [
+    {
+      "id": null,
+      "email_type_id": "campaign-submission-approved",
+      "is_active": true,
+      "custom_subject": null,
+      "custom_body": null,
+      "type": {
+        "name": "Campaign submission approved",
+        "description": "Sent to partners when a campaign submission is approved",
+        "icon": "Trophy",
+        "is_customizable": true,
+        "target_audience": "affiliate"
+      }
+    }
+  ]
+}
+```
+</CodeGroup>
+
+<Note>
+`id` is `null` when your team has not saved a setting for the type and the defaults apply.
+</Note>
+
+---
+
+## affonso_update_email_notification
+
+Enable, disable, or customize one email notification for your team. Same as `PATCH /v1/program/notifications/{emailTypeId}`. Use the `email_type_id` returned by `affonso_list_email_notifications`. If your team has no saved setting for the type yet, one is created.
+
+### Parameters
+
+<ParamField body="email_type_id" type="string" required>
+  Notification type ID returned by the list tool, for example `campaign-submission-approved`
+</ParamField>
+
+<ParamField body="is_active" type="boolean">
+  Enable or disable this email for your team
+</ParamField>
+
+<ParamField body="custom_subject" type="string | null">
+  Custom email subject. Maximum 20,000 characters. Pass `null` to restore the default.
+</ParamField>
+
+<ParamField body="custom_body" type="string | null">
+  Custom email body. Maximum 20,000 characters. Pass `null` to restore the default.
+</ParamField>
+
+<ParamField body="response_format" type="string" default="markdown">
+  Response format: `markdown` or `json`
+</ParamField>
+
+Omitted fields stay unchanged.
+
+### Example Prompts
+
+```
+Turn off the campaign submission approved email
+Set a custom subject for campaign-submission-approved
+Restore the default body for campaign-submission-approved
+```
+
+### Response
+
+<CodeGroup>
+```markdown Markdown Format
+campaign-submission-approved: off
+```
+
+```json JSON Format
+{
+  "data": {
+    "id": "cmvicip2d000d711cwlezg3nt",
+    "email_type_id": "campaign-submission-approved",
+    "is_active": false,
+    "custom_subject": null,
+    "custom_body": null,
+    "type": {
+      "name": "Campaign submission approved",
+      "description": "Sent to partners when a campaign submission is approved",
+      "icon": "Trophy",
+      "is_customizable": true,
+      "target_audience": "affiliate"
+    }
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## Common Workflows
+
+### Disable partner approval emails
+
+```
+1. "List my email notification settings"
+2. "Turn off the campaign submission approved email"
+```
+
+Approving a campaign submission still creates the earning when this email is disabled.
+
+## Error Handling
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `Notification type not found` | `email_type_id` does not match a notification type | Use an ID from `affonso_list_email_notifications` |
+| Validation error | `custom_subject` or `custom_body` is longer than 20,000 characters | Shorten the text |
+| `PERMISSION_DENIED` | Missing required scope | List needs `read:program`. Update needs `write:program`. |
