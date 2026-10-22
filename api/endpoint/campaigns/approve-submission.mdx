@@ -15,7 +15,7 @@ The same operation is available through the [`affonso_approve_campaign_submissio
 </ParamField>
 
 <ParamField path="submissionId" type="string" required>
-  Encoded submission id
+  Encoded submission id. No public REST endpoint, MCP tool, or webhook lists campaign submissions or returns their ids, so get it from the submission in Affonso. This endpoint returns it as `id`.
 </ParamField>
 
 ## Body Parameters
@@ -94,35 +94,35 @@ Returns the approved submission object.
 
 <RequestExample>
 ```bash cURL (custom or range campaign)
-curl -X POST "https://api.affonso.io/v1/program/campaigns/<campaign_id>/submissions/<submission_id>/approve" \
+curl -X POST "https://api.affonso.io/v1/program/campaigns/cmcustom01camp0001/submissions/cmsub01custom00001/approve" \
   -H "Authorization: Bearer sk_live_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{
-    "amount": 0.01
+    "amount": 250
   }'
 ```
 
 ```bash cURL (flat rate campaign)
-curl -X POST "https://api.affonso.io/v1/program/campaigns/<campaign_id>/submissions/<submission_id>/approve" \
+curl -X POST "https://api.affonso.io/v1/program/campaigns/cmlaunch01camp0001/submissions/cmsub01launch00001/approve" \
   -H "Authorization: Bearer sk_live_your_api_key"
 ```
 </RequestExample>
 
 <ResponseExample>
-```json Response
+```json Response (flat rate)
 {
   "success": true,
   "data": {
-    "id": "<encoded submission id>",
-    "campaign_id": "<encoded campaign id>",
-    "affiliate_id": "<affiliate id>",
+    "id": "cmsub01launch00001",
+    "campaign_id": "cmlaunch01camp0001",
+    "affiliate_id": "aff_abc123",
     "status": "APPROVED",
-    "custom_reward_amount": 0.01,
-    "earning_id": "<earning id>",
+    "custom_reward_amount": 100,
+    "earning_id": "cmearn01launch0001",
     "earning_status": "READY_FOR_PAYMENT",
-    "reviewed_at": "<ISO 8601 timestamp>",
-    "created_at": "<ISO 8601 timestamp>",
-    "updated_at": "<ISO 8601 timestamp>",
+    "reviewed_at": "2026-10-07T12:00:00.000Z",
+    "created_at": "2026-10-06T15:20:00.000Z",
+    "updated_at": "2026-10-07T12:00:00.000Z",
     "campaign_closed_by_budget": false,
     "rejected_pending_applications": 0
   }
@@ -151,6 +151,7 @@ If the approved amount brings the campaign's approved reward spend to or above i
 ## Notes
 
 - Requires `write:affiliates`.
+- There is no public endpoint for listing submissions. The [`affonso_approve_campaign_submission`](/mcp/tools/campaigns) MCP tool has the same limitation.
 - Approving an already `APPROVED` submission is idempotent (HTTP 200). It returns the existing submission with its `earning_id` and `earning_status`, creates no new earning or email, and reports `campaign_closed_by_budget` as `false` and `rejected_pending_applications` as `0`.
 - A `REJECTED` submission returns `CONFLICT` (HTTP 409). If a concurrent call reviews the submission first, the call may also return `CONFLICT` with "This submission was already reviewed".
-- `custom` and `range` campaigns without an `amount` return `VALIDATION_ERROR` (HTTP 400) with `field` `amount`. An `amount` below 0.01 or above 999,999.99 returns `VALIDATION_ERROR` before the submission is claimed, so no earning is created.
+- `custom` and `range` campaigns without an `amount` return `VALIDATION_ERROR` (HTTP 400) with `field` `amount`. An `amount` below 0.01 or above 999,999.99 fails body validation and returns `VALIDATION_ERROR` (HTTP 400) with `details`, before the submission is claimed, so no earning is created.

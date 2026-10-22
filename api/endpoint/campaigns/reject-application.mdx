@@ -32,7 +32,7 @@ Returns the rejected application object.
 
 <RequestExample>
 ```bash cURL
-curl -X POST "https://api.affonso.io/v1/program/campaigns/<campaign_id>/applications/<application_id>/reject" \
+curl -X POST "https://api.affonso.io/v1/program/campaigns/cmlaunch01camp0001/applications/cmapp01launch00001/reject" \
   -H "Authorization: Bearer sk_live_your_api_key"
 ```
 </RequestExample>
@@ -42,23 +42,23 @@ curl -X POST "https://api.affonso.io/v1/program/campaigns/<campaign_id>/applicat
 {
   "success": true,
   "data": {
-    "id": "<encoded application id>",
-    "campaign_id": "<encoded campaign id>",
-    "affiliate_id": "<affiliate id>",
+    "id": "cmapp01launch00001",
+    "campaign_id": "cmlaunch01camp0001",
+    "affiliate_id": "aff_abc123",
     "affiliate": {
-      "id": "<affiliate id>",
-      "name": null,
-      "email": null
+      "id": "aff_abc123",
+      "name": "Jane Smith",
+      "email": "jane@example.com"
     },
-    "answers": "<application answers>",
+    "answers": "Draft review: https://example.com/review-draft",
     "status": "REJECTED",
-    "reviewed_at": "<ISO 8601 timestamp>",
+    "reviewed_at": "2026-10-06T08:30:00.000Z",
     "retainer_has_condition": false,
     "retainer_condition": null,
     "retainer_ended_at": null,
     "retainer_resumed_at": null,
-    "created_at": "<ISO 8601 timestamp>",
-    "updated_at": "<ISO 8601 timestamp>"
+    "created_at": "2026-10-05T10:00:00.000Z",
+    "updated_at": "2026-10-06T08:30:00.000Z"
   }
 }
 ```

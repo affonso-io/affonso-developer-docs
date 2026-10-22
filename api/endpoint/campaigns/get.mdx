@@ -28,7 +28,7 @@ Returns the campaign object. Same structure as [Create Campaign](/api/endpoint/c
 
 <RequestExample>
 ```bash cURL
-curl -X GET "https://api.affonso.io/v1/program/campaigns/<campaign_id>" \
+curl -X GET "https://api.affonso.io/v1/program/campaigns/cmlaunch01camp0001" \
   -H "Authorization: Bearer sk_live_your_api_key"
 ```
 </RequestExample>
@@ -38,28 +38,28 @@ curl -X GET "https://api.affonso.io/v1/program/campaigns/<campaign_id>" \
 {
   "success": true,
   "data": {
-    "id": "<encoded campaign id>",
-    "name": "<campaign name>",
+    "id": "cmlaunch01camp0001",
+    "name": "Launch Review Bounty",
     "description": null,
     "kind": "submission",
     "status": "ACTIVE",
-    "reward_type": "custom",
-    "reward_amount": null,
+    "reward_type": "flat_rate",
+    "reward_amount": 100,
     "reward_amount_min": null,
     "reward_amount_max": null,
-    "max_budget": null,
+    "max_budget": 2000,
     "retainer_interval": null,
     "retainer_day_of_month": null,
     "retainer_weekday": null,
     "retainer_schedule_changed_at": null,
     "retainer_resumed_at": null,
-    "start_date": "<ISO 8601 timestamp>",
+    "start_date": "2026-10-01T00:00:00.000Z",
     "end_date": null,
-    "application_required": false,
-    "application_prompt": null,
+    "application_required": true,
+    "application_prompt": "Link your review draft",
     "max_submissions_per_user": null,
-    "created_at": "<ISO 8601 timestamp>",
-    "updated_at": "<ISO 8601 timestamp>"
+    "created_at": "2026-09-28T09:00:00.000Z",
+    "updated_at": "2026-10-01T00:00:00.000Z"
   }
 }
 ```
