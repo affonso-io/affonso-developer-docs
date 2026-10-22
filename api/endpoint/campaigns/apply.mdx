@@ -1,0 +1,85 @@
+---
+title: "Apply to Campaign"
+api: "POST https://api.affonso.io/v1/program/campaigns/{id}/applications"
+description: "Submit a campaign application on behalf of one of your affiliates"
+---
+
+Submit an application for an affiliate on your team. The affiliate must be an approved partner of the campaign's program. Requires `write:affiliates`.
+
+The same operation is available through the [`affonso_apply_to_campaign`](/mcp/tools/campaigns) MCP tool.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+## Body Parameters
+
+Unknown body fields are rejected.
+
+<ParamField body="affiliate_id" type="string" required>
+  Id of an affiliate on your team
+</ParamField>
+
+<ParamField body="answers" type="string" required>
+  The affiliate's answer to the campaign's `application_prompt`. Trimmed, 1 to 10,000 characters.
+</ParamField>
+
+## Response
+
+Returns the created or updated application object (HTTP 201).
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The application. Fields match the application object in [List Campaign Applications](/api/endpoint/campaigns/list-applications). A new or reset application has `status` `"PENDING"` and `reviewed_at` `null`.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/program/campaigns/cmlaunch01camp0001/applications" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "affiliate_id": "aff_abc123",
+    "answers": "Draft review: https://example.com/review-draft"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cmapp01launch00001",
+    "campaign_id": "cmlaunch01camp0001",
+    "affiliate_id": "aff_abc123",
+    "affiliate": {
+      "id": "aff_abc123",
+      "name": "Jane Smith",
+      "email": "jane@example.com"
+    },
+    "answers": "Draft review: https://example.com/review-draft",
+    "status": "PENDING",
+    "reviewed_at": null,
+    "retainer_has_condition": false,
+    "retainer_condition": null,
+    "retainer_ended_at": null,
+    "retainer_resumed_at": null,
+    "created_at": "2026-10-05T10:00:00.000Z",
+    "updated_at": "2026-10-05T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Requires `write:affiliates`.
+- The campaign must have `application_required` set to `true` and a `status` of `SCHEDULED` or `ACTIVE`. Otherwise the call returns `VALIDATION_ERROR` (HTTP 400).
+- The affiliate must belong to your team (`AFFILIATE_NOT_FOUND`, HTTP 404) and be an approved partner of the campaign's program whose affiliate status is not `INACTIVE`, `REJECTED`, or `BANNED` (`FORBIDDEN`, HTTP 403).
+- Re-applying overwrites `answers` and resets a `PENDING` or `REJECTED` application to `PENDING`, clearing `reviewed_at`. An `ACCEPTED` application returns `CONFLICT` (HTTP 409).
