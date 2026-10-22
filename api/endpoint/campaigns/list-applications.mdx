@@ -1,0 +1,153 @@
+---
+title: "List Campaign Applications"
+api: "GET https://api.affonso.io/v1/program/campaigns/{id}/applications"
+description: "List applications for one of your campaigns"
+---
+
+List applications submitted to one of your team's campaigns, newest first. Requires `read:affiliates`. Foreign-team campaign IDs return 404.
+
+The same data is available through the [`affonso_list_campaign_applications`](/mcp/tools/campaigns) MCP tool.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number for pagination. Must be a positive integer.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="50">
+  Number of results per page. Maximum value is 200. Default is 50.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by application status. Valid values: `PENDING`, `ACCEPTED`, `REJECTED`.
+</ParamField>
+
+<ParamField query="affiliate_id" type="string">
+  Only return applications from this affiliate
+</ParamField>
+
+## Response
+
+Paginated list of applications.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of application objects.
+
+<Expandable title="Application Object Properties">
+<ResponseField name="id" type="string">
+  Encoded application id
+</ResponseField>
+
+<ResponseField name="campaign_id" type="string">
+  Encoded campaign id
+</ResponseField>
+
+<ResponseField name="affiliate_id" type="string">
+  Affiliate id
+</ResponseField>
+
+<ResponseField name="affiliate" type="object">
+  Nested affiliate summary with `id`, `name` (string or `null`), and `email` (string or `null`)
+</ResponseField>
+
+<ResponseField name="answers" type="string">
+  Application answers submitted by the affiliate
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Application status. Valid values: `PENDING`, `ACCEPTED`, `REJECTED`.
+</ResponseField>
+
+<ResponseField name="reviewed_at" type="string | null">
+  ISO 8601 review timestamp, or `null` while pending
+</ResponseField>
+
+<ResponseField name="retainer_has_condition" type="boolean">
+  Whether this accepted retainer has a condition
+</ResponseField>
+
+<ResponseField name="retainer_condition" type="string | null">
+  Condition text, or `null`
+</ResponseField>
+
+<ResponseField name="retainer_ended_at" type="string | null">
+  ISO 8601 timestamp when the partner retainer was ended, or `null`
+</ResponseField>
+
+<ResponseField name="retainer_resumed_at" type="string | null">
+  ISO 8601 timestamp when an ended partner retainer was resumed, or `null`
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 creation timestamp
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 update timestamp
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="pagination" type="object">
+  Pagination metadata: `page`, `limit`, `total`, `total_pages`, `has_next_page`, `has_prev_page`.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/program/campaigns/<campaign_id>/applications?page=1&limit=50&status=PENDING" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": [
+    {
+      "id": "<encoded application id>",
+      "campaign_id": "<encoded campaign id>",
+      "affiliate_id": "<affiliate id>",
+      "affiliate": {
+        "id": "<affiliate id>",
+        "name": null,
+        "email": null
+      },
+      "answers": "<application answers>",
+      "status": "PENDING",
+      "reviewed_at": null,
+      "retainer_has_condition": false,
+      "retainer_condition": null,
+      "retainer_ended_at": null,
+      "retainer_resumed_at": null,
+      "created_at": "<ISO 8601 timestamp>",
+      "updated_at": "<ISO 8601 timestamp>"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 50,
+    "total": 1,
+    "total_pages": 1,
+    "has_next_page": false,
+    "has_prev_page": false
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Requires `read:affiliates`.
+- Applications are sorted by `created_at` descending, then by id.
+- Review applications with [Accept Campaign Application](/api/endpoint/campaigns/accept-application) or [Reject Campaign Application](/api/endpoint/campaigns/reject-application).

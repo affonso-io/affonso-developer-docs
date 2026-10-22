@@ -1,0 +1,72 @@
+---
+title: "Reject Campaign Application"
+api: "POST https://api.affonso.io/v1/program/campaigns/{id}/applications/{applicationId}/reject"
+description: "Reject a pending campaign application"
+---
+
+Reject a pending application. The affiliate may apply again. Requires `write:affiliates`. Foreign-team IDs return 404.
+
+The same operation is available through the [`affonso_reject_campaign_application`](/mcp/tools/campaigns) MCP tool.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField path="applicationId" type="string" required>
+  Encoded application id
+</ParamField>
+
+## Response
+
+Returns the rejected application object.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The application. Fields match the application object in [List Campaign Applications](/api/endpoint/campaigns/list-applications). After rejection `status` is `"REJECTED"` and `reviewed_at` is set.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/program/campaigns/<campaign_id>/applications/<application_id>/reject" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "<encoded application id>",
+    "campaign_id": "<encoded campaign id>",
+    "affiliate_id": "<affiliate id>",
+    "affiliate": {
+      "id": "<affiliate id>",
+      "name": null,
+      "email": null
+    },
+    "answers": "<application answers>",
+    "status": "REJECTED",
+    "reviewed_at": "<ISO 8601 timestamp>",
+    "retainer_has_condition": false,
+    "retainer_condition": null,
+    "retainer_ended_at": null,
+    "retainer_resumed_at": null,
+    "created_at": "<ISO 8601 timestamp>",
+    "updated_at": "<ISO 8601 timestamp>"
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Requires `write:affiliates`.
+- No request body.
+- Already `REJECTED` applications are returned unchanged (idempotent, HTTP 200). `ACCEPTED` applications return `CONFLICT` (HTTP 409).
+- To accept instead, use [Accept Campaign Application](/api/endpoint/campaigns/accept-application).

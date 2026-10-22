@@ -1,0 +1,71 @@
+---
+title: "Get Campaign"
+api: "GET https://api.affonso.io/v1/program/campaigns/{id}"
+description: "Get one of your team's program campaigns"
+---
+
+Get one campaign owned by your team. Requires `read:program`. Foreign-team campaign IDs return 404.
+
+The same data is available through the [`affonso_get_campaign`](/mcp/tools/campaigns) MCP tool.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+## Response
+
+Returns the campaign object. Same structure as [Create Campaign](/api/endpoint/campaigns/create).
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The campaign. Fields match the campaign object in [List Campaigns](/api/endpoint/campaigns/list).
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/program/campaigns/<campaign_id>" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "<encoded campaign id>",
+    "name": "<campaign name>",
+    "description": null,
+    "kind": "submission",
+    "status": "ACTIVE",
+    "reward_type": "custom",
+    "reward_amount": null,
+    "reward_amount_min": null,
+    "reward_amount_max": null,
+    "max_budget": null,
+    "retainer_interval": null,
+    "retainer_day_of_month": null,
+    "retainer_weekday": null,
+    "retainer_schedule_changed_at": null,
+    "retainer_resumed_at": null,
+    "start_date": "<ISO 8601 timestamp>",
+    "end_date": null,
+    "application_required": false,
+    "application_prompt": null,
+    "max_submissions_per_user": null,
+    "created_at": "<ISO 8601 timestamp>",
+    "updated_at": "<ISO 8601 timestamp>"
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Requires `read:program`.
+- A campaign that does not exist or belongs to another team returns `NOT_FOUND` (HTTP 404).

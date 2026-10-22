@@ -1,0 +1,156 @@
+---
+title: "Approve Campaign Submission"
+api: "POST https://api.affonso.io/v1/program/campaigns/{id}/submissions/{submissionId}/approve"
+description: "Approve a pending campaign submission and create its earning"
+---
+
+Approve a `PENDING` submission. For non-retainer campaigns, approval creates one `CAMPAIGN_REWARD` earning in `READY_FOR_PAYMENT` and queues the partner approval email. Requires `write:affiliates`. Foreign-team IDs return 404.
+
+The same operation is available through the [`affonso_approve_campaign_submission`](/mcp/tools/campaigns) MCP tool.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField path="submissionId" type="string" required>
+  Encoded submission id
+</ParamField>
+
+## Body Parameters
+
+The body is optional. Unknown body fields are rejected.
+
+<ParamField body="amount" type="number">
+  Reward amount. Required for `custom` and `range` campaigns. Minimum 0.01, maximum 999,999.99. The amount is not checked against the published `reward_amount_min` / `reward_amount_max` of a `range` campaign. Ignored for `flat_rate` (the campaign's `reward_amount` is used) and `retainer` campaigns.
+</ParamField>
+
+<ParamField body="reject_open_applications" type="boolean">
+  Only applies when this approval reaches the campaign's `max_budget` and closes the campaign. When `true`, all `PENDING` applications are rejected. When omitted or `false`, they stay open.
+</ParamField>
+
+## Response
+
+Returns the approved submission object.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The submission.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Encoded submission id
+</ResponseField>
+
+<ResponseField name="campaign_id" type="string">
+  Encoded campaign id
+</ResponseField>
+
+<ResponseField name="affiliate_id" type="string">
+  Affiliate id
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Submission status. After approval this is `"APPROVED"`. Valid values: `PENDING`, `APPROVED`, `REJECTED`.
+</ResponseField>
+
+<ResponseField name="custom_reward_amount" type="number | null">
+  Reward amount written to the submission on approval. Not written for retainer submissions.
+</ResponseField>
+
+<ResponseField name="earning_id" type="string | null">
+  Id of the earning created by this approval. `null` for retainer submissions, which create no earning, and for approvals made before earnings were created on approval.
+</ResponseField>
+
+<ResponseField name="earning_status" type="string | null">
+  Current status of the earning. A newly created earning is `"READY_FOR_PAYMENT"`. `null` when `earning_id` is `null`.
+</ResponseField>
+
+<ResponseField name="reviewed_at" type="string | null">
+  ISO 8601 review timestamp
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 creation timestamp
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 update timestamp
+</ResponseField>
+
+<ResponseField name="campaign_closed_by_budget" type="boolean">
+  `true` when this approval reached or exceeded the campaign's `max_budget` and moved the campaign to `ENDED`
+</ResponseField>
+
+<ResponseField name="rejected_pending_applications" type="integer">
+  Number of pending applications rejected by this call. Non-zero only when `reject_open_applications` is `true` and the campaign was closed by budget.
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL (custom or range campaign)
+curl -X POST "https://api.affonso.io/v1/program/campaigns/<campaign_id>/submissions/<submission_id>/approve" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 0.01
+  }'
+```
+
+```bash cURL (flat rate campaign)
+curl -X POST "https://api.affonso.io/v1/program/campaigns/<campaign_id>/submissions/<submission_id>/approve" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "<encoded submission id>",
+    "campaign_id": "<encoded campaign id>",
+    "affiliate_id": "<affiliate id>",
+    "status": "APPROVED",
+    "custom_reward_amount": 0.01,
+    "earning_id": "<earning id>",
+    "earning_status": "READY_FOR_PAYMENT",
+    "reviewed_at": "<ISO 8601 timestamp>",
+    "created_at": "<ISO 8601 timestamp>",
+    "updated_at": "<ISO 8601 timestamp>",
+    "campaign_closed_by_budget": false,
+    "rejected_pending_applications": 0
+  }
+}
+```
+</ResponseExample>
+
+## Earning
+
+For `flat_rate`, `custom`, and `range` campaigns, approval creates one earning in the same transaction:
+
+- `earning_type` is `CAMPAIGN_REWARD`, with status `READY_FOR_PAYMENT` and no hold period.
+- The amount is the approved reward amount, in your team's currency.
+- The earning's description is the campaign name.
+
+Retainer proof submissions create no earning. Retainer earnings are created per period and approved separately with [Approve Retainer Period](/api/endpoint/campaigns/approve-retainer-period).
+
+## Partner email
+
+When approval creates an earning, the partner approval email is queued in the same transaction. No email is queued when the `campaign-submission-approved` [email notification](/api/endpoint/program/list-notifications) is disabled, when the program has no portal settings, or when the affiliate has no valid email address. None of these affect earning creation.
+
+## Max budget
+
+If the approved amount brings the campaign's approved reward spend to or above its owner `max_budget`, the approval still succeeds. A campaign with `status` `ACTIVE` or `SCHEDULED` is then moved to `ENDED` and `campaign_closed_by_budget` is `true`. Submissions of an `ENDED` campaign can still be approved.
+
+## Notes
+
+- Requires `write:affiliates`.
+- Approving an already `APPROVED` submission is idempotent (HTTP 200). It returns the existing submission with its `earning_id` and `earning_status`, creates no new earning or email, and reports `campaign_closed_by_budget` as `false` and `rejected_pending_applications` as `0`.
+- A `REJECTED` submission returns `CONFLICT` (HTTP 409). If a concurrent call reviews the submission first, the call may also return `CONFLICT` with "This submission was already reviewed".
+- `custom` and `range` campaigns without an `amount` return `VALIDATION_ERROR` (HTTP 400) with `field` `amount`. An `amount` below 0.01 or above 999,999.99 returns `VALIDATION_ERROR` before the submission is claimed, so no earning is created.
