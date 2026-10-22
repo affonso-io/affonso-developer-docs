@@ -37,7 +37,7 @@ Campaign create/update/list/get use `read:program` / `write:program`. Applicatio
 
 Create a draft program campaign. Same as `POST /v1/program/campaigns`.
 
-Retainer requires `reward_amount`, `retainer_interval`, and either `retainer_day_of_month` (monthly) or `retainer_weekday` (weekly). Forces `application_required` and ignores `max_budget`.
+Retainer requires `reward_amount`, `retainer_interval`, and either `retainer_day_of_month` (monthly) or `retainer_weekday` (weekly). For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application"). Ignores `max_budget`.
 
 ### Parameters
 
@@ -90,7 +90,7 @@ Retainer requires `reward_amount`, `retainer_interval`, and either `retainer_day
 </ParamField>
 
 <ParamField body="application_required" type="boolean">
-  Whether affiliates must apply first. Forced true for retainer.
+  Whether affiliates must apply first. For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application").
 </ParamField>
 
 <ParamField body="application_prompt" type="string | null">
@@ -119,7 +119,7 @@ Create a flat rate campaign Launch Review Bounty for 100 with max budget 2000
 
 Update application settings, reward type, retainer cadence, status, and/or owner max_budget. Same as `PATCH /v1/program/campaigns/{id}`. Does not create earnings.
 
-Switching to or from retainer is blocked when applications exist. ENDED or ARCHIVED to ACTIVE sets `retainer_resumed_at`. Retainer ignores max_budget and cannot turn application_required off.
+Switching to or from retainer is blocked when applications exist. Only moving a retainer campaign from `ENDED` or `ARCHIVED` to `ACTIVE` sets `retainer_resumed_at`. Retainer ignores `max_budget`. For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application").
 
 ### Parameters
 
@@ -216,7 +216,7 @@ Retainer requires `has_condition` (`true` or `false`). When true, `condition` is
 ### Example Prompts
 
 ```
-Accept application cmapp01retainer0001 on campaign cmretainer01camp0001 with condition "Post 2 Shorts per week"
+Accept application cmapp01retainer0001 on campaign cmretainer01camp0001 with condition "Post at least 2 Shorts per week mentioning our product"
 Accept retainer application cmapp01retainer0002 with has_condition false
 ```
 
@@ -251,7 +251,7 @@ Change the retainer condition on an accepted application. Requires `has_conditio
 ### Example Prompts
 
 ```
-Update retainer condition on application cmapp01retainer0001 to "Post 3 Shorts per week"
+Update retainer condition on application cmapp01retainer0001 to "Post at least 3 Shorts per week mentioning our product"
 Clear the retainer condition on application cmapp01retainer0001
 ```
 
@@ -408,7 +408,7 @@ These tools are part of the same campaigns surface and appear in the overview ta
 - `affonso_apply_to_campaign`: body needs `campaign_id`, `affiliate_id`, and `answers`
 - `affonso_list_campaign_applications`: filter by status and affiliate; uses `limit` / `offset`
 - `affonso_reject_campaign_application`: pending applications only; affiliate may apply again
-- `affonso_approve_campaign_submission`: custom/range need `amount`; optional `reject_open_applications` on budget close; does not create earnings
+- `affonso_approve_campaign_submission`: custom/range need `amount`; optional `reject_open_applications` on budget close; non-retainer approvals create one `CAMPAIGN_REWARD` earning in `READY_FOR_PAYMENT` and queue the partner approval email (respecting email settings). Repeated approvals create no new earning or email. Retainer proof creates no earning; periods are approved separately
 
 ---
 

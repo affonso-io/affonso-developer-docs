@@ -19,7 +19,7 @@ At least one updatable field is required. Foreign-team campaign IDs return 404.
 All body parameters are optional, but you must send at least one.
 
 <ParamField body="application_required" type="boolean">
-  When true, affiliates must apply and be accepted before submitting proof. Cannot be set to `false` on retainer campaigns.
+  When true, affiliates must apply and be accepted before submitting proof. For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application").
 </ParamField>
 
 <ParamField body="application_prompt" type="string | null">
@@ -59,7 +59,7 @@ All body parameters are optional, but you must send at least one.
 </ParamField>
 
 <ParamField body="status" type="string">
-  Campaign status. Valid values: `DRAFT`, `SCHEDULED`, `ACTIVE`, `ENDED`, `ARCHIVED`. Moving from `ENDED` or `ARCHIVED` to `ACTIVE` sets `retainer_resumed_at`.
+  Campaign status. Valid values: `DRAFT`, `SCHEDULED`, `ACTIVE`, `ENDED`, `ARCHIVED`. Only moving a retainer campaign from `ENDED` or `ARCHIVED` to `ACTIVE` sets `retainer_resumed_at`.
 </ParamField>
 
 ## Response
@@ -124,4 +124,4 @@ curl -X PATCH "https://api.affonso.io/v1/program/campaigns/cmretainer01camp0001"
 
 - Requires `write:program`.
 - Switching to or from retainer is blocked with a conflict when any applications exist for the campaign.
-- Retainer ignores `max_budget` and cannot turn `application_required` off.
+- Retainer ignores `max_budget`. For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application").

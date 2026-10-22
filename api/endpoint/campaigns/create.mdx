@@ -11,7 +11,7 @@ Reward type rules:
 - `flat_rate` requires `reward_amount`
 - `range` requires `reward_amount_min` and `reward_amount_max` (min >= 0.01, max >= min)
 - `custom` sets no amounts
-- `retainer` requires `reward_amount`, `retainer_interval`, and either `retainer_day_of_month` (monthly) or `retainer_weekday` (weekly). Forces `application_required` to true. Ignores `max_budget` (stored as `null`)
+- `retainer` requires `reward_amount`, `retainer_interval`, and either `retainer_day_of_month` (monthly) or `retainer_weekday` (weekly). For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application"). Ignores `max_budget` (stored as `null`)
 
 ## Body Parameters
 
@@ -64,7 +64,7 @@ Reward type rules:
 </ParamField>
 
 <ParamField body="application_required" type="boolean">
-  When true, affiliates must apply and be accepted before submitting proof. Forced to `true` for retainer.
+  When true, affiliates must apply and be accepted before submitting proof. For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application").
 </ParamField>
 
 <ParamField body="application_prompt" type="string | null">
@@ -144,7 +144,7 @@ Returns the created campaign object (HTTP 201).
 </ResponseField>
 
 <ResponseField name="retainer_resumed_at" type="string | null">
-  ISO 8601 timestamp set when an ENDED or ARCHIVED campaign returns to ACTIVE, or `null`
+  ISO 8601 timestamp set only when a retainer campaign moves from ENDED or ARCHIVED to ACTIVE, or `null`
 </ResponseField>
 
 <ResponseField name="start_date" type="string">
@@ -259,6 +259,6 @@ curl -X POST "https://api.affonso.io/v1/program/campaigns" \
 ## Notes
 
 - Requires `write:program`.
-- Retainer campaigns always require applications. You cannot set `application_required` to `false`.
+- Retainer campaigns always require applications. For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application").
 - `max_budget` is ignored for retainer and stored as `null`.
 - Campaign IDs are encoded, same as marketplace campaign IDs.

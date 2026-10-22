@@ -103,7 +103,7 @@ curl -X POST "https://api.affonso.io/v1/program/campaigns/cmretainer01camp0001/a
   -H "Content-Type: application/json" \
   -d '{
     "has_condition": true,
-    "condition": "Post at least 2 Shorts per week mentioning Affonso"
+    "condition": "Post at least 2 Shorts per week mentioning our product"
   }'
 ```
 
@@ -134,7 +134,7 @@ curl -X POST "https://api.affonso.io/v1/program/campaigns/cmretainer01camp0001/a
     "status": "ACCEPTED",
     "reviewed_at": "2026-10-12T16:00:00.000Z",
     "retainer_has_condition": true,
-    "retainer_condition": "Post at least 2 Shorts per week mentioning Affonso",
+    "retainer_condition": "Post at least 2 Shorts per week mentioning our product",
     "retainer_ended_at": null,
     "retainer_resumed_at": null,
     "created_at": "2026-10-10T12:00:00.000Z",
@@ -148,4 +148,4 @@ curl -X POST "https://api.affonso.io/v1/program/campaigns/cmretainer01camp0001/a
 
 - Requires `write:affiliates`.
 - Sending `has_condition` or `condition` on a non-retainer campaign returns a validation error.
-- Pending applications only. Already accepted or rejected applications return a conflict.
+- Already `ACCEPTED` applications are returned unchanged (idempotent, HTTP 200). `REJECTED` applications return `CONFLICT`.
