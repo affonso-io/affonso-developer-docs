@@ -1,0 +1,264 @@
+---
+title: "Create Campaign"
+api: "POST https://api.affonso.io/v1/program/campaigns"
+description: "Create a draft program campaign, including retainer rewards"
+---
+
+Create a draft campaign for your team. Status is always `DRAFT` on create. Requires `write:program`.
+
+Reward type rules:
+
+- `flat_rate` requires `reward_amount`
+- `range` requires `reward_amount_min` and `reward_amount_max` (min >= 0.01, max >= min)
+- `custom` sets no amounts
+- `retainer` requires `reward_amount`, `retainer_interval`, and either `retainer_day_of_month` (monthly) or `retainer_weekday` (weekly). For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application"). Ignores `max_budget` (stored as `null`)
+
+## Body Parameters
+
+<ParamField body="name" type="string" required>
+  Campaign title. Must be between 1 and 255 characters.
+</ParamField>
+
+<ParamField body="reward_type" type="string" required>
+  Reward type. Valid values: `flat_rate`, `custom`, `range`, `retainer`.
+</ParamField>
+
+<ParamField body="start_date" type="string" required>
+  Campaign start datetime (ISO 8601).
+</ParamField>
+
+<ParamField body="description" type="string | null">
+  Campaign description. Maximum 10,000 characters. Set to `null` or omit for none.
+</ParamField>
+
+<ParamField body="reward_amount" type="number | null">
+  Fixed reward amount in program currency. Required for `flat_rate` and `retainer`. Minimum 0.01. Null for `custom` and `range`.
+</ParamField>
+
+<ParamField body="reward_amount_min" type="number | null">
+  Range minimum. Required when `reward_type` is `range`. Minimum 0.01.
+</ParamField>
+
+<ParamField body="reward_amount_max" type="number | null">
+  Range maximum. Required when `reward_type` is `range`. Must be greater than or equal to `reward_amount_min`.
+</ParamField>
+
+<ParamField body="max_budget" type="number | null">
+  Owner-only cap on approved reward spend. Null or omit for no cap. Partners never see this. Ignored on retainer (stored as `null`).
+</ParamField>
+
+<ParamField body="retainer_interval" type="string | null">
+  Required when `reward_type` is `retainer`. Valid values: `monthly`, `weekly`.
+</ParamField>
+
+<ParamField body="retainer_day_of_month" type="integer | string | null">
+  Monthly retainer day. Valid values: integer `1`-`28`, or `"last"`. Required when `retainer_interval` is `monthly`.
+</ParamField>
+
+<ParamField body="retainer_weekday" type="string | null">
+  Weekly retainer weekday. Valid values: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`. Required when `retainer_interval` is `weekly`.
+</ParamField>
+
+<ParamField body="end_date" type="string | null">
+  Campaign end datetime (ISO 8601). Set to `null` or omit for open-ended.
+</ParamField>
+
+<ParamField body="application_required" type="boolean">
+  When true, affiliates must apply and be accepted before submitting proof. For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application").
+</ParamField>
+
+<ParamField body="application_prompt" type="string | null">
+  Question shown to affiliates when they apply. Maximum 10,000 characters.
+</ParamField>
+
+<ParamField body="max_submissions_per_user" type="integer | null">
+  Maximum approved submissions per affiliate. Integer >= 1, or `null` for no limit.
+</ParamField>
+
+## Response
+
+Returns the created campaign object (HTTP 201).
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created campaign.
+
+<Expandable title="Data Object Properties">
+<ResponseField name="id" type="string">
+  Encoded campaign id
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Campaign title
+</ResponseField>
+
+<ResponseField name="description" type="string | null">
+  Campaign description
+</ResponseField>
+
+<ResponseField name="kind" type="string">
+  Always `"submission"`
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Campaign status. On create this is `"DRAFT"`. Valid values: `DRAFT`, `SCHEDULED`, `ACTIVE`, `ENDED`, `ARCHIVED`.
+</ResponseField>
+
+<ResponseField name="reward_type" type="string">
+  `flat_rate`, `custom`, `range`, or `retainer`
+</ResponseField>
+
+<ResponseField name="reward_amount" type="number | null">
+  Fixed reward amount
+</ResponseField>
+
+<ResponseField name="reward_amount_min" type="number | null">
+  Range minimum
+</ResponseField>
+
+<ResponseField name="reward_amount_max" type="number | null">
+  Range maximum
+</ResponseField>
+
+<ResponseField name="max_budget" type="number | null">
+  Owner-only spend cap. Null means no cap. Always null on retainer.
+</ResponseField>
+
+<ResponseField name="retainer_interval" type="string | null">
+  `monthly` or `weekly` for retainer campaigns, otherwise `null`
+</ResponseField>
+
+<ResponseField name="retainer_day_of_month" type="integer | string | null">
+  `1`-`28` or `"last"` for monthly retainers, otherwise `null`
+</ResponseField>
+
+<ResponseField name="retainer_weekday" type="string | null">
+  Weekday for weekly retainers, otherwise `null`
+</ResponseField>
+
+<ResponseField name="retainer_schedule_changed_at" type="string | null">
+  ISO 8601 timestamp of the last retainer schedule change, or `null`
+</ResponseField>
+
+<ResponseField name="retainer_resumed_at" type="string | null">
+  ISO 8601 timestamp set only when a retainer campaign moves from ENDED or ARCHIVED to ACTIVE, or `null`
+</ResponseField>
+
+<ResponseField name="start_date" type="string">
+  ISO 8601 start datetime
+</ResponseField>
+
+<ResponseField name="end_date" type="string | null">
+  ISO 8601 end datetime, or `null`
+</ResponseField>
+
+<ResponseField name="application_required" type="boolean">
+  Whether affiliates must apply before submitting proof
+</ResponseField>
+
+<ResponseField name="application_prompt" type="string | null">
+  Application question text
+</ResponseField>
+
+<ResponseField name="max_submissions_per_user" type="integer | null">
+  Per-affiliate submission cap
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 creation timestamp
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 update timestamp
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL (retainer monthly)
+curl -X POST "https://api.affonso.io/v1/program/campaigns" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Creator Retainer",
+    "description": "Monthly content retainer",
+    "reward_type": "retainer",
+    "reward_amount": 500,
+    "retainer_interval": "monthly",
+    "retainer_day_of_month": 1,
+    "start_date": "2026-11-01T00:00:00.000Z",
+    "application_prompt": "Share your content plan and audience size"
+  }'
+```
+
+```bash cURL (retainer weekly)
+curl -X POST "https://api.affonso.io/v1/program/campaigns" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Weekly Shorts Retainer",
+    "reward_type": "retainer",
+    "reward_amount": 150,
+    "retainer_interval": "weekly",
+    "retainer_weekday": "monday",
+    "start_date": "2026-11-03T00:00:00.000Z"
+  }'
+```
+
+```bash cURL (flat rate)
+curl -X POST "https://api.affonso.io/v1/program/campaigns" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Launch Review Bounty",
+    "reward_type": "flat_rate",
+    "reward_amount": 100,
+    "max_budget": 2000,
+    "start_date": "2026-11-01T00:00:00.000Z",
+    "application_required": true,
+    "application_prompt": "Link your review draft"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response (201)
+{
+  "success": true,
+  "data": {
+    "id": "cmretainer01camp0001",
+    "name": "Creator Retainer",
+    "description": "Monthly content retainer",
+    "kind": "submission",
+    "status": "DRAFT",
+    "reward_type": "retainer",
+    "reward_amount": 500,
+    "reward_amount_min": null,
+    "reward_amount_max": null,
+    "max_budget": null,
+    "retainer_interval": "monthly",
+    "retainer_day_of_month": 1,
+    "retainer_weekday": null,
+    "retainer_schedule_changed_at": null,
+    "retainer_resumed_at": null,
+    "start_date": "2026-11-01T00:00:00.000Z",
+    "end_date": null,
+    "application_required": true,
+    "application_prompt": "Share your content plan and audience size",
+    "max_submissions_per_user": null,
+    "created_at": "2026-10-12T14:30:00.000Z",
+    "updated_at": "2026-10-12T14:30:00.000Z"
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Requires `write:program`.
+- Retainer campaigns always require applications. For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application").
+- `max_budget` is ignored for retainer and stored as `null`.
+- Campaign IDs are encoded, same as marketplace campaign IDs.

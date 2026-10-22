@@ -1,0 +1,62 @@
+---
+title: "Approve Retainer Period"
+api: "POST https://api.affonso.io/v1/program/campaigns/{id}/retainer-periods/{periodId}/approve"
+description: "Approve a PENDING_MANUAL_APPROVAL retainer period earning"
+---
+
+Approve a retainer period earning that is `PENDING_MANUAL_APPROVAL`. Writes `READY_FOR_PAYMENT` on the earning. Requires `write:affiliates`. Foreign-team IDs return 404.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+<ParamField path="periodId" type="string" required>
+  Encoded retainer period id
+</ParamField>
+
+## Response
+
+Returns the period object with updated `earning_status`.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The retainer period. Fields match [List Retainer Periods](/api/endpoint/campaigns/list-retainer-periods).
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.affonso.io/v1/program/campaigns/cmretainer01camp0001/retainer-periods/cmperiod01retainer001/approve" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cmperiod01retainer001",
+    "campaign_id": "cmretainer01camp0001",
+    "application_id": "cmapp01retainer0001",
+    "affiliate_id": "aff_abc123",
+    "period_start": "2026-11-01T00:00:00.000Z",
+    "amount": 500,
+    "earning_id": "cmearn01retainer001",
+    "earning_status": "READY_FOR_PAYMENT",
+    "condition": "Post at least 3 Shorts per week mentioning our product",
+    "created_at": "2026-11-01T00:05:00.000Z"
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Requires `write:affiliates`.
+- No request body.
+- Periods that are not `PENDING_MANUAL_APPROVAL` return a conflict.

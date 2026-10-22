@@ -1,0 +1,127 @@
+---
+title: "Update Campaign"
+api: "PATCH https://api.affonso.io/v1/program/campaigns/{id}"
+description: "Update campaign application, reward, retainer, status, or max budget"
+---
+
+Update application settings, reward type, retainer cadence, status, and/or owner `max_budget` on one of your team's campaigns. Does not create earnings. Requires `write:program`.
+
+At least one updatable field is required. Foreign-team campaign IDs return 404.
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+## Body Parameters
+
+All body parameters are optional, but you must send at least one.
+
+<ParamField body="application_required" type="boolean">
+  When true, affiliates must apply and be accepted before submitting proof. For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application").
+</ParamField>
+
+<ParamField body="application_prompt" type="string | null">
+  Question shown to affiliates when they apply. Maximum 10,000 characters. Set to `null` to clear.
+</ParamField>
+
+<ParamField body="reward_type" type="string">
+  Reward type. Valid values: `flat_rate`, `custom`, `range`, `retainer`. Switching to or from `retainer` is blocked when applications already exist.
+</ParamField>
+
+<ParamField body="reward_amount" type="number | null">
+  Fixed reward amount. Required when switching to `flat_rate` or `retainer`. Minimum 0.01.
+</ParamField>
+
+<ParamField body="reward_amount_min" type="number | null">
+  Range minimum. Required when `reward_type` is `range`.
+</ParamField>
+
+<ParamField body="reward_amount_max" type="number | null">
+  Range maximum. Must be greater than or equal to `reward_amount_min`.
+</ParamField>
+
+<ParamField body="max_budget" type="number | null">
+  Set, change, or clear (`null`) the owner-only spend cap. Ignored on retainer. Lowering below current spend does not close the campaign.
+</ParamField>
+
+<ParamField body="retainer_interval" type="string | null">
+  `monthly` or `weekly`. Used when `reward_type` is `retainer`.
+</ParamField>
+
+<ParamField body="retainer_day_of_month" type="integer | string | null">
+  Monthly day: `1`-`28` or `"last"`.
+</ParamField>
+
+<ParamField body="retainer_weekday" type="string | null">
+  Weekly weekday: `monday` through `sunday`.
+</ParamField>
+
+<ParamField body="status" type="string">
+  Campaign status. Valid values: `DRAFT`, `SCHEDULED`, `ACTIVE`, `ENDED`, `ARCHIVED`. Only moving a retainer campaign from `ENDED` or `ARCHIVED` to `ACTIVE` sets `retainer_resumed_at`.
+</ParamField>
+
+## Response
+
+Returns the updated campaign object. Same structure as [Create Campaign](/api/endpoint/campaigns/create).
+
+<RequestExample>
+```bash cURL (retainer cadence)
+curl -X PATCH "https://api.affonso.io/v1/program/campaigns/cmretainer01camp0001" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "retainer_interval": "monthly",
+    "retainer_day_of_month": "last",
+    "reward_amount": 600
+  }'
+```
+
+```bash cURL (resume active)
+curl -X PATCH "https://api.affonso.io/v1/program/campaigns/cmretainer01camp0001" \
+  -H "Authorization: Bearer sk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "ACTIVE"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cmretainer01camp0001",
+    "name": "Creator Retainer",
+    "description": "Monthly content retainer",
+    "kind": "submission",
+    "status": "ACTIVE",
+    "reward_type": "retainer",
+    "reward_amount": 600,
+    "reward_amount_min": null,
+    "reward_amount_max": null,
+    "max_budget": null,
+    "retainer_interval": "monthly",
+    "retainer_day_of_month": "last",
+    "retainer_weekday": null,
+    "retainer_schedule_changed_at": "2026-10-12T15:00:00.000Z",
+    "retainer_resumed_at": "2026-10-12T15:05:00.000Z",
+    "start_date": "2026-11-01T00:00:00.000Z",
+    "end_date": null,
+    "application_required": true,
+    "application_prompt": "Share your content plan and audience size",
+    "max_submissions_per_user": null,
+    "created_at": "2026-10-12T14:30:00.000Z",
+    "updated_at": "2026-10-12T15:05:00.000Z"
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Requires `write:program`.
+- Switching to or from retainer is blocked with a conflict when any applications exist for the campaign.
+- Retainer ignores `max_budget`. For retainer, omitted `application_required` is set to `true`; sending `false` returns `VALIDATION_ERROR` ("Retainer campaigns require an application").

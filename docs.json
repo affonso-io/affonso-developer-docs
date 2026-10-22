@@ -248,6 +248,20 @@
                 ]
               },
               {
+                "group": "Campaigns",
+                "pages": [
+                  "api/endpoint/campaigns/create",
+                  "api/endpoint/campaigns/update",
+                  "api/endpoint/campaigns/accept-application",
+                  "api/endpoint/campaigns/update-retainer-condition",
+                  "api/endpoint/campaigns/end-retainer",
+                  "api/endpoint/campaigns/resume-retainer",
+                  "api/endpoint/campaigns/list-retainer-periods",
+                  "api/endpoint/campaigns/approve-retainer-period",
+                  "api/endpoint/campaigns/reject-retainer-period"
+                ]
+              },
+              {
                 "group": "Affiliate Onboarding",
                 "pages": [
                   "api/endpoint/onboarding/get-form",
@@ -300,7 +314,8 @@
               "mcp/tools/payouts",
               "mcp/tools/finder",
               "mcp/tools/creatives",
-              "mcp/tools/email-notifications"
+              "mcp/tools/email-notifications",
+              "mcp/tools/campaigns"
             ]
           }
         ]
