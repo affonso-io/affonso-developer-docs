@@ -250,9 +250,15 @@
               {
                 "group": "Campaigns",
                 "pages": [
+                  "api/endpoint/campaigns/list",
+                  "api/endpoint/campaigns/get",
                   "api/endpoint/campaigns/create",
                   "api/endpoint/campaigns/update",
+                  "api/endpoint/campaigns/list-applications",
+                  "api/endpoint/campaigns/apply",
                   "api/endpoint/campaigns/accept-application",
+                  "api/endpoint/campaigns/reject-application",
+                  "api/endpoint/campaigns/approve-submission",
                   "api/endpoint/campaigns/update-retainer-condition",
                   "api/endpoint/campaigns/end-retainer",
                   "api/endpoint/campaigns/resume-retainer",
