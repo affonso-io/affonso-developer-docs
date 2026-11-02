@@ -1,0 +1,160 @@
+---
+title: "List Marketplace Campaigns"
+api: "GET https://api.affonso.io/v1/marketplace/campaigns"
+description: "List public teasers for live marketplace campaigns"
+---
+
+List live marketplace campaign teasers, ordered by `start_date` descending. This endpoint is public and does not require authentication. The `Authorization` header is ignored, including leftover or invalid API keys.
+
+<Info>
+  The team routes under `/v1/program/campaigns`, [List Campaigns](/api/endpoint/campaigns/list) and [Get Campaign](/api/endpoint/campaigns/get), require an API key with `read:program`. They return only your team's campaigns in any status, including drafts, with owner fields such as `status`, `max_budget` and retainer settings. Marketplace routes show the partner view: only live campaigns from marketplace-listed programs across any team, public teasers without authentication, no `max_budget`, and hidden owner settings. The full brief (`details`) is available only for an approved partner of your team through `affiliate_id` and an API key with `read:affiliates`.
+</Info>
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number for pagination. Minimum 1.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="50">
+  Number of results per page. Minimum 1, maximum 200.
+</ParamField>
+
+<ParamField query="marketplace_id" type="string">
+  Filter by an encoded marketplace program id from [List Marketplace Programs](/api/endpoint/marketplace/list) or [Get Marketplace Program](/api/endpoint/marketplace/get).
+</ParamField>
+
+## Response
+
+Paginated list of campaign teasers. Full briefs are available through [Get Marketplace Campaign](/api/endpoint/marketplace/get-campaign) for eligible partners.
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of campaign teasers.
+
+<Expandable title="Campaign Teaser Properties">
+<ResponseField name="id" type="string">
+  Encoded campaign id
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Campaign title
+</ResponseField>
+
+<ResponseField name="reward" type="object">
+  Campaign reward.
+
+<Expandable title="Reward Properties">
+<ResponseField name="type" type="string">
+  `flat_rate`, `custom`, `range`, or `retainer`
+</ResponseField>
+
+<ResponseField name="amount" type="number | null">
+  Fixed reward amount
+</ResponseField>
+
+<ResponseField name="amount_min" type="number | null">
+  Range minimum
+</ResponseField>
+
+<ResponseField name="amount_max" type="number | null">
+  Range maximum
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  Team currency, for example `USD`
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="start_date" type="string">
+  ISO 8601 start datetime
+</ResponseField>
+
+<ResponseField name="end_date" type="string | null">
+  ISO 8601 end datetime, or `null`
+</ResponseField>
+
+<ResponseField name="program" type="object">
+  Marketplace program.
+
+<Expandable title="Program Properties">
+<ResponseField name="id" type="string">
+  Encoded program id, the same as the marketplace program id
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Program name
+</ResponseField>
+
+<ResponseField name="logo_url" type="string | null">
+  Program logo URL, falling back to the team avatar
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  Program currency, for example `USD`
+</ResponseField>
+</Expandable>
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="pagination" type="object">
+  Pagination metadata: `page` (integer), `limit` (integer), `total` (integer), `total_pages` (integer), `has_next_page` (boolean), `has_prev_page` (boolean).
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/marketplace/campaigns?page=1&limit=50&marketplace_id=cmlaunch01prog0001"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": [
+    {
+      "id": "cmlaunch01camp0001",
+      "name": "Launch Review Bounty",
+      "reward": {
+        "type": "flat_rate",
+        "amount": 100,
+        "amount_min": null,
+        "amount_max": null,
+        "currency": "USD"
+      },
+      "start_date": "2026-10-01T00:00:00.000Z",
+      "end_date": null,
+      "program": {
+        "id": "cmlaunch01prog0001",
+        "name": "Acme Analytics",
+        "logo_url": "https://cdn.affonso.io/logos/acme-analytics.png",
+        "currency": "USD"
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 50,
+    "total": 1,
+    "total_pages": 1,
+    "has_next_page": false,
+    "has_prev_page": false
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Only `ACTIVE` campaigns whose `start_date` is at or before now and whose `end_date` is `null` or at or after now are visible. Their program must have joined the marketplace, be `ACTIVE`, and have an access mode other than `invite`.
+- Public marketplace requests have an IP rate limit of 60 requests per window. Rate limit headers are `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset`. Authenticated requests also have the normal API key rate limit.
+- Responses use `Cache-Control: no-store` because campaign windows are time-sensitive.
+- Only teasers are returned. `max_budget` is never returned on marketplace routes.
+- Invalid `page` or `limit` values return `VALIDATION_ERROR` (HTTP 400), with the message "Invalid query parameters" and `details`.
+- An invalid `marketplace_id` returns `VALIDATION_ERROR` (HTTP 400), with the message "Invalid marketplace program ID" and field `marketplace_id`.
+- A server error returns `INTERNAL_ERROR` (HTTP 500), with the message "Failed to fetch campaigns".
