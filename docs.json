@@ -284,7 +284,9 @@
             "group": "Marketplace",
             "pages": [
               "api/endpoint/marketplace/list",
-              "api/endpoint/marketplace/get"
+              "api/endpoint/marketplace/get",
+              "api/endpoint/marketplace/list-campaigns",
+              "api/endpoint/marketplace/get-campaign"
             ]
           }
         ]

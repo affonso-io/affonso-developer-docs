@@ -1,0 +1,231 @@
+---
+title: "Get Marketplace Campaign"
+api: "GET https://api.affonso.io/v1/marketplace/campaigns/{id}"
+description: "Get a live marketplace campaign teaser or an approved partner's full brief"
+---
+
+Retrieve a live marketplace campaign. Without `affiliate_id`, this endpoint is public, ignores the `Authorization` header (including invalid keys), and returns a teaser with `details: null`. Supply `affiliate_id` and an API key to request the full brief for an eligible partner of your team.
+
+<Info>
+  The team routes under `/v1/program/campaigns`, [List Campaigns](/api/endpoint/campaigns/list) and [Get Campaign](/api/endpoint/campaigns/get), require an API key with `read:program`. They return only your team's campaigns in any status, including drafts, with owner fields such as `status`, `max_budget` and retainer settings. Marketplace routes show the partner view: only live campaigns from marketplace-listed programs across any team, public teasers without authentication, no `max_budget`, and hidden owner settings. The full brief (`details`) is available only for an approved partner of your team through `affiliate_id` and an API key with `read:affiliates`.
+</Info>
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  Encoded campaign id
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="affiliate_id" type="string">
+  Id of a partner on your team. Requires `Authorization: Bearer sk_live_your_api_key` and `read:affiliates`, also satisfied by `write:affiliates`, `delete:affiliates`, or `read`.
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful responses
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Campaign teaser with an optional full brief.
+
+<Expandable title="Campaign Properties">
+<ResponseField name="id" type="string">
+  Encoded campaign id
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Campaign title
+</ResponseField>
+
+<ResponseField name="reward" type="object">
+  Campaign reward.
+
+<Expandable title="Reward Properties">
+<ResponseField name="type" type="string">
+  `flat_rate`, `custom`, `range`, or `retainer`
+</ResponseField>
+
+<ResponseField name="amount" type="number | null">
+  Fixed reward amount
+</ResponseField>
+
+<ResponseField name="amount_min" type="number | null">
+  Range minimum
+</ResponseField>
+
+<ResponseField name="amount_max" type="number | null">
+  Range maximum
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  Team currency, for example `USD`
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="start_date" type="string">
+  ISO 8601 start datetime
+</ResponseField>
+
+<ResponseField name="end_date" type="string | null">
+  ISO 8601 end datetime, or `null`
+</ResponseField>
+
+<ResponseField name="program" type="object">
+  Marketplace program.
+
+<Expandable title="Program Properties">
+<ResponseField name="id" type="string">
+  Encoded program id, the same as the marketplace program id
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Program name
+</ResponseField>
+
+<ResponseField name="logo_url" type="string | null">
+  Program logo URL, falling back to the team avatar
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  Program currency, for example `USD`
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="details" type="object | null">
+  Full brief only when the partner has an `APPROVED` partnership with the campaign's program, the program is owned by your team, and the partner's status is not `INACTIVE`, `REJECTED` or `BANNED`. Otherwise `null`, still with HTTP 200.
+
+<Expandable title="Brief Properties">
+<ResponseField name="description" type="string | null">
+  Campaign description
+</ResponseField>
+
+<ResponseField name="kind" type="string">
+  Always `"submission"`
+</ResponseField>
+
+<ResponseField name="submission_requirements" type="object | null">
+  Required submission content, or `null`.
+
+<Expandable title="Submission Requirements Properties">
+<ResponseField name="text_required" type="boolean">
+  Whether text is required
+</ResponseField>
+
+<ResponseField name="images_required" type="boolean">
+  Whether images are required
+</ResponseField>
+
+<ResponseField name="urls_required" type="boolean">
+  Whether URLs are required
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="max_submissions_per_user" type="integer | null">
+  Per-partner submission cap, or `null`
+</ResponseField>
+
+<ResponseField name="application_required" type="boolean">
+  Whether partners must apply before submitting proof
+</ResponseField>
+
+<ResponseField name="application_prompt" type="string | null">
+  Application question text
+</ResponseField>
+</Expandable>
+</ResponseField>
+</Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.affonso.io/v1/marketplace/campaigns/cmlaunch01camp0001"
+```
+
+```bash cURL with Partner
+curl -X GET "https://api.affonso.io/v1/marketplace/campaigns/cmlaunch01camp0001?affiliate_id=cmlaunch01aff00001" \
+  -H "Authorization: Bearer sk_live_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "cmlaunch01camp0001",
+    "name": "Launch Review Bounty",
+    "reward": {
+      "type": "flat_rate",
+      "amount": 100,
+      "amount_min": null,
+      "amount_max": null,
+      "currency": "USD"
+    },
+    "start_date": "2026-10-01T00:00:00.000Z",
+    "end_date": null,
+    "program": {
+      "id": "cmlaunch01prog0001",
+      "name": "Acme Analytics",
+      "logo_url": "https://cdn.affonso.io/logos/acme-analytics.png",
+      "currency": "USD"
+    },
+    "details": null
+  }
+}
+```
+
+```json Response for Approved Partner
+{
+  "success": true,
+  "data": {
+    "id": "cmlaunch01camp0001",
+    "name": "Launch Review Bounty",
+    "reward": {
+      "type": "flat_rate",
+      "amount": 100,
+      "amount_min": null,
+      "amount_max": null,
+      "currency": "USD"
+    },
+    "start_date": "2026-10-01T00:00:00.000Z",
+    "end_date": null,
+    "program": {
+      "id": "cmlaunch01prog0001",
+      "name": "Acme Analytics",
+      "logo_url": "https://cdn.affonso.io/logos/acme-analytics.png",
+      "currency": "USD"
+    },
+    "details": {
+      "description": "Publish an honest review of Acme Analytics on your blog or channel.",
+      "kind": "submission",
+      "submission_requirements": {
+        "text_required": true,
+        "images_required": false,
+        "urls_required": true
+      },
+      "max_submissions_per_user": 1,
+      "application_required": true,
+      "application_prompt": "Link your review draft"
+    }
+  }
+}
+```
+</ResponseExample>
+
+## Notes
+
+- Only `ACTIVE` campaigns whose `start_date` is at or before now and whose `end_date` is `null` or at or after now are visible. Their program must have joined the marketplace, be `ACTIVE`, and have an access mode other than `invite`.
+- Public marketplace requests have an IP rate limit of 60 requests per window. Rate limit headers are `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset`. Authenticated requests also have the normal API key rate limit.
+- Responses use `Cache-Control: no-store` because campaign windows are time-sensitive.
+- Campaign visibility is checked before any partner lookup. Unknown, invisible or undecodable campaign ids return `NOT_FOUND` (HTTP 404), with the message "Campaign not found".
+- With `affiliate_id` but no `Authorization` header, the response is `UNAUTHORIZED` (HTTP 401), with the message "Authentication required". A key without the required permission returns `INSUFFICIENT_PERMISSIONS` (HTTP 403).
+- A partner not on your team returns `AFFILIATE_NOT_FOUND` (HTTP 404), with the message "Affiliate not found or does not belong to your team" and field `affiliate_id`.
+- There is no marketplace join endpoint. Partners join through the hosted portal, for example using a portal token from `POST /v1/affiliates/{id}/portal-token`. Apply on a partner's behalf using the team route [Apply to Campaign](/api/endpoint/campaigns/apply).
+- `max_budget` is never returned on marketplace routes.
+- A server error returns `INTERNAL_ERROR` (HTTP 500), with the message "Failed to fetch campaign".
