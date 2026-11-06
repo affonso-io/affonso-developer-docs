@@ -433,6 +433,10 @@
   },
   "redirects": [
     {
+      "source": "/features/embedded-dashboard",
+      "destination": "/api/embedded-dashboard"
+    },
+    {
       "source": "/",
       "destination": "/api/introduction"
     },
